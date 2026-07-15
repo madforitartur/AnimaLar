@@ -61,6 +61,19 @@ const safeLocalStorage = {
 
 const isStandalone = (window as any).IS_OFFLINE_STANDALONE || window.location.protocol === 'file:';
 
+const ensureUniqueReminders = (list: Reminder[]): Reminder[] => {
+  const seen = new Set<string>();
+  return list.map((rem, idx) => {
+    let newId = rem.id;
+    if (!newId || seen.has(newId)) {
+      const originalId = newId || 'rem_auto';
+      newId = `${originalId}_fixed_${idx}_${Math.random().toString(36).substr(2, 4)}`;
+    }
+    seen.add(newId);
+    return { ...rem, id: newId };
+  });
+};
+
 export default function App() {
   // Navigation State
   const [currentTab, setCurrentTab] = useState<'planner' | 'residents' | 'reminders' | 'print' | 'database' | 'activities' | 'materials'>('planner');
@@ -100,35 +113,51 @@ export default function App() {
 
   // Core Database States (Persisted in LocalStorage)
   const [residents, setResidents] = useState<Resident[]>(() => {
-    const saved = safeLocalStorage.getItem('animar_residents');
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = safeLocalStorage.getItem('animar_residents');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error("Erro ao analisar residentes guardados em localStorage:", e);
+    }
     const offlineData = (window as any).INITIAL_OFFLINE_DATA;
     if (offlineData && offlineData.residents) return offlineData.residents;
     return INITIAL_RESIDENTS;
   });
 
   const [scheduledActivities, setScheduledActivities] = useState<ScheduledActivity[]>(() => {
-    const saved = safeLocalStorage.getItem('animar_scheduled');
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = safeLocalStorage.getItem('animar_scheduled');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error("Erro ao analisar atividades agendadas guardadas em localStorage:", e);
+    }
     const offlineData = (window as any).INITIAL_OFFLINE_DATA;
     if (offlineData && offlineData.scheduledActivities) return offlineData.scheduledActivities;
     return getInitialScheduledActivities();
   });
 
   const [progressLogs, setProgressLogs] = useState<ResidentProgressLog[]>(() => {
-    const saved = safeLocalStorage.getItem('animar_logs');
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = safeLocalStorage.getItem('animar_logs');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error("Erro ao analisar registos de progresso guardados em localStorage:", e);
+    }
     const offlineData = (window as any).INITIAL_OFFLINE_DATA;
     if (offlineData && offlineData.progressLogs) return offlineData.progressLogs;
     return getInitialProgressLogs();
   });
 
   const [reminders, setReminders] = useState<Reminder[]>(() => {
-    const saved = safeLocalStorage.getItem('animar_reminders');
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = safeLocalStorage.getItem('animar_reminders');
+      if (saved) return ensureUniqueReminders(JSON.parse(saved));
+    } catch (e) {
+      console.error("Erro ao analisar lembretes guardados em localStorage:", e);
+    }
     const offlineData = (window as any).INITIAL_OFFLINE_DATA;
-    if (offlineData && offlineData.reminders) return offlineData.reminders;
-    return getInitialReminders();
+    if (offlineData && offlineData.reminders) return ensureUniqueReminders(offlineData.reminders);
+    return ensureUniqueReminders(getInitialReminders());
   });
 
   // Browser Notification States
@@ -280,7 +309,7 @@ export default function App() {
             setResidents(dbData.residents);
             setScheduledActivities(dbData.scheduledActivities || []);
             setProgressLogs(dbData.progressLogs || []);
-            setReminders(dbData.reminders || []);
+            setReminders(ensureUniqueReminders(dbData.reminders || []));
             console.log("Dados sincronizados da base de dados SQLite do servidor.");
           } else {
             console.log("A base de dados SQLite está vazia. Enviando dados locais para povoar...");
@@ -384,7 +413,7 @@ export default function App() {
     if (data.residents) setResidents(data.residents);
     if (data.scheduledActivities) setScheduledActivities(data.scheduledActivities);
     if (data.progressLogs) setProgressLogs(data.progressLogs);
-    if (data.reminders) setReminders(data.reminders);
+    if (data.reminders) setReminders(ensureUniqueReminders(data.reminders));
   };
 
   // Handler: Add New Resident
@@ -417,7 +446,7 @@ export default function App() {
       type: 'atividade',
       completed: false
     };
-    setReminders(prev => [activityReminder, ...prev]);
+    setReminders(prev => ensureUniqueReminders([activityReminder, ...prev]));
   };
 
   // Handler: Add Multiple Scheduled Activities
@@ -438,7 +467,7 @@ export default function App() {
       completed: false
     }));
 
-    setReminders(prev => [...newReminders, ...prev]);
+    setReminders(prev => ensureUniqueReminders([...newReminders, ...prev]));
   };
 
   // Handler: Toggle complete scheduled activity
@@ -493,7 +522,7 @@ export default function App() {
   const handleAddReminder = (text: string, type: 'atividade' | 'saude' | 'geral', date: string) => {
     const id = `rem_${Date.now()}`;
     const newRem: Reminder = { id, text, type, date, completed: false };
-    setReminders([newRem, ...reminders]);
+    setReminders(ensureUniqueReminders([newRem, ...reminders]));
   };
 
   const handleDeleteReminder = (id: string) => {

@@ -304,7 +304,7 @@ async function startServer() {
       } catch (e) {
         console.log("Compilando dist/assets/offline.js para formato IIFE sem módulos (offline browser-friendly)...");
         try {
-          execSync("npx esbuild src/main.tsx --bundle --minify --target=es2020 --format=iife --global-name=AnimaLar --loader:.css=empty --define:process.env.NODE_ENV='\"production\"' --outfile=dist/assets/offline.js");
+          execSync("npx esbuild src/main.tsx --bundle --minify --target=es2018 --format=iife --global-name=AnimaLar --loader:.css=empty --define:process.env.NODE_ENV='\"production\"' --outfile=dist/assets/offline.js");
           jsContent = await fs.readFile(path.join(assetsDir, "offline.js"), "utf-8");
         } catch (err) {
           console.error("Falha ao compilar com esbuild, usando fallback...", err);
@@ -373,8 +373,8 @@ async function startServer() {
 <script>${jsContent}</script>
 `;
 
-      inlineHtml = inlineHtml.replace("</head>", `${styleTag}</head>`);
-      inlineHtml = inlineHtml.replace("</body>", `${scriptTag}</body>`);
+      inlineHtml = inlineHtml.replace("</head>", () => `${styleTag}</head>`);
+      inlineHtml = inlineHtml.replace("</body>", () => `${scriptTag}</body>`);
 
       // Save to AnimaLar.html at project root
       await fs.writeFile(path.join(process.cwd(), "AnimaLar.html"), inlineHtml, "utf-8");

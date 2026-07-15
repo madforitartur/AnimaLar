@@ -1,0 +1,2843 @@
+{
+  "residents": [
+    {
+      "id": "res_1",
+      "name": "Maria Amélia Silva",
+      "birthDate": "1938-04-12",
+      "cognitiveLevel": "Ligeiro",
+      "physicalLevel": "Independente",
+      "interests": [
+        "Fado",
+        "Jardinagem",
+        "Costura",
+        "Provérbios"
+      ],
+      "observations": "Muito participativa e comunicativa. Adora liderar grupos nas sessões de canto.",
+      "joinedDate": "2022-09-15",
+      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120&h=120"
+    },
+    {
+      "id": "res_2",
+      "name": "Joaquim Antunes Santos",
+      "birthDate": "1935-11-23",
+      "cognitiveLevel": "Moderado",
+      "physicalLevel": "Mobilidade Reduzida",
+      "interests": [
+        "Futebol",
+        "Jogos de Cartas",
+        "Música Clássica"
+      ],
+      "observations": "Necessita de apoio de andarilho. Por vezes apresenta episódios de desorientação temporal, mas acalma-se com música antiga.",
+      "joinedDate": "2023-02-10",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120&h=120"
+    },
+    {
+      "id": "res_3",
+      "name": "Clarice Mendes Sousa",
+      "birthDate": "1941-07-05",
+      "cognitiveLevel": "Ligeiro",
+      "physicalLevel": "Cadeira de Rodas",
+      "interests": [
+        "Pintura",
+        "Literatura",
+        "Quiz",
+        "Histórias Antigas"
+      ],
+      "observations": "Cognitivamente muito ágil, mas tem limitações físicas acentuadas devido a artrite severa. Prefere atividades sentadas.",
+      "joinedDate": "2024-01-20",
+      "avatar": "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=120&h=120"
+    },
+    {
+      "id": "res_4",
+      "name": "António Jesus Oliveira",
+      "birthDate": "1937-02-28",
+      "cognitiveLevel": "Grave",
+      "physicalLevel": "Mobilidade Reduzida",
+      "interests": [
+        "Natureza",
+        "Sons de Água",
+        "Instrumentos Rítmicos"
+      ],
+      "observations": "Demência avançada (Alzheimer). Responde muito bem a estímulos sensoriais e ritmos musicais simples. Pouco verbal.",
+      "joinedDate": "2023-08-01",
+      "avatar": "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=120&h=120"
+    },
+    {
+      "id": "res_5",
+      "name": "Preciosa Costa Ramos",
+      "birthDate": "1940-09-18",
+      "cognitiveLevel": "Moderado",
+      "physicalLevel": "Independente",
+      "interests": [
+        "Trabalhos Manuais",
+        "Culinária",
+        "Música Popular"
+      ],
+      "observations": "Excelente motricidade fina. Por vezes recusa iniciar as atividades devido a apatia, mas integra-se bem com incentivo.",
+      "joinedDate": "2024-03-05",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120&h=120"
+    }
+  ],
+  "scheduledActivities": [
+    {
+      "id": "sch_1",
+      "activityId": "act_1",
+      "title": "Jogo da Memória dos Provérbios",
+      "description": "Exercício de completar ditos populares e provérbios antigos portugueses para estimular a memória semântica e a fluência verbal.",
+      "category": "cognitiva",
+      "date": "2026-07-06",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 1
+    },
+    {
+      "id": "sch_2",
+      "activityId": "act_4",
+      "title": "Ginástica Sénior na Cadeira",
+      "description": "Exercícios físicos de baixo impacto focados em alongamentos, mobilidade articular de membros superiores/inferiores e fortalecimento suave.",
+      "category": "fisica",
+      "date": "2026-07-06",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 1
+    },
+    {
+      "id": "sch_3",
+      "activityId": "act_6",
+      "title": "Terapia do Ritmo com Percussão",
+      "description": "Utilização de pequenos instrumentos de percussão (pandeiretas, maracas, triângulos) para acompanhar ritmos de músicas tradicionais.",
+      "category": "musica",
+      "date": "2026-07-08",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 1
+    },
+    {
+      "id": "sch_4",
+      "activityId": "act_8",
+      "title": "Atelier de Jardinagem Terapêutica",
+      "description": "Transplante de pequenas plantas aromáticas e flores para vasos individuais. Foco no estímulo sensorial através da terra e cheiros.",
+      "category": "outro",
+      "date": "2026-07-09",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 1
+    },
+    {
+      "id": "sch_7",
+      "activityId": "act_7",
+      "title": "Cantar é Viver (Fados e Cantigas)",
+      "description": "Sessão coral de canto partilhado com letras impressas em tamanho de letra aumentado. Inclui momentos de fado clássico e folclore popular.",
+      "category": "musica",
+      "date": "2026-07-15",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_8",
+      "activityId": "act_3",
+      "title": "Quiz de Cultura Geral e Raciocínio",
+      "description": "Perguntas dinâmicas divididas por temas (geografia, história, culinária e cinema) com níveis de dificuldade ajustados ao grupo.",
+      "category": "cognitiva",
+      "date": "2026-07-16",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_9",
+      "activityId": "act_4",
+      "title": "Ginástica Sénior na Cadeira",
+      "description": "Exercícios físicos de baixo impacto focados em alongamentos, mobilidade articular de membros superiores/inferiores e fortalecimento suave.",
+      "category": "fisica",
+      "date": "2026-07-17",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784075790060",
+      "activityId": "act_1",
+      "title": "Jogo da Memória dos Provérbios",
+      "description": "Exercício de completar ditos populares e provérbios antigos portugueses para estimular a memória semântica e a fluência verbal.",
+      "category": "cognitiva",
+      "date": "2026-08-01",
+      "slot": "manha",
+      "time": "10:00",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096491769",
+      "activityId": null,
+      "title": "Exercícios de Respiração e Vocalização",
+      "description": "Aquecimento vocal simples com escalas musicais básicas.\n\n[Materiais de Apoio]: Nenhum\n[Objetivos Terapêuticos]: Melhorar capacidade expiratória, Preparação vocal",
+      "category": "musica",
+      "date": "2026-08-31",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096538090",
+      "activityId": null,
+      "title": "Oficina de Danças de Roda",
+      "description": "Roda de mãos dadas para cantar e mover-se ao som de cantigas infantis tradicionais.\n\n[Materiais de Apoio]: Lista de cantigas infantis\n[Objetivos Terapêuticos]: Resgatar memórias de infância, Promover a coesão social",
+      "category": "musica",
+      "date": "2026-08-31",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096650060",
+      "activityId": null,
+      "title": "Karaoke Sénior",
+      "description": "Cantar canções de fado, marchas populares ou músicas dos anos 50, 60 e 70 com a letra projetada.\n\n[Materiais de Apoio]: Microfone, Ecrã de projeção, Letras de música\n[Objetivos Terapêuticos]: Exercitar dicção e fonação, Divertimento",
+      "category": "musica",
+      "date": "2026-08-31",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_0_9g89b",
+      "activityId": null,
+      "title": "Ordenação Temporal de Imagens",
+      "description": "Sequenciar cartões que mostram processos diários (ex: fazer café, plantar uma flor, vestir-se).\n\n[Materiais de Apoio]: Cartões de processos sequenciais\n[Objetivos Terapêuticos]: Exercitar as funções executivas, Trabalhar o planeamento lógico de ações",
+      "category": "cognitiva",
+      "date": "2026-08-03",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_1_l1tz8",
+      "activityId": null,
+      "title": "Sessões de Lullabies (Canções de Embalar)",
+      "description": "Recordar e cantar as canções de ninar que cantavam aos filhos e netos.\n\n[Materiais de Apoio]: Letras das canções de ninar\n[Objetivos Terapêuticos]: Ativar memórias afetivas profundas, Calma mental",
+      "category": "musica",
+      "date": "2026-08-03",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_2_8uhlc",
+      "activityId": null,
+      "title": "Quiz de Cultura Geral e Raciocínio",
+      "description": "Perguntas dinâmicas divididas por temas (geografia, história, culinária e cinema) com níveis de dificuldade ajustados ao grupo.\n\n[Materiais de Apoio]: Fichas de perguntas, Campainha ou botão de resposta\n[Objetivos Terapêuticos]: Treinar a atenção e velocidade de processamento, Exercitar o raciocínio dedutivo",
+      "category": "cognitiva",
+      "date": "2026-08-04",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_3_9gj6d",
+      "activityId": null,
+      "title": "Contar Histórias Através de Canções",
+      "description": "Criar um fio condutor narrativo onde, em momentos-chave, o grupo canta uma música que se enquadra na história.\n\n[Materiais de Apoio]: Roteiro da história, Lista de músicas\n[Objetivos Terapêuticos]: Estruturação de enredos, Evocação lírica conjunta",
+      "category": "musica",
+      "date": "2026-08-04",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_4_yhlry",
+      "activityId": null,
+      "title": "Reconhecimento de Silhuetas",
+      "description": "Identificar monumentos, utensílios ou animais através do contorno de figuras pretas.\n\n[Materiais de Apoio]: Cartões com silhuetas, Quadro de respostas\n[Objetivos Terapêuticos]: Estimular o reconhecimento visual, Trabalhar a gnosia visual e atenção",
+      "category": "cognitiva",
+      "date": "2026-08-05",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_5_puzvo",
+      "activityId": null,
+      "title": "Adivinhas de Sons do Quotidiano",
+      "description": "Identificar sons mecânicos ou domésticos gravados antigos.\n\n[Materiais de Apoio]: Áudios de sons do quotidiano antigo\n[Objetivos Terapêuticos]: Reminiscência sonora, Treino cognitivo auditivo",
+      "category": "musica",
+      "date": "2026-08-05",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_6_bds7x",
+      "activityId": null,
+      "title": "Sessões de Estimulação Cognitiva Computorizada",
+      "description": "Utilização de tablets com aplicações simples de jogos de lógica adaptados a seniores.\n\n[Materiais de Apoio]: Tablets, Aplicações de jogos de lógica\n[Objetivos Terapêuticos]: Desenvolver competências digitais, Trabalhar raciocínio e atenção de forma lúdica",
+      "category": "cognitiva",
+      "date": "2026-08-06",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_7_nqodt",
+      "activityId": null,
+      "title": "Exercícios com Elásticos de Resistência (Bandas Elásticas)",
+      "description": "Exercícios bilaterais para fortalecer os braços e o peitoral, controlando a tensionamento.\n\n[Materiais de Apoio]: Bandas elásticas médias de resistência\n[Objetivos Terapêuticos]: Melhorar força muscular de membros superiores",
+      "category": "fisica",
+      "date": "2026-08-06",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_8_9hj07",
+      "activityId": null,
+      "title": "Oficina de Estimulação da Memória (Memórias de Infância)",
+      "description": "Sessões de partilha focadas em recordar jogos de infância, a escola primária e os primeiros trabalhos.\n\n[Materiais de Apoio]: Fotografias antigas, Caderno de notas, Objetos de infância\n[Objetivos Terapêuticos]: Estimular a memória autobiográfica, Fomentar a partilha de vivências",
+      "category": "cognitiva",
+      "date": "2026-08-07",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_9_0fv05",
+      "activityId": null,
+      "title": "Sessões de Cinema Clássico / Cineclube",
+      "description": "Projeção de filmes do cinema português clássico seguida de debate e pipocas.\n\n[Materiais de Apoio]: Ecrã gigante, Projetor, Filme clássico português\n[Objetivos Terapêuticos]: Estimular atenção e reminiscência histórica",
+      "category": "outro",
+      "date": "2026-08-07",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_10_uxfkf",
+      "activityId": null,
+      "title": "Ditados Populares e Ortográficos",
+      "description": "Escrita de pequenos textos nostálgicos para exercitar a motricidade fina e a ortografia.\n\n[Materiais de Apoio]: Caderno, Caneta, Textos nostálgicos selecionados\n[Objetivos Terapêuticos]: Trabalhar a escrita e motricidade fina, Treinar a ortografia e atenção auditiva",
+      "category": "cognitiva",
+      "date": "2026-08-10",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_11_9cqpt",
+      "activityId": null,
+      "title": "Jogos Rítmicos com Palmas e Pés",
+      "description": "Bater palmas reproduzindo padrões rítmicos propostos pelo monitor.\n\n[Materiais de Apoio]: Nenhum\n[Objetivos Terapêuticos]: Desenvolver atenção e resposta rítmica",
+      "category": "musica",
+      "date": "2026-08-10",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_12_wauug",
+      "activityId": null,
+      "title": "Debates sobre Atualidade",
+      "description": "Discussão moderada sobre notícias do jornal ou da televisão, estimulando a opinião crítica.\n\n[Materiais de Apoio]: Artigos de jornal impresso, Noticiários em vídeo\n[Objetivos Terapêuticos]: Estimular o pensamento crítico, Promover a comunicação e debate respeitoso",
+      "category": "cognitiva",
+      "date": "2026-08-11",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_13_p61ky",
+      "activityId": null,
+      "title": "Criação do Hino do Lar",
+      "description": "Composição de uma letra original em grupo sobre o quotidiano e amizade na instituição.\n\n[Materiais de Apoio]: Quadro para composição, Canetas\n[Objetivos Terapêuticos]: Fomentar pertença grupal, Estimular escrita criativa",
+      "category": "musica",
+      "date": "2026-08-11",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_14_pfulb",
+      "activityId": null,
+      "title": "Quebra-Cabeças Adaptados",
+      "description": "Montagem de puzzles de peças grandes com imagens históricas ou paisagens familiares.\n\n[Materiais de Apoio]: Puzzles de peças grandes, Superfície plana\n[Objetivos Terapêuticos]: Estimular as competências viscoconstrutivas, Trabalhar a motricidade fina e paciência",
+      "category": "cognitiva",
+      "date": "2026-08-12",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_15_bsmn8",
+      "activityId": null,
+      "title": "Terapia do Ritmo com Percussão",
+      "description": "Utilização de pequenos instrumentos de percussão (pandeiretas, maracas, triângulos) para acompanhar ritmos de músicas tradicionais.\n\n[Materiais de Apoio]: Instrumentos de percussão diversos, Leitor de áudio, Playlist de música popular portuguesa\n[Objetivos Terapêuticos]: Estimular a coordenação rítmica, Promover a expressão emocional, Sincronização motora e auditiva",
+      "category": "musica",
+      "date": "2026-08-12",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_16_mxpuh",
+      "activityId": null,
+      "title": "Caixa de Sensações (Estimulação Sensorial)",
+      "description": "Identificar objetos comuns de olhos vendados usando apenas o tato e o olfato (ex: alecrim, chaves, lã).\n\n[Materiais de Apoio]: Caixa opaca com aberturas, Objetos variados, Ervas aromáticas\n[Objetivos Terapêuticos]: Estimular os sentidos do tato e olfato, Trabalhar o reconhecimento gnósico, Evocar memórias sensoriais",
+      "category": "cognitiva",
+      "date": "2026-08-13",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_17_50oi0",
+      "activityId": null,
+      "title": "Jogo de Bowling de Salão",
+      "description": "Utilização de pinos de plástico e bolas leves para exercitar a flexão do tronco e o lançamento direcionado.\n\n[Materiais de Apoio]: Kit de bowling de plástico leve\n[Objetivos Terapêuticos]: Exercitar flexão lombar, Trabalhar orientação espacial",
+      "category": "fisica",
+      "date": "2026-08-13",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_18_znum5",
+      "activityId": null,
+      "title": "Exercícios de Cálculo Mental Divertido",
+      "description": "Pequenos problemas matemáticos simulando compras no mercado de antigamente (\"Se a batata custava 2 escudos...\").\n\n[Materiais de Apoio]: Quadro para contas, Problemas impressos, Moedas antigas fictícias\n[Objetivos Terapêuticos]: Treinar o cálculo mental, Estimular o raciocínio numérico, Exercitar a memória de trabalho",
+      "category": "cognitiva",
+      "date": "2026-08-14",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_19_bg2et",
+      "activityId": null,
+      "title": "Cuidado e Terapia com Animais (Zooterapia)",
+      "description": "Visitas organizadas de cães de terapia ou outros animais domésticos.\n\n[Materiais de Apoio]: Guloseimas para animais, Animais de terapia\n[Objetivos Terapêuticos]: Estímulo tátil e emocional extraordinário",
+      "category": "outro",
+      "date": "2026-08-14",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_20_z547i",
+      "activityId": null,
+      "title": "Clube de Leitura Dinâmico",
+      "description": "Leitura partilhada de notícias semanais ou capítulos de livros clássicos portugueses, seguida de debate.\n\n[Materiais de Apoio]: Livros clássicos, Jornais, Óculos de leitura\n[Objetivos Terapêuticos]: Estimular a leitura e fonação, Fomentar o debate de ideias, Trabalhar a atenção focada",
+      "category": "cognitiva",
+      "date": "2026-08-17",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_21_4ckrf",
+      "activityId": null,
+      "title": "Bingo Musical",
+      "description": "Em vez de números, as cartelas têm títulos de músicas ou artistas.\n\n[Materiais de Apoio]: Cartelas de bingo musical, Marcadores\n[Objetivos Terapêuticos]: Discriminação auditiva e visual, Socialização",
+      "category": "musica",
+      "date": "2026-08-17",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_22_dj30r",
+      "activityId": null,
+      "title": "Oficina de Escrita Criativa / Poesia",
+      "description": "Criação coletiva de quadras populares ou pequenos poemas sobre as estações do ano.\n\n[Materiais de Apoio]: Papel e caneta, Dicionário de rimas, Quadro para brainstorming\n[Objetivos Terapêuticos]: Fomentar a criatividade literária, Treinar a motricidade fina na escrita, Expressar sentimentos por escrito",
+      "category": "cognitiva",
+      "date": "2026-08-18",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_23_im9f1",
+      "activityId": null,
+      "title": "Karaoke Sénior",
+      "description": "Cantar canções de fado, marchas populares ou músicas dos anos 50, 60 e 70 com a letra projetada.\n\n[Materiais de Apoio]: Microfone, Ecrã de projeção, Letras de música\n[Objetivos Terapêuticos]: Exercitar dicção e fonação, Divertimento",
+      "category": "musica",
+      "date": "2026-08-18",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_26_sqxjs",
+      "activityId": null,
+      "title": "Sessão de Provérbios Populares",
+      "description": "Completar provérbios conhecidos (\"Mais vale um pássaro na mão...\") ou debater o seu significado.\n\n[Materiais de Apoio]: Cartões de provérbios, Quadro branco\n[Objetivos Terapêuticos]: Exercitar a memória semântica, Promover o raciocínio verbal, Relembrar a sabedoria popular",
+      "category": "cognitiva",
+      "date": "2026-08-20",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_27_hxijy",
+      "activityId": null,
+      "title": "Yoga Sentado / Yoga Adaptado",
+      "description": "Exercícios de respiração (pranayama) conjugados com alongamentos suaves e posturas adaptadas.\n\n[Materiais de Apoio]: Música calma, Tapetes pequenos\n[Objetivos Terapêuticos]: Estimular respiração, Promover alongamento e calma",
+      "category": "fisica",
+      "date": "2026-08-20",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_28_mx0ph",
+      "activityId": null,
+      "title": "Descubra o Intruso",
+      "description": "Apresentar listas de 4 palavras onde uma não pertence ao grupo (ex: maçã, banana, laranja, martelo).\n\n[Materiais de Apoio]: Fichas com palavras ou imagens, Quadro\n[Objetivos Terapêuticos]: Treinar a categorização semântica, Estimular o raciocínio lógico-dedutivo",
+      "category": "cognitiva",
+      "date": "2026-08-21",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_29_35s4d",
+      "activityId": null,
+      "title": "Tarde de Contos e Lendas Populares",
+      "description": "Leitura e partilha de lendas e mitos de Portugal.\n\n[Materiais de Apoio]: Livro de lendas tradicionais\n[Objetivos Terapêuticos]: Evocar o imaginário nacional, Favorecer escuta ativa",
+      "category": "outro",
+      "date": "2026-08-21",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_30_5huzm",
+      "activityId": null,
+      "title": "Jogo das Diferenças Visual",
+      "description": "Encontrar 5 ou 7 diferenças entre duas imagens projetadas ou impressas em tamanho A3.\n\n[Materiais de Apoio]: Imagens impressas A3 ou projetor, Marcadores\n[Objetivos Terapêuticos]: Trabalhar a percepção e varredura visual, Treinar a concentração",
+      "category": "cognitiva",
+      "date": "2026-08-24",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_31_ab47a",
+      "activityId": null,
+      "title": "Análise de Letras de Canções Antigas",
+      "description": "Ler as letras de canções populares e debater o seu contexto histórico.\n\n[Materiais de Apoio]: Letras impressas em papel A4\n[Objetivos Terapêuticos]: Estimular reflexão e debate, Linguagem verbal",
+      "category": "musica",
+      "date": "2026-08-24",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_32_3ic10",
+      "activityId": null,
+      "title": "Histórias Encadeadas",
+      "description": "O animador começa uma história e cada participante tem de adicionar uma frase lógica para continuar o enredo.\n\n[Materiais de Apoio]: Nenhum, Gravador de voz\n[Objetivos Terapêuticos]: Fomentar a criatividade e imaginação, Treinar a atenção sequencial e memória auditiva",
+      "category": "cognitiva",
+      "date": "2026-08-25",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_33_gnlu5",
+      "activityId": null,
+      "title": "Oficina de Danças de Roda",
+      "description": "Roda de mãos dadas para cantar e mover-se ao som de cantigas infantis tradicionais.\n\n[Materiais de Apoio]: Lista de cantigas infantis\n[Objetivos Terapêuticos]: Resgatar memórias de infância, Promover a coesão social",
+      "category": "musica",
+      "date": "2026-08-25",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_34_mr644",
+      "activityId": null,
+      "title": "Associação de Pares (Jogos de Memória)",
+      "description": "Cartas viradas para baixo com pares de imagens antigas ou monumentos nacionais.\n\n[Materiais de Apoio]: Cartas de pares ilustradas, Mesa de jogo\n[Objetivos Terapêuticos]: Treinar a memória visual a curto prazo, Trabalhar a atenção e foco",
+      "category": "cognitiva",
+      "date": "2026-08-26",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_35_gxp91",
+      "activityId": null,
+      "title": "Canto e Expressão Facial",
+      "description": "Cantar canções expressando teatralmente alegria, tristeza, surpresa ou raiva através do rosto.\n\n[Materiais de Apoio]: Músicas com forte carga dramática\n[Objetivos Terapêuticos]: Exercitar expressão mimética, Fomentar catarse emocional",
+      "category": "musica",
+      "date": "2026-08-26",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_36_8zie1",
+      "activityId": null,
+      "title": "Jogo do \"Quem Sou Eu?\"",
+      "description": "Um idoso tem uma imagem ou nome de uma figura pública histórica colada na testa e faz perguntas ao grupo para adivinhar quem é.\n\n[Materiais de Apoio]: Fita adesiva, Imagens de figuras históricas\n[Objetivos Terapêuticos]: Exercitar o raciocínio dedutivo, Estimular o conhecimento histórico, Fomentar a diversão coletiva",
+      "category": "cognitiva",
+      "date": "2026-08-27",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_37_nnv57",
+      "activityId": null,
+      "title": "Alongamentos de Dedos com Elásticos de Cabelo",
+      "description": "Colocar elásticos em redor dos dedos e abri-los para fortalecer os pequenos extensores da mão.\n\n[Materiais de Apoio]: Elásticos de cabelo macios\n[Objetivos Terapêuticos]: Trabalhar músculos intrínsecos e extensores da mão",
+      "category": "fisica",
+      "date": "2026-08-27",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_38_2fgeh",
+      "activityId": null,
+      "title": "Oficina de Provadores (Estimulação Gustativa)",
+      "description": "Degustação às cegas de pequenas porções de alimentos para identificar o sabor (doce, salgado, ácido, amargo).\n\n[Materiais de Apoio]: Vendas para os olhos, Copos com sumos ou porções de alimentos\n[Objetivos Terapêuticos]: Estimular as papilas gustativas e o olfato, Trabalhar a gnosia gustativa",
+      "category": "cognitiva",
+      "date": "2026-08-28",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_39_j5ggg",
+      "activityId": null,
+      "title": "Oficina de Sabões e Velas Artesanais",
+      "description": "Criação de pequenos sabonetes aromáticos usando glicerina e ervas secas.\n\n[Materiais de Apoio]: Base de glicerina, Formas de silicone, Essências aromáticas\n[Objetivos Terapêuticos]: Estimular destreza tátil, Ativação olfativa e produção útil",
+      "category": "outro",
+      "date": "2026-08-28",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_40_t48q2",
+      "activityId": null,
+      "title": "Oficina de Reminiscências (Fotos Antigas)",
+      "description": "Sessão de partilha baseada em fotografias de monumentos, objetos e tradições do século passado, ativando memórias biográficas e emocionais.\n\n[Materiais de Apoio]: Fotografias impressas em tamanho grande, Objetos antigos (ex: ferro de passar, moedor de café)\n[Objetivos Terapêuticos]: Evocar recordações pessoais, Fomentar a autoestima, Estimular a comunicação verbal",
+      "category": "cognitiva",
+      "date": "2026-08-31",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784096941116_41_m2wpp",
+      "activityId": null,
+      "title": "Oficina de Musicoterapia Passiva",
+      "description": "Audição relaxante de música clássica ou sons da natureza em ambiente de penumbra para acalmar a ansiedade.\n\n[Materiais de Apoio]: Colunas de som, Projeções suaves\n[Objetivos Terapêuticos]: Acalmar a ansiedade, Relaxamento sensorial",
+      "category": "musica",
+      "date": "2026-08-31",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784097955671_xziau",
+      "activityId": "act_1",
+      "title": "Jogo da Memória dos Provérbios",
+      "description": "Exercício de completar ditos populares e provérbios antigos portugueses para estimular a memória semântica e a fluência verbal.",
+      "category": "cognitiva",
+      "date": "2026-08-19",
+      "slot": "manha",
+      "time": "10:00",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784097970410_hrs1g",
+      "activityId": "act_1",
+      "title": "Jogo da Memória dos Provérbios",
+      "description": "Exercício de completar ditos populares e provérbios antigos portugueses para estimular a memória semântica e a fluência verbal.",
+      "category": "cognitiva",
+      "date": "2026-08-19",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_0_7j8ll",
+      "activityId": null,
+      "title": "Clube de Leitura Dinâmico",
+      "description": "Leitura partilhada de notícias semanais ou capítulos de livros clássicos portugueses, seguida de debate.\n\n[Materiais de Apoio]: Livros clássicos, Jornais, Óculos de leitura\n[Objetivos Terapêuticos]: Estimular a leitura e fonação, Fomentar o debate de ideias, Trabalhar a atenção focada",
+      "category": "cognitiva",
+      "date": "2026-09-01",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_1_5hfhn",
+      "activityId": null,
+      "title": "Jogos Rítmicos com Palmas e Pés",
+      "description": "Bater palmas reproduzindo padrões rítmicos propostos pelo monitor.\n\n[Materiais de Apoio]: Nenhum\n[Objetivos Terapêuticos]: Desenvolver atenção e resposta rítmica",
+      "category": "musica",
+      "date": "2026-09-01",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_2_holau",
+      "activityId": null,
+      "title": "Caixa de Sensações (Estimulação Sensorial)",
+      "description": "Identificar objetos comuns de olhos vendados usando apenas o tato e o olfato (ex: alecrim, chaves, lã).\n\n[Materiais de Apoio]: Caixa opaca com aberturas, Objetos variados, Ervas aromáticas\n[Objetivos Terapêuticos]: Estimular os sentidos do tato e olfato, Trabalhar o reconhecimento gnósico, Evocar memórias sensoriais",
+      "category": "cognitiva",
+      "date": "2026-09-02",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_3_1faf2",
+      "activityId": null,
+      "title": "Terapia do Riso com Sons Divertidos",
+      "description": "Emitir sons vocais engraçados e ritmados para quebrar o gelo e libertar endorfinas em grupo.\n\n[Materiais de Apoio]: Imagens cómicas, pequenos guiões\n[Objetivos Terapêuticos]: Estimular o riso e bem-estar físico-mental",
+      "category": "musica",
+      "date": "2026-09-02",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_4_v9bhf",
+      "activityId": null,
+      "title": "Oficina de Provadores (Estimulação Gustativa)",
+      "description": "Degustação às cegas de pequenas porções de alimentos para identificar o sabor (doce, salgado, ácido, amargo).\n\n[Materiais de Apoio]: Vendas para os olhos, Copos com sumos ou porções de alimentos\n[Objetivos Terapêuticos]: Estimular as papilas gustativas e o olfato, Trabalhar a gnosia gustativa",
+      "category": "cognitiva",
+      "date": "2026-09-03",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_5_devdw",
+      "activityId": null,
+      "title": "Cante Alentejano / Cantares Tradicionais",
+      "description": "Formação de um grupo coral informal para cantar canções tradicionais portuguesas.\n\n[Materiais de Apoio]: Letras das canções, Pandeiretas\n[Objetivos Terapêuticos]: Estimular o canto coral, Preservar tradições locais",
+      "category": "musica",
+      "date": "2026-09-03",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_6_69awq",
+      "activityId": null,
+      "title": "Jogo das Marcas Antigas",
+      "description": "Recordar e associar marcas que já não existem ou que mudaram de imagem (ex: Sabão Confiança, Fermento Royal, Pasta Medicinal Couto).\n\n[Materiais de Apoio]: Anúncios antigos, Embalagens vintage ou réplicas\n[Objetivos Terapêuticos]: Estimular a reminiscência comercial, Ativar memórias nostálgicas de consumo",
+      "category": "cognitiva",
+      "date": "2026-09-04",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_7_owpyz",
+      "activityId": null,
+      "title": "Caminhada Matinal nos Jardins",
+      "description": "Percursos curtos e planos nas áreas exteriores do lar para apanhar vitamina D e promover a socialização.\n\n[Materiais de Apoio]: Calçado confortável, Chapéus\n[Objetivos Terapêuticos]: Promover exercício aeróbico leve, Absorção de Vitamina D",
+      "category": "fisica",
+      "date": "2026-09-04",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_8_i30rl",
+      "activityId": null,
+      "title": "Jogo das Diferenças Visual",
+      "description": "Encontrar 5 ou 7 diferenças entre duas imagens projetadas ou impressas em tamanho A3.\n\n[Materiais de Apoio]: Imagens impressas A3 ou projetor, Marcadores\n[Objetivos Terapêuticos]: Trabalhar a percepção e varredura visual, Treinar a concentração",
+      "category": "cognitiva",
+      "date": "2026-09-07",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_9_ngc6c",
+      "activityId": null,
+      "title": "Encontro Intergeracional Musical",
+      "description": "Receber crianças de escolas ou infantários locais para cantar em conjunto.\n\n[Materiais de Apoio]: Cancioneiro misto, Lembranças simples\n[Objetivos Terapêuticos]: Estímulo afetivo intergeracional, Combate à solidão",
+      "category": "musica",
+      "date": "2026-09-07",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_10_1ds51",
+      "activityId": null,
+      "title": "Jogo de Palavras Cruzadas Gigante",
+      "description": "Projeção ou desenho de um painel de palavras cruzadas na parede para resolução em grupo.\n\n[Materiais de Apoio]: Projetor ou Quadro Gigante, Marcadores coloridos\n[Objetivos Terapêuticos]: Trabalhar o vocabulário e ortografia, Fomentar a cooperação em grupo, Treinar a flexibilidade cognitiva",
+      "category": "cognitiva",
+      "date": "2026-09-08",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_11_kery5",
+      "activityId": null,
+      "title": "Sessão de Movimento ao Som de Ritmos do Mundo",
+      "description": "Mover partes do corpo ao ritmo de músicas de diferentes culturas.\n\n[Materiais de Apoio]: Músicas variadas do mundo\n[Objetivos Terapêuticos]: Promover ritmo corporal, Coordenação psicomotora",
+      "category": "musica",
+      "date": "2026-09-08",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_12_wkwmz",
+      "activityId": null,
+      "title": "Sopa de Letras Temática",
+      "description": "Fichas de sopa de letras com tamanho de letra ampliado sobre temas como \"A Cozinha\", \"Ofícios Antigos\".\n\n[Materiais de Apoio]: Fichas de sopa de letras ampliadas, Lápis ou marcadores\n[Objetivos Terapêuticos]: Estimular a varredura visual, Trabalhar a atenção focada, Promover o vocabulário",
+      "category": "cognitiva",
+      "date": "2026-09-09",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_13_q6xy2",
+      "activityId": null,
+      "title": "Análise de Letras de Canções Antigas",
+      "description": "Ler as letras de canções populares e debater o seu contexto histórico.\n\n[Materiais de Apoio]: Letras impressas em papel A4\n[Objetivos Terapêuticos]: Estimular reflexão e debate, Linguagem verbal",
+      "category": "musica",
+      "date": "2026-09-09",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_14_pl2bd",
+      "activityId": null,
+      "title": "Cálculo com Dinheiro Fictício",
+      "description": "Simulação de trocos e pagamentos com notas e moedas de brincadeira para reforçar a autonomia financeira quotidiana.\n\n[Materiais de Apoio]: Notas e moedas falsas de Euro, Artigos de supermercado simulados\n[Objetivos Terapêuticos]: Reforçar a autonomia financeira nas AVDs, Exercitar cálculos matemáticos básicos",
+      "category": "cognitiva",
+      "date": "2026-09-10",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_15_2hdo0",
+      "activityId": null,
+      "title": "Circuito de Equilíbrio Preventivo",
+      "description": "Exercícios de marcha ultrapassando pequenos obstáculos baixos ou seguindo linhas marcadas no chão com fita adesiva.\n\n[Materiais de Apoio]: Obstáculos de espuma, Fitas coloridas de chão\n[Objetivos Terapêuticos]: Treino de equilíbrio, Prevenção de quedas",
+      "category": "fisica",
+      "date": "2026-09-10",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_16_7vf16",
+      "activityId": null,
+      "title": "Oficina de Árvores Genealógicas",
+      "description": "Desenhar e preencher a árvore genealógica de cada utente com o apoio de fotografias de família.\n\n[Materiais de Apoio]: Cartolina, Canetas, Fotografias familiares, Cola\n[Objetivos Terapêuticos]: Trabalhar a identidade pessoal, Resgatar memórias familiares, Estimular a psicomotricidade",
+      "category": "cognitiva",
+      "date": "2026-09-11",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_17_ajqhl",
+      "activityId": null,
+      "title": "Sessão \"Saber de Experiência Feito\"",
+      "description": "Cada utente partilha uma competência ou conhecimento prático que dominava.\n\n[Materiais de Apoio]: Objetos de suporte de cada atividade\n[Objetivos Terapêuticos]: Promover empoderamento pessoal, Partilha de saberes e legados",
+      "category": "outro",
+      "date": "2026-09-11",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_18_nawyh",
+      "activityId": null,
+      "title": "Reconhecimento de Silhuetas",
+      "description": "Identificar monumentos, utensílios ou animais através do contorno de figuras pretas.\n\n[Materiais de Apoio]: Cartões com silhuetas, Quadro de respostas\n[Objetivos Terapêuticos]: Estimular o reconhecimento visual, Trabalhar a gnosia visual e atenção",
+      "category": "cognitiva",
+      "date": "2026-09-14",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_19_zdj59",
+      "activityId": null,
+      "title": "Terapia do Ritmo com Percussão",
+      "description": "Utilização de pequenos instrumentos de percussão (pandeiretas, maracas, triângulos) para acompanhar ritmos de músicas tradicionais.\n\n[Materiais de Apoio]: Instrumentos de percussão diversos, Leitor de áudio, Playlist de música popular portuguesa\n[Objetivos Terapêuticos]: Estimular a coordenação rítmica, Promover a expressão emocional, Sincronização motora e auditiva",
+      "category": "musica",
+      "date": "2026-09-14",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_20_g8p2s",
+      "activityId": null,
+      "title": "Associação de Pares (Jogos de Memória)",
+      "description": "Cartas viradas para baixo com pares de imagens antigas ou monumentos nacionais.\n\n[Materiais de Apoio]: Cartas de pares ilustradas, Mesa de jogo\n[Objetivos Terapêuticos]: Treinar a memória visual a curto prazo, Trabalhar a atenção e foco",
+      "category": "cognitiva",
+      "date": "2026-09-15",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_21_2o5y4",
+      "activityId": null,
+      "title": "Dança de Salão Sentada",
+      "description": "Movimentar os braços a par, simulando uma valsa ou um tango, ao som de clássicos de salão.\n\n[Materiais de Apoio]: Música de dança de salão clássica\n[Objetivos Terapêuticos]: Simular coordenação de dança, Expressão física sentada",
+      "category": "musica",
+      "date": "2026-09-15",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_22_0kbro",
+      "activityId": null,
+      "title": "Exercício de Orientação Temporal e Espacial",
+      "description": "Início do dia com a atualização do \"Quadro do Dia\" (data, dia da semana, estado do tempo, estação e efemérides).\n\n[Materiais de Apoio]: Quadro magnético interativo, Cartões de datas e clima\n[Objetivos Terapêuticos]: Reforçar a orientação têmporo-espacial, Favorecer a consciência do quotidiano, Promover rotinas diárias",
+      "category": "cognitiva",
+      "date": "2026-09-16",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_23_5i4yo",
+      "activityId": null,
+      "title": "Aulas de Ritmo com Copos (Cup Games)",
+      "description": "Fazer ritmos simples numa mesa batendo palmas e movendo copos de plástico de forma coordenada.\n\n[Materiais de Apoio]: Copos plásticos resistentes\n[Objetivos Terapêuticos]: Treino de motricidade fina e coordenação bilateral",
+      "category": "musica",
+      "date": "2026-09-16",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_24_1r4fu",
+      "activityId": null,
+      "title": "Oficina de Reminiscências (Fotos Antigas)",
+      "description": "Sessão de partilha baseada em fotografias de monumentos, objetos e tradições do século passado, ativando memórias biográficas e emocionais.\n\n[Materiais de Apoio]: Fotografias impressas em tamanho grande, Objetos antigos (ex: ferro de passar, moedor de café)\n[Objetivos Terapêuticos]: Evocar recordações pessoais, Fomentar a autoestima, Estimular a comunicação verbal",
+      "category": "cognitiva",
+      "date": "2026-09-17",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_25_o238t",
+      "activityId": null,
+      "title": "Balonismo Terapêutico (Voleibol de Balão)",
+      "description": "Manter um balão de ar no ar usando as mãos, pés ou cabeceamentos, sentados em círculo.\n\n[Materiais de Apoio]: Balões coloridos\n[Objetivos Terapêuticos]: Estimular reflexos coordenados",
+      "category": "fisica",
+      "date": "2026-09-17",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_26_j9oov",
+      "activityId": null,
+      "title": "Descrição Detalhada de Imagens",
+      "description": "Apresentar uma pintura ou fotografia clássica e pedir aos idosos que descrevam todos os pormenores que conseguem ver.\n\n[Materiais de Apoio]: Quadros de arte célebres ou fotos clássicas\n[Objetivos Terapêuticos]: Treinar a atenção e análise de detalhes, Exercitar a linguagem expressiva e vocabulário",
+      "category": "cognitiva",
+      "date": "2026-09-18",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_27_p8stm",
+      "activityId": null,
+      "title": "Oficina de Decoração de Época",
+      "description": "Criação de decorações temáticas para o Natal, Páscoa, Santos Populares e Magusto.\n\n[Materiais de Apoio]: Cartolinas, Fitas coloridas, Adereços sazonais\n[Objetivos Terapêuticos]: Estimular criatividade plástica, Promover consciência temporal",
+      "category": "outro",
+      "date": "2026-09-18",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_28_o2nhq",
+      "activityId": null,
+      "title": "Oficina de Escrita Criativa / Poesia",
+      "description": "Criação coletiva de quadras populares ou pequenos poemas sobre as estações do ano.\n\n[Materiais de Apoio]: Papel e caneta, Dicionário de rimas, Quadro para brainstorming\n[Objetivos Terapêuticos]: Fomentar a criatividade literária, Treinar a motricidade fina na escrita, Expressar sentimentos por escrito",
+      "category": "cognitiva",
+      "date": "2026-09-21",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_29_aclq3",
+      "activityId": null,
+      "title": "Contar Histórias Através de Canções",
+      "description": "Criar um fio condutor narrativo onde, em momentos-chave, o grupo canta uma música que se enquadra na história.\n\n[Materiais de Apoio]: Roteiro da história, Lista de músicas\n[Objetivos Terapêuticos]: Estruturação de enredos, Evocação lírica conjunta",
+      "category": "musica",
+      "date": "2026-09-21",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_30_bte78",
+      "activityId": null,
+      "title": "Histórias Encadeadas",
+      "description": "O animador começa uma história e cada participante tem de adicionar uma frase lógica para continuar o enredo.\n\n[Materiais de Apoio]: Nenhum, Gravador de voz\n[Objetivos Terapêuticos]: Fomentar a criatividade e imaginação, Treinar a atenção sequencial e memória auditiva",
+      "category": "cognitiva",
+      "date": "2026-09-22",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_31_8s5sx",
+      "activityId": null,
+      "title": "Identificar a Canção (Qual é a Música?)",
+      "description": "Tocar os primeiros segundos de uma melodia instrumental para que os utentes adivinhem o título.\n\n[Materiais de Apoio]: Leitor de música, Lista de canções famosas\n[Objetivos Terapêuticos]: Estimular o reconhecimento auditivo, Ativação de memória musical",
+      "category": "musica",
+      "date": "2026-09-22",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_32_uuxu4",
+      "activityId": null,
+      "title": "Descubra o Intruso",
+      "description": "Apresentar listas de 4 palavras onde uma não pertence ao grupo (ex: maçã, banana, laranja, martelo).\n\n[Materiais de Apoio]: Fichas com palavras ou imagens, Quadro\n[Objetivos Terapêuticos]: Treinar a categorização semântica, Estimular o raciocínio lógico-dedutivo",
+      "category": "cognitiva",
+      "date": "2026-09-23",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_33_x02i1",
+      "activityId": null,
+      "title": "Associação de Sons da Natureza",
+      "description": "Ouvir gravações de sons e identificar a origem exata.\n\n[Materiais de Apoio]: Áudios de natureza de alta qualidade\n[Objetivos Terapêuticos]: Estimulação auditiva, Identificação gnósica",
+      "category": "musica",
+      "date": "2026-09-23",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_34_w3dwb",
+      "activityId": null,
+      "title": "Exercício de Sinónimos e Antónimos",
+      "description": "Jogo verbal rápido de correspondência de palavras opostas ou semelhantes.\n\n[Materiais de Apoio]: Lista de palavras preparadas\n[Objetivos Terapêuticos]: Estimular a agilidade verbal, Treinar o acesso ao léxico mental",
+      "category": "cognitiva",
+      "date": "2026-09-24",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_35_y19xa",
+      "activityId": null,
+      "title": "Ginástica Sénior na Cadeira",
+      "description": "Exercícios físicos de baixo impacto focados em alongamentos, mobilidade articular de membros superiores/inferiores e fortalecimento suave.\n\n[Materiais de Apoio]: Cadeiras sem braços, Bolas de esponja pequenas, Fitas elásticas de resistência leve\n[Objetivos Terapêuticos]: Melhorar a amplitude de movimento, Prevenir a rigidez muscular, Estimular a circulação sanguínea",
+      "category": "fisica",
+      "date": "2026-09-24",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_36_lzwp1",
+      "activityId": null,
+      "title": "Debates sobre Atualidade",
+      "description": "Discussão moderada sobre notícias do jornal ou da televisão, estimulando a opinião crítica.\n\n[Materiais de Apoio]: Artigos de jornal impresso, Noticiários em vídeo\n[Objetivos Terapêuticos]: Estimular o pensamento crítico, Promover a comunicação e debate respeitoso",
+      "category": "cognitiva",
+      "date": "2026-09-25",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_37_xrjq4",
+      "activityId": null,
+      "title": "Sessão de Fitas do Tempo (Linha da Vida)",
+      "description": "Criar um grande painel mural onde cada idoso coloca um marco histórico pessoal.\n\n[Materiais de Apoio]: Mural cronológico, Fitas coloridas, Marcadores\n[Objetivos Terapêuticos]: Estimular perspetiva histórica e integridade do ego",
+      "category": "outro",
+      "date": "2026-09-25",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_38_uidpb",
+      "activityId": null,
+      "title": "Associação de Monumentos e Cidades",
+      "description": "Ligar imagens de monumentos famosos de Portugal às respetivas regiões ou distritos (ex: Torre de Belém - Lisboa).\n\n[Materiais de Apoio]: Imagens de monumentos, Cartões de distritos\n[Objetivos Terapêuticos]: Estimular o conhecimento histórico-cultural, Exercitar a memória semântica regional",
+      "category": "cognitiva",
+      "date": "2026-09-28",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_39_dpexk",
+      "activityId": null,
+      "title": "Cantigas ao Desafio (Sessão Criativa)",
+      "description": "Estimular a criação improvisada de rimas simples cantadas ao som de uma concertina.\n\n[Materiais de Apoio]: Acordeão ou concertina (ou gravação)\n[Objetivos Terapêuticos]: Estimular raciocínio rápido, Diversão e criatividade",
+      "category": "musica",
+      "date": "2026-09-28",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_40_betfq",
+      "activityId": null,
+      "title": "Ditados Populares e Ortográficos",
+      "description": "Escrita de pequenos textos nostálgicos para exercitar a motricidade fina e a ortografia.\n\n[Materiais de Apoio]: Caderno, Caneta, Textos nostálgicos selecionados\n[Objetivos Terapêuticos]: Trabalhar a escrita e motricidade fina, Treinar a ortografia e atenção auditiva",
+      "category": "cognitiva",
+      "date": "2026-09-29",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_41_1d7c7",
+      "activityId": null,
+      "title": "Celebração das Janeiras e Cantares de Reis",
+      "description": "Ensaio e apresentação de canções de Natal e Reis.\n\n[Materiais de Apoio]: Letras das Janeiras, Instrumentos rítmicos\n[Objetivos Terapêuticos]: Envolvimento cultural sazonal, Promoção de tradições",
+      "category": "musica",
+      "date": "2026-09-29",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_42_vhdrp",
+      "activityId": null,
+      "title": "Ordenação Temporal de Imagens",
+      "description": "Sequenciar cartões que mostram processos diários (ex: fazer café, plantar uma flor, vestir-se).\n\n[Materiais de Apoio]: Cartões de processos sequenciais\n[Objetivos Terapêuticos]: Exercitar as funções executivas, Trabalhar o planeamento lógico de ações",
+      "category": "cognitiva",
+      "date": "2026-09-30",
+      "slot": "manha",
+      "time": "10:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784098543052_43_8002o",
+      "activityId": null,
+      "title": "Desenho ao Som da Música",
+      "description": "Desenhar ou pintar livremente em papel gigante expressando visualmente as emoções transmitidas pela música clássica.\n\n[Materiais de Apoio]: Papel gigante em rolo, Guaches, Música sinfónica\n[Objetivos Terapêuticos]: Expressão plástica e emocional integrada",
+      "category": "musica",
+      "date": "2026-09-30",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    },
+    {
+      "id": "sch_6",
+      "activityId": "act_5",
+      "title": "Torneio de Balão Gigante",
+      "description": "Atividade lúdica de voleibol ou ténis adaptada com balões grandes e coloridos, mantendo os residentes sentados para total segurança.",
+      "category": "fisica",
+      "date": "2026-07-13",
+      "slot": "tarde",
+      "time": "15:00",
+      "completed": 0
+    },
+    {
+      "id": "sch_5",
+      "activityId": "act_2",
+      "title": "Oficina de Reminiscências (Fotos Antigas)",
+      "description": "Sessão de partilha baseada em fotografias de monumentos, objetos e tradições do século passado, ativando memórias biográficas e emocionais.",
+      "category": "cognitiva",
+      "date": "2026-07-13",
+      "slot": "manha",
+      "time": "10:15",
+      "completed": 0
+    },
+    {
+      "id": "sch_1784115351943_93i32",
+      "activityId": "act_1",
+      "title": "Jogo da Memória dos Provérbios",
+      "description": "Exercício de completar ditos populares e provérbios antigos portugueses para estimular a memória semântica e a fluência verbal.",
+      "category": "cognitiva",
+      "date": "2026-07-15",
+      "slot": "tarde",
+      "time": "15:30",
+      "completed": 0
+    }
+  ],
+  "progressLogs": [
+    {
+      "id": "log_1",
+      "residentId": "res_1",
+      "scheduledActivityId": "sch_1",
+      "date": "2026-07-06",
+      "activityTitle": "Jogo da Memória dos Provérbios",
+      "category": "cognitiva",
+      "participation": "alta",
+      "cognitiveScore": 5,
+      "physicalScore": 3,
+      "socialScore": 5,
+      "notes": "Maria Amélia conhecia quase todos os provérbios. Ajudou ativamente os outros residentes a completar as frases."
+    },
+    {
+      "id": "log_2",
+      "residentId": "res_2",
+      "scheduledActivityId": "sch_1",
+      "date": "2026-07-06",
+      "activityTitle": "Jogo da Memória dos Provérbios",
+      "category": "cognitiva",
+      "participation": "media",
+      "cognitiveScore": 3,
+      "physicalScore": 3,
+      "socialScore": 3,
+      "notes": "O Sr. Joaquim demorou um pouco a engajar-se, mas conseguiu lembrar-se de dois provérbios da sua infância agrícola."
+    },
+    {
+      "id": "log_3",
+      "residentId": "res_3",
+      "scheduledActivityId": "sch_1",
+      "date": "2026-07-06",
+      "activityTitle": "Jogo da Memória dos Provérbios",
+      "category": "cognitiva",
+      "participation": "alta",
+      "cognitiveScore": 4,
+      "physicalScore": 2,
+      "socialScore": 4,
+      "notes": "Demonstrou excelente raciocínio rápido. Expressou muita felicidade por interagir."
+    },
+    {
+      "id": "log_4",
+      "residentId": "res_4",
+      "scheduledActivityId": "sch_1",
+      "date": "2026-07-06",
+      "activityTitle": "Jogo da Memória dos Provérbios",
+      "category": "cognitiva",
+      "participation": "baixa",
+      "cognitiveScore": 1,
+      "physicalScore": 2,
+      "socialScore": 2,
+      "notes": "António esteve bastante apático. Sorriu com a animação geral, mas não participou diretamente no jogo verbal."
+    },
+    {
+      "id": "log_5",
+      "residentId": "res_1",
+      "scheduledActivityId": "sch_2",
+      "date": "2026-07-06",
+      "activityTitle": "Ginástica Sénior na Cadeira",
+      "category": "fisica",
+      "participation": "alta",
+      "cognitiveScore": 4,
+      "physicalScore": 5,
+      "socialScore": 4,
+      "notes": "Executou todos os alongamentos com ótima amplitude. Muita energia."
+    },
+    {
+      "id": "log_6",
+      "residentId": "res_2",
+      "scheduledActivityId": "sch_2",
+      "date": "2026-07-06",
+      "activityTitle": "Ginástica Sénior na Cadeira",
+      "category": "fisica",
+      "participation": "alta",
+      "cognitiveScore": 3,
+      "physicalScore": 3,
+      "socialScore": 4,
+      "notes": "Esforçou-se bastante nos exercícios de pernas. Sentiu alguma fadiga ao final, mas descansou e recuperou bem."
+    },
+    {
+      "id": "log_7",
+      "residentId": "res_3",
+      "scheduledActivityId": "sch_2",
+      "date": "2026-07-06",
+      "activityTitle": "Ginástica Sénior na Cadeira",
+      "category": "fisica",
+      "participation": "media",
+      "cognitiveScore": 4,
+      "physicalScore": 2,
+      "socialScore": 3,
+      "notes": "Mobilidade dos braços excelente, mas devido à dor nas articulações fez exercícios mais curtos e lentos."
+    },
+    {
+      "id": "log_8",
+      "residentId": "res_4",
+      "scheduledActivityId": "sch_3",
+      "date": "2026-07-08",
+      "activityTitle": "Terapia do Ritmo com Percussão",
+      "category": "musica",
+      "participation": "alta",
+      "cognitiveScore": 2,
+      "physicalScore": 4,
+      "socialScore": 5,
+      "notes": "Excelente resposta ao pandeiro. Acompanhou o ritmo perfeitamente e balançou a cabeça sorrindo. Muito positivo para o seu estado de ânimo."
+    },
+    {
+      "id": "log_9",
+      "residentId": "res_2",
+      "scheduledActivityId": "sch_3",
+      "date": "2026-07-08",
+      "activityTitle": "Terapia do Ritmo com Percussão",
+      "category": "musica",
+      "participation": "media",
+      "cognitiveScore": 3,
+      "physicalScore": 3,
+      "socialScore": 3,
+      "notes": "Manteve o ritmo com as maracas. Lembrou-se de uma canção antiga e tentou cantarolar."
+    },
+    {
+      "id": "log_10",
+      "residentId": "res_5",
+      "scheduledActivityId": "sch_3",
+      "date": "2026-07-08",
+      "activityTitle": "Terapia do Ritmo com Percussão",
+      "category": "musica",
+      "participation": "alta",
+      "cognitiveScore": 4,
+      "physicalScore": 4,
+      "socialScore": 4,
+      "notes": "Estava relutante no início, mas depois de escolher a pandeireta divertiu-se imenso."
+    }
+  ],
+  "reminders": [
+    {
+      "id": "rem_auto_sch_1784115351943_93i32",
+      "text": "Executar a atividade planeada: \"Jogo da Memória dos Provérbios\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-07-15",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_0_7j8ll",
+      "text": "Executar a atividade planeada: \"Clube de Leitura Dinâmico\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-01",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_1_5hfhn",
+      "text": "Executar a atividade planeada: \"Jogos Rítmicos com Palmas e Pés\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-01",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_2_holau",
+      "text": "Executar a atividade planeada: \"Caixa de Sensações (Estimulação Sensorial)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-02",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_3_1faf2",
+      "text": "Executar a atividade planeada: \"Terapia do Riso com Sons Divertidos\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-02",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_4_v9bhf",
+      "text": "Executar a atividade planeada: \"Oficina de Provadores (Estimulação Gustativa)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-03",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_5_devdw",
+      "text": "Executar a atividade planeada: \"Cante Alentejano / Cantares Tradicionais\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-03",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_6_69awq",
+      "text": "Executar a atividade planeada: \"Jogo das Marcas Antigas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-04",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_7_owpyz",
+      "text": "Executar a atividade planeada: \"Caminhada Matinal nos Jardins\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-04",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_8_i30rl",
+      "text": "Executar a atividade planeada: \"Jogo das Diferenças Visual\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-07",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_9_ngc6c",
+      "text": "Executar a atividade planeada: \"Encontro Intergeracional Musical\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-07",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_10_1ds51",
+      "text": "Executar a atividade planeada: \"Jogo de Palavras Cruzadas Gigante\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-08",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_11_kery5",
+      "text": "Executar a atividade planeada: \"Sessão de Movimento ao Som de Ritmos do Mundo\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-08",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_12_wkwmz",
+      "text": "Executar a atividade planeada: \"Sopa de Letras Temática\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-09",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_13_q6xy2",
+      "text": "Executar a atividade planeada: \"Análise de Letras de Canções Antigas\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-09",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_14_pl2bd",
+      "text": "Executar a atividade planeada: \"Cálculo com Dinheiro Fictício\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-10",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_15_2hdo0",
+      "text": "Executar a atividade planeada: \"Circuito de Equilíbrio Preventivo\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-10",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_16_7vf16",
+      "text": "Executar a atividade planeada: \"Oficina de Árvores Genealógicas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-11",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_17_ajqhl",
+      "text": "Executar a atividade planeada: \"Sessão \"Saber de Experiência Feito\"\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-11",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_18_nawyh",
+      "text": "Executar a atividade planeada: \"Reconhecimento de Silhuetas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-14",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_19_zdj59",
+      "text": "Executar a atividade planeada: \"Terapia do Ritmo com Percussão\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-14",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_20_g8p2s",
+      "text": "Executar a atividade planeada: \"Associação de Pares (Jogos de Memória)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-15",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_21_2o5y4",
+      "text": "Executar a atividade planeada: \"Dança de Salão Sentada\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-15",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_22_0kbro",
+      "text": "Executar a atividade planeada: \"Exercício de Orientação Temporal e Espacial\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-16",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_23_5i4yo",
+      "text": "Executar a atividade planeada: \"Aulas de Ritmo com Copos (Cup Games)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-16",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_24_1r4fu",
+      "text": "Executar a atividade planeada: \"Oficina de Reminiscências (Fotos Antigas)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-17",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_25_o238t",
+      "text": "Executar a atividade planeada: \"Balonismo Terapêutico (Voleibol de Balão)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-17",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_26_j9oov",
+      "text": "Executar a atividade planeada: \"Descrição Detalhada de Imagens\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-18",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_27_p8stm",
+      "text": "Executar a atividade planeada: \"Oficina de Decoração de Época\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-18",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_28_o2nhq",
+      "text": "Executar a atividade planeada: \"Oficina de Escrita Criativa / Poesia\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-21",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_29_aclq3",
+      "text": "Executar a atividade planeada: \"Contar Histórias Através de Canções\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-21",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_30_bte78",
+      "text": "Executar a atividade planeada: \"Histórias Encadeadas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-22",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_31_8s5sx",
+      "text": "Executar a atividade planeada: \"Identificar a Canção (Qual é a Música?)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-22",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_32_uuxu4",
+      "text": "Executar a atividade planeada: \"Descubra o Intruso\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-23",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_33_x02i1",
+      "text": "Executar a atividade planeada: \"Associação de Sons da Natureza\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-23",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_34_w3dwb",
+      "text": "Executar a atividade planeada: \"Exercício de Sinónimos e Antónimos\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-24",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_35_y19xa",
+      "text": "Executar a atividade planeada: \"Ginástica Sénior na Cadeira\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-24",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_36_lzwp1",
+      "text": "Executar a atividade planeada: \"Debates sobre Atualidade\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-25",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_37_xrjq4",
+      "text": "Executar a atividade planeada: \"Sessão de Fitas do Tempo (Linha da Vida)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-25",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_38_uidpb",
+      "text": "Executar a atividade planeada: \"Associação de Monumentos e Cidades\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-28",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_39_dpexk",
+      "text": "Executar a atividade planeada: \"Cantigas ao Desafio (Sessão Criativa)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-28",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_40_betfq",
+      "text": "Executar a atividade planeada: \"Ditados Populares e Ortográficos\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-29",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_41_1d7c7",
+      "text": "Executar a atividade planeada: \"Celebração das Janeiras e Cantares de Reis\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-29",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_42_vhdrp",
+      "text": "Executar a atividade planeada: \"Ordenação Temporal de Imagens\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-09-30",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784098543052_43_8002o",
+      "text": "Executar a atividade planeada: \"Desenho ao Som da Música\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-09-30",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784097970410_hrs1g",
+      "text": "Executar a atividade planeada: \"Jogo da Memória dos Provérbios\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-19",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784097955671_xziau",
+      "text": "Executar a atividade planeada: \"Jogo da Memória dos Provérbios\" agendada para as 10:00.",
+      "type": "atividade",
+      "date": "2026-08-19",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_0_9g89b",
+      "text": "Executar a atividade planeada: \"Ordenação Temporal de Imagens\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-03",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_1_l1tz8",
+      "text": "Executar a atividade planeada: \"Sessões de Lullabies (Canções de Embalar)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-03",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_2_8uhlc",
+      "text": "Executar a atividade planeada: \"Quiz de Cultura Geral e Raciocínio\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-04",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_3_9gj6d",
+      "text": "Executar a atividade planeada: \"Contar Histórias Através de Canções\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-04",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_4_yhlry",
+      "text": "Executar a atividade planeada: \"Reconhecimento de Silhuetas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-05",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_5_puzvo",
+      "text": "Executar a atividade planeada: \"Adivinhas de Sons do Quotidiano\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-05",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_6_bds7x",
+      "text": "Executar a atividade planeada: \"Sessões de Estimulação Cognitiva Computorizada\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-06",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_7_nqodt",
+      "text": "Executar a atividade planeada: \"Exercícios com Elásticos de Resistência (Bandas Elásticas)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-06",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_8_9hj07",
+      "text": "Executar a atividade planeada: \"Oficina de Estimulação da Memória (Memórias de Infância)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-07",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_9_0fv05",
+      "text": "Executar a atividade planeada: \"Sessões de Cinema Clássico / Cineclube\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-07",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_10_uxfkf",
+      "text": "Executar a atividade planeada: \"Ditados Populares e Ortográficos\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-10",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_11_9cqpt",
+      "text": "Executar a atividade planeada: \"Jogos Rítmicos com Palmas e Pés\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-10",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_12_wauug",
+      "text": "Executar a atividade planeada: \"Debates sobre Atualidade\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-11",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_13_p61ky",
+      "text": "Executar a atividade planeada: \"Criação do Hino do Lar\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-11",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_14_pfulb",
+      "text": "Executar a atividade planeada: \"Quebra-Cabeças Adaptados\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-12",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_15_bsmn8",
+      "text": "Executar a atividade planeada: \"Terapia do Ritmo com Percussão\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-12",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_16_mxpuh",
+      "text": "Executar a atividade planeada: \"Caixa de Sensações (Estimulação Sensorial)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-13",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_17_50oi0",
+      "text": "Executar a atividade planeada: \"Jogo de Bowling de Salão\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-13",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_18_znum5",
+      "text": "Executar a atividade planeada: \"Exercícios de Cálculo Mental Divertido\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-14",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_19_bg2et",
+      "text": "Executar a atividade planeada: \"Cuidado e Terapia com Animais (Zooterapia)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-14",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_20_z547i",
+      "text": "Executar a atividade planeada: \"Clube de Leitura Dinâmico\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-17",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_21_4ckrf",
+      "text": "Executar a atividade planeada: \"Bingo Musical\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-17",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_22_dj30r",
+      "text": "Executar a atividade planeada: \"Oficina de Escrita Criativa / Poesia\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-18",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_23_im9f1",
+      "text": "Executar a atividade planeada: \"Karaoke Sénior\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-18",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_26_sqxjs",
+      "text": "Executar a atividade planeada: \"Sessão de Provérbios Populares\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-20",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_27_hxijy",
+      "text": "Executar a atividade planeada: \"Yoga Sentado / Yoga Adaptado\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-20",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_28_mx0ph",
+      "text": "Executar a atividade planeada: \"Descubra o Intruso\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-21",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_29_35s4d",
+      "text": "Executar a atividade planeada: \"Tarde de Contos e Lendas Populares\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-21",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_30_5huzm",
+      "text": "Executar a atividade planeada: \"Jogo das Diferenças Visual\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-24",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_31_ab47a",
+      "text": "Executar a atividade planeada: \"Análise de Letras de Canções Antigas\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-24",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_32_3ic10",
+      "text": "Executar a atividade planeada: \"Histórias Encadeadas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-25",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_33_gnlu5",
+      "text": "Executar a atividade planeada: \"Oficina de Danças de Roda\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-25",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_34_mr644",
+      "text": "Executar a atividade planeada: \"Associação de Pares (Jogos de Memória)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-26",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_35_gxp91",
+      "text": "Executar a atividade planeada: \"Canto e Expressão Facial\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-26",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_36_8zie1",
+      "text": "Executar a atividade planeada: \"Jogo do \"Quem Sou Eu?\"\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-27",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_37_nnv57",
+      "text": "Executar a atividade planeada: \"Alongamentos de Dedos com Elásticos de Cabelo\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-27",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_38_2fgeh",
+      "text": "Executar a atividade planeada: \"Oficina de Provadores (Estimulação Gustativa)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-28",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_39_j5ggg",
+      "text": "Executar a atividade planeada: \"Oficina de Sabões e Velas Artesanais\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-28",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_40_t48q2",
+      "text": "Executar a atividade planeada: \"Oficina de Reminiscências (Fotos Antigas)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-31",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096941116_41_m2wpp",
+      "text": "Executar a atividade planeada: \"Oficina de Musicoterapia Passiva\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-31",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060",
+      "text": "Executar a atividade planeada: \"Karaoke Sénior\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-31",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_88_ymo5lw",
+      "text": "Executar a atividade planeada: \"Clube de Leitura Dinâmico\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-31",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_89_010huh",
+      "text": "Executar a atividade planeada: \"Oficina de Culinária Terapêutica (Pastelaria)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-28",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_90_ravqjo",
+      "text": "Executar a atividade planeada: \"Sessões de Estimulação Cognitiva Computorizada\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-28",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_91_drd5m8",
+      "text": "Executar a atividade planeada: \"Treino de Força Suave com Halteres de Espuma\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-27",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_92_kp8ayo",
+      "text": "Executar a atividade planeada: \"Jogo das Diferenças Visual\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-27",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_93_sa8ity",
+      "text": "Executar a atividade planeada: \"Bingo Musical\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-26",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_94_yzaqa1",
+      "text": "Executar a atividade planeada: \"Geografia de Portugal\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-26",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_95_omf6mr",
+      "text": "Executar a atividade planeada: \"Desenho ao Som da Música\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-25",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_96_yyhmwn",
+      "text": "Executar a atividade planeada: \"Descrição Detalhada de Imagens\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-25",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_97_r28fs9",
+      "text": "Executar a atividade planeada: \"Análise de Letras de Canções Antigas\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-24",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_98_jopcvf",
+      "text": "Executar a atividade planeada: \"Exercícios de Cálculo Mental Divertido\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-24",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_99_soka0z",
+      "text": "Executar a atividade planeada: \"Sessões de Meditação e Mindfulness Sénior\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-21",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_100_bj9qmk",
+      "text": "Executar a atividade planeada: \"Apanhar a Letra\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-21",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_101_s2m3x0",
+      "text": "Executar a atividade planeada: \"Arremesso de Argolas\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-20",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_102_bnl1h2",
+      "text": "Executar a atividade planeada: \"Oficina de Provadores (Estimulação Gustativa)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-20",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_103_sjbjc6",
+      "text": "Executar a atividade planeada: \"Oficina de Óperas e Clássicos\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-19",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_104_tiruy0",
+      "text": "Executar a atividade planeada: \"Jogo das Marcas Antigas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-19",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_105_98nfwz",
+      "text": "Executar a atividade planeada: \"Adivinhas de Sons do Quotidiano\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-18",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_106_50i9e5",
+      "text": "Executar a atividade planeada: \"Histórias Encadeadas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-18",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_107_p7wtvt",
+      "text": "Executar a atividade planeada: \"Canto e Expressão Facial\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-17",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_108_unv9tb",
+      "text": "Executar a atividade planeada: \"Jogo da Memória dos Provérbios\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-17",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_109_nkjzio",
+      "text": "Executar a atividade planeada: \"Atividades Intergeracionais (Cartas aos Netos/Escolas)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-14",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_110_robhai",
+      "text": "Executar a atividade planeada: \"Oficina de Reminiscências (Fotos Antigas)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-14",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_111_dguqkl",
+      "text": "Executar a atividade planeada: \"Exercícios com Pedaleiras de Chão\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-13",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_112_k3cd5c",
+      "text": "Executar a atividade planeada: \"Jogo do \"Quem Sou Eu?\"\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-13",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_113_aup3tc",
+      "text": "Executar a atividade planeada: \"Jogos Rítmicos com Palmas e Pés\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-12",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_114_7dy9cb",
+      "text": "Executar a atividade planeada: \"Jogo de Palavras Cruzadas Gigante\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-12",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_115_zimziy",
+      "text": "Executar a atividade planeada: \"Criação do Hino do Lar\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-11",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_116_dlin9v",
+      "text": "Executar a atividade planeada: \"Associação de Monumentos e Cidades\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-11",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_117_zbgk7j",
+      "text": "Executar a atividade planeada: \"Terapia do Ritmo com Percussão\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-10",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_118_gplfcq",
+      "text": "Executar a atividade planeada: \"Oficina de Escrita Criativa / Poesia\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-10",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_119_lpmgjg",
+      "text": "Executar a atividade planeada: \"Jogos de Tabuleiro Clássicos\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-07",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_120_86ol43",
+      "text": "Executar a atividade planeada: \"Quebra-Cabeças Adaptados\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-07",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_121_vw1jz9",
+      "text": "Executar a atividade planeada: \"Estafeta de Copos com Água\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-06",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_122_wcjxws",
+      "text": "Executar a atividade planeada: \"Exercício de Orientação Temporal e Espacial\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-06",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_123_bpp7og",
+      "text": "Executar a atividade planeada: \"Bandinha Rítmica (Instrumentos de Percussão)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-05",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_124_lojgrx",
+      "text": "Executar a atividade planeada: \"Associação de Pares (Jogos de Memória)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-05",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_125_s347e1",
+      "text": "Executar a atividade planeada: \"Concerto de Talentos Internos\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-04",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_126_u9i09f",
+      "text": "Executar a atividade planeada: \"Exercício de Sinónimos e Antónimos\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-04",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650060_fixed_127_snqmal",
+      "text": "Executar a atividade planeada: \"Oficina de Danças de Roda\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-03",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096650059",
+      "text": "Executar a atividade planeada: \"Sessão de Provérbios Populares\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-03",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538090",
+      "text": "Executar a atividade planeada: \"Oficina de Danças de Roda\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-31",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538090_fixed_130_729faq",
+      "text": "Executar a atividade planeada: \"Descubra o Intruso\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-31",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538090_fixed_131_51u7ki",
+      "text": "Executar a atividade planeada: \"Sessões de Meditação e Mindfulness Sénior\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-28",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538090_fixed_132_1zzzgv",
+      "text": "Executar a atividade planeada: \"Ordenação Temporal de Imagens\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-28",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538090_fixed_133_ibxgdh",
+      "text": "Executar a atividade planeada: \"Jogo do Alvo com Velcro\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-27",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538090_fixed_134_c2js5v",
+      "text": "Executar a atividade planeada: \"Oficina de Estimulação da Memória (Memórias de Infância)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-27",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538090_fixed_135_v6m3d4",
+      "text": "Executar a atividade planeada: \"Exercícios de Respiração e Vocalização\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-26",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538090_fixed_136_9hpxv0",
+      "text": "Executar a atividade planeada: \"Jogo das Marcas Antigas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-26",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089",
+      "text": "Executar a atividade planeada: \"Desenho ao Som da Música\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-25",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_138_986l4w",
+      "text": "Executar a atividade planeada: \"Jogo da Memória dos Provérbios\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-25",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_139_dn4odj",
+      "text": "Executar a atividade planeada: \"Sessão de Movimento ao Som de Ritmos do Mundo\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-24",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_140_l42syx",
+      "text": "Executar a atividade planeada: \"Reconhecimento de Silhuetas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-24",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_141_a0amzp",
+      "text": "Executar a atividade planeada: \"Feira de Artesanato do Lar / Venda de Solidariedade\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-21",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_142_5s7exn",
+      "text": "Executar a atividade planeada: \"Clube de Leitura Dinâmico\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-21",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_143_sdnib6",
+      "text": "Executar a atividade planeada: \"Marcha com Ritmo e Palmas\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-20",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_144_iaq25h",
+      "text": "Executar a atividade planeada: \"Sessões de Estimulação Cognitiva Computorizada\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-20",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_145_s2mjrr",
+      "text": "Executar a atividade planeada: \"Jogo de Completar a Letra da Canção\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-19",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_146_2d8xoc",
+      "text": "Executar a atividade planeada: \"Oficina de Provadores (Estimulação Gustativa)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-19",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_147_5c1vpu",
+      "text": "Executar a atividade planeada: \"Aulas de Ritmo com Copos (Cup Games)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-18",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_148_hdcj5f",
+      "text": "Executar a atividade planeada: \"Quebra-Cabeças Adaptados\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-18",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_149_spwfzw",
+      "text": "Executar a atividade planeada: \"Identificar a Canção (Qual é a Música?)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-17",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_150_e15rru",
+      "text": "Executar a atividade planeada: \"Associação de Monumentos e Cidades\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-17",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_151_q1sdt5",
+      "text": "Executar a atividade planeada: \"Chá Convento / Chá de Partilha Semanal\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-14",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_152_8t6elt",
+      "text": "Executar a atividade planeada: \"Apanhar a Letra\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-14",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_153_467y3o",
+      "text": "Executar a atividade planeada: \"Circuito de Equilíbrio Preventivo\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-13",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_154_shprp7",
+      "text": "Executar a atividade planeada: \"Exercícios de Cálculo Mental Divertido\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-13",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_155_f0fv7p",
+      "text": "Executar a atividade planeada: \"Concerto de Talentos Internos\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-12",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_156_f47obr",
+      "text": "Executar a atividade planeada: \"Cálculo com Dinheiro Fictício\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-12",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_157_nmihjv",
+      "text": "Executar a atividade planeada: \"Cante Alentejano / Cantares Tradicionais\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-11",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_158_dbp3pk",
+      "text": "Executar a atividade planeada: \"Jogo das Diferenças Visual\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-11",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_159_4a7tel",
+      "text": "Executar a atividade planeada: \"Celebração das Janeiras e Cantares de Reis\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-10",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_160_knul9q",
+      "text": "Executar a atividade planeada: \"Caixa de Sensações (Estimulação Sensorial)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-10",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_161_gpn48d",
+      "text": "Executar a atividade planeada: \"Oficina de Decoração de Época\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-07",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_162_wpizu2",
+      "text": "Executar a atividade planeada: \"Debates sobre Atualidade\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-07",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_163_i6dg52",
+      "text": "Executar a atividade planeada: \"Treino Funcional de Levantar e Sentar\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-06",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_164_sk2b2s",
+      "text": "Executar a atividade planeada: \"Bingo Temático (Frutas, Cidades, Animais)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-06",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_165_98c6zx",
+      "text": "Executar a atividade planeada: \"Terapia do Riso com Sons Divertidos\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-05",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_166_j3awgk",
+      "text": "Executar a atividade planeada: \"Associação de Pares (Jogos de Memória)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-05",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_167_whobko",
+      "text": "Executar a atividade planeada: \"Karaoke Sénior\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-04",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_168_n1l9se",
+      "text": "Executar a atividade planeada: \"Histórias Encadeadas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-04",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_169_yy7t49",
+      "text": "Executar a atividade planeada: \"Dança de Salão Sentada\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-03",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096538089_fixed_170_24obqt",
+      "text": "Executar a atividade planeada: \"Sopa de Letras Temática\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-03",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769",
+      "text": "Executar a atividade planeada: \"Exercícios de Respiração e Vocalização\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-31",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_172_lainil",
+      "text": "Executar a atividade planeada: \"Sessões de Estimulação Cognitiva Computorizada\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-31",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_173_36aedc",
+      "text": "Executar a atividade planeada: \"Sessões de Espiritualidade / Terço Comunitário\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-28",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_174_sk8oo1",
+      "text": "Executar a atividade planeada: \"Oficina de Árvores Genealógicas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-28",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_175_oa7d4y",
+      "text": "Executar a atividade planeada: \"Yoga Sentado / Yoga Adaptado\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-27",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_176_044ox1",
+      "text": "Executar a atividade planeada: \"Jogo do \"Quem Sou Eu?\"\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-27",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_177_gowqxr",
+      "text": "Executar a atividade planeada: \"Oficina de Danças de Roda\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-26",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_178_1nypck",
+      "text": "Executar a atividade planeada: \"Descrição Detalhada de Imagens\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-26",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_179_54kxvl",
+      "text": "Executar a atividade planeada: \"Cante Alentejano / Cantares Tradicionais\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-25",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_180_aukd6e",
+      "text": "Executar a atividade planeada: \"Quiz de Cultura Geral e Raciocínio\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-25",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_181_vda0fu",
+      "text": "Executar a atividade planeada: \"Dança de Salão Sentada\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-24",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_182_ik1bwh",
+      "text": "Executar a atividade planeada: \"Descubra o Intruso\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-24",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_183_b2vkv4",
+      "text": "Executar a atividade planeada: \"Jogos de Tabuleiro Clássicos\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-21",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_184_3ww7x1",
+      "text": "Executar a atividade planeada: \"Jogo das Marcas Antigas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-21",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_185_wjmic5",
+      "text": "Executar a atividade planeada: \"Hidroginástica para Idosos\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-20",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_186_mo38kp",
+      "text": "Executar a atividade planeada: \"Oficina de Reminiscências (Fotos Antigas)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-20",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_187_h0fyvi",
+      "text": "Executar a atividade planeada: \"Encontro Intergeracional Musical\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-19",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_188_y7fxgu",
+      "text": "Executar a atividade planeada: \"Jogo das Diferenças Visual\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-19",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_189_kja11l",
+      "text": "Executar a atividade planeada: \"Identificar a Canção (Qual é a Música?)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-18",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_190_b0op31",
+      "text": "Executar a atividade planeada: \"Sessão de Provérbios Populares\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-18",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_191_1f63d2",
+      "text": "Executar a atividade planeada: \"Aulas de Ritmo com Copos (Cup Games)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-17",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_192_bkds20",
+      "text": "Executar a atividade planeada: \"Associação de Monumentos e Cidades\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-17",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_193_w9gzpc",
+      "text": "Executar a atividade planeada: \"Teatro de Fantoches / Teatro de Sombras\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-14",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_194_nx7cvb",
+      "text": "Executar a atividade planeada: \"Geografia de Portugal\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-14",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_195_owdzh3",
+      "text": "Executar a atividade planeada: \"Oficina de Motricidade Fina com Molas de Roupa\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-13",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_196_x28akx",
+      "text": "Executar a atividade planeada: \"Associação de Pares (Jogos de Memória)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-13",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_197_trdayi",
+      "text": "Executar a atividade planeada: \"Sessões de Lullabies (Canções de Embalar)\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-12",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_198_ftrgw8",
+      "text": "Executar a atividade planeada: \"Exercícios de Cálculo Mental Divertido\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-12",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_199_dlcv9d",
+      "text": "Executar a atividade planeada: \"Oficina de Musicoterapia Passiva\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-11",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_200_wxrr2j",
+      "text": "Executar a atividade planeada: \"Apanhar a Letra\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-11",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_201_l53tr4",
+      "text": "Executar a atividade planeada: \"Adivinhas de Sons do Quotidiano\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-10",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_202_chj7xa",
+      "text": "Executar a atividade planeada: \"Exercício de Orientação Temporal e Espacial\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-10",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_203_u82oad",
+      "text": "Executar a atividade planeada: \"Sessão \"Saber de Experiência Feito\"\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-07",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_204_nem2wi",
+      "text": "Executar a atividade planeada: \"Quebra-Cabeças Adaptados\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-07",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_205_ju2jz4",
+      "text": "Executar a atividade planeada: \"Dança Sénior Adaptada\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-06",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_206_jrwxk2",
+      "text": "Executar a atividade planeada: \"Histórias Encadeadas\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-06",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_207_tczbds",
+      "text": "Executar a atividade planeada: \"Oficina de Construção de Instrumentos Reciclados\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-05",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_208_4y30eq",
+      "text": "Executar a atividade planeada: \"Jogo da Memória dos Provérbios\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-05",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_209_i0apiw",
+      "text": "Executar a atividade planeada: \"Associação de Sons da Natureza\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-04",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_210_zcu1t2",
+      "text": "Executar a atividade planeada: \"Bingo Temático (Frutas, Cidades, Animais)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-04",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491769_fixed_211_gz73en",
+      "text": "Executar a atividade planeada: \"Bingo Musical\" agendada para as 15:30.",
+      "type": "atividade",
+      "date": "2026-08-03",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784096491768",
+      "text": "Executar a atividade planeada: \"Oficina de Estimulação da Memória (Memórias de Infância)\" agendada para as 10:30.",
+      "type": "atividade",
+      "date": "2026-08-03",
+      "completed": 0
+    },
+    {
+      "id": "rem_auto_sch_1784075790060",
+      "text": "Executar a atividade planeada: \"Jogo da Memória dos Provérbios\" agendada para as 10:00.",
+      "type": "atividade",
+      "date": "2026-08-01",
+      "completed": 0
+    },
+    {
+      "id": "rem_1",
+      "text": "Preparar fotos e objetos antigos para a Oficina de Reminiscências de hoje de manhã.",
+      "type": "atividade",
+      "date": "2026-07-13",
+      "completed": 0
+    },
+    {
+      "id": "rem_2",
+      "text": "Encher 4 balões gigantes extra para o torneio de tarde.",
+      "type": "atividade",
+      "date": "2026-07-13",
+      "completed": 0
+    },
+    {
+      "id": "rem_3",
+      "text": "Lembrar de hidratar a Dona Clarice extra na atividade física, devido às dores de calor.",
+      "type": "saude",
+      "date": "2026-07-13",
+      "completed": 0
+    },
+    {
+      "id": "rem_4",
+      "text": "Imprimir e afixar o plano mensal de atividades no mural do refeitório.",
+      "type": "geral",
+      "date": "2026-07-14",
+      "completed": 0
+    }
+  ]
+}

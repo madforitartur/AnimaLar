@@ -219,7 +219,7 @@ export default function RemindersPanel({
           <p className="text-center py-6 text-gray-400 text-sm">Sem lembretes definidos para os próximos dias.</p>
         ) : (
           <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-            {reminders.map((reminder) => {
+            {reminders.map((reminder, idx) => {
               const badgeColors = {
                 saude: 'bg-red-50 text-red-700 border-red-100',
                 atividade: 'bg-indigo-50 text-indigo-700 border-indigo-100',
@@ -228,19 +228,19 @@ export default function RemindersPanel({
 
               return (
                 <div
-                  key={reminder.id}
+                  key={`${reminder.id}-${idx}`}
                   className={`flex items-start justify-between p-3 border rounded-xl transition-all ${
                     reminder.completed
                       ? 'bg-gray-50/70 border-gray-100 opacity-65'
                       : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-xs'
                   }`}
-                  id={`reminder-card-${reminder.id}`}
+                  id={`reminder-card-${reminder.id}-${idx}`}
                 >
                   <div className="flex items-start gap-2.5 flex-1 mr-2">
                     <button
                       onClick={() => onToggleReminder(reminder.id)}
                       className="mt-0.5 text-gray-400 hover:text-indigo-600 transition-colors shrink-0 cursor-pointer"
-                      id={`btn-toggle-rem-${reminder.id}`}
+                      id={`btn-toggle-rem-${reminder.id}-${idx}`}
                     >
                       {reminder.completed ? (
                         <CheckSquare className="w-4 h-4 text-emerald-600" />
@@ -266,7 +266,7 @@ export default function RemindersPanel({
                   <button
                     onClick={() => onDeleteReminder(reminder.id)}
                     className="text-gray-300 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50 shrink-0 cursor-pointer"
-                    id={`btn-del-rem-${reminder.id}`}
+                    id={`btn-del-rem-${reminder.id}-${idx}`}
                     title="Eliminar lembrete"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
