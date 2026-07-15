@@ -37,6 +37,28 @@ import {
   BookOpen
 } from 'lucide-react';
 
+const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn(`Erro ao aceder ao localStorage para ler a chave "${key}":`, e);
+      return (window as any).__fallback_storage?.[key] || null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn(`Erro ao aceder ao localStorage para guardar a chave "${key}":`, e);
+      if (!(window as any).__fallback_storage) {
+        (window as any).__fallback_storage = {};
+      }
+      (window as any).__fallback_storage[key] = value;
+    }
+  }
+};
+
 const isStandalone = (window as any).IS_OFFLINE_STANDALONE || window.location.protocol === 'file:';
 
 export default function App() {
@@ -45,7 +67,7 @@ export default function App() {
 
   // Activities Catalog State (Persisted in LocalStorage)
   const [activities, setActivities] = useState<Activity[]>(() => {
-    const saved = localStorage.getItem('animar_activities');
+    const saved = safeLocalStorage.getItem('animar_activities');
     let baseActivities = PREDEFINED_ACTIVITIES;
     const offlineData = (window as any).INITIAL_OFFLINE_DATA;
     if (offlineData && offlineData.activities) {
@@ -78,7 +100,7 @@ export default function App() {
 
   // Core Database States (Persisted in LocalStorage)
   const [residents, setResidents] = useState<Resident[]>(() => {
-    const saved = localStorage.getItem('animar_residents');
+    const saved = safeLocalStorage.getItem('animar_residents');
     if (saved) return JSON.parse(saved);
     const offlineData = (window as any).INITIAL_OFFLINE_DATA;
     if (offlineData && offlineData.residents) return offlineData.residents;
@@ -86,7 +108,7 @@ export default function App() {
   });
 
   const [scheduledActivities, setScheduledActivities] = useState<ScheduledActivity[]>(() => {
-    const saved = localStorage.getItem('animar_scheduled');
+    const saved = safeLocalStorage.getItem('animar_scheduled');
     if (saved) return JSON.parse(saved);
     const offlineData = (window as any).INITIAL_OFFLINE_DATA;
     if (offlineData && offlineData.scheduledActivities) return offlineData.scheduledActivities;
@@ -94,7 +116,7 @@ export default function App() {
   });
 
   const [progressLogs, setProgressLogs] = useState<ResidentProgressLog[]>(() => {
-    const saved = localStorage.getItem('animar_logs');
+    const saved = safeLocalStorage.getItem('animar_logs');
     if (saved) return JSON.parse(saved);
     const offlineData = (window as any).INITIAL_OFFLINE_DATA;
     if (offlineData && offlineData.progressLogs) return offlineData.progressLogs;
@@ -102,7 +124,7 @@ export default function App() {
   });
 
   const [reminders, setReminders] = useState<Reminder[]>(() => {
-    const saved = localStorage.getItem('animar_reminders');
+    const saved = safeLocalStorage.getItem('animar_reminders');
     if (saved) return JSON.parse(saved);
     const offlineData = (window as any).INITIAL_OFFLINE_DATA;
     if (offlineData && offlineData.reminders) return offlineData.reminders;
@@ -118,13 +140,13 @@ export default function App() {
   });
 
   const [notifiedIds, setNotifiedIds] = useState<string[]>(() => {
-    const saved = localStorage.getItem('animar_notified_activities');
+    const saved = safeLocalStorage.getItem('animar_notified_activities');
     return saved ? JSON.parse(saved) : [];
   });
 
   // Suggestion Rules State
   const [suggestionRules, setSuggestionRules] = useState<SuggestionRules>(() => {
-    const saved = localStorage.getItem('animar_suggestion_rules');
+    const saved = safeLocalStorage.getItem('animar_suggestion_rules');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -146,7 +168,7 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('animar_suggestion_rules', JSON.stringify(suggestionRules));
+    safeLocalStorage.setItem('animar_suggestion_rules', JSON.stringify(suggestionRules));
   }, [suggestionRules]);
 
   // Helper to request notification permission
@@ -228,7 +250,7 @@ export default function App() {
 
             setNotifiedIds(prev => {
               const updated = [...prev, act.id];
-              localStorage.setItem('animar_notified_activities', JSON.stringify(updated));
+              safeLocalStorage.setItem('animar_notified_activities', JSON.stringify(updated));
               return updated;
             });
           } catch (e) {
@@ -320,23 +342,23 @@ export default function App() {
 
   // Sync to LocalStorage
   useEffect(() => {
-    localStorage.setItem('animar_residents', JSON.stringify(residents));
+    safeLocalStorage.setItem('animar_residents', JSON.stringify(residents));
   }, [residents]);
 
   useEffect(() => {
-    localStorage.setItem('animar_scheduled', JSON.stringify(scheduledActivities));
+    safeLocalStorage.setItem('animar_scheduled', JSON.stringify(scheduledActivities));
   }, [scheduledActivities]);
 
   useEffect(() => {
-    localStorage.setItem('animar_logs', JSON.stringify(progressLogs));
+    safeLocalStorage.setItem('animar_logs', JSON.stringify(progressLogs));
   }, [progressLogs]);
 
   useEffect(() => {
-    localStorage.setItem('animar_reminders', JSON.stringify(reminders));
+    safeLocalStorage.setItem('animar_reminders', JSON.stringify(reminders));
   }, [reminders]);
 
   useEffect(() => {
-    localStorage.setItem('animar_activities', JSON.stringify(activities));
+    safeLocalStorage.setItem('animar_activities', JSON.stringify(activities));
   }, [activities]);
 
   const handleAddActivity = (newAct: Omit<Activity, 'id'>) => {

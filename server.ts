@@ -4,6 +4,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
 import fs from "fs/promises";
+import { execSync } from "child_process";
 
 dotenv.config();
 
@@ -297,10 +298,26 @@ async function startServer() {
       let jsContent = "";
       let cssContent = "";
 
+      // Ensure dist/assets/offline.js exists by compiling it on demand as a standard non-module IIFE script
+      try {
+        jsContent = await fs.readFile(path.join(assetsDir, "offline.js"), "utf-8");
+      } catch (e) {
+        console.log("Compilando dist/assets/offline.js para formato IIFE sem módulos (offline browser-friendly)...");
+        try {
+          execSync("npx esbuild src/main.tsx --bundle --minify --target=es2020 --format=iife --global-name=AnimaLar --loader:.css=empty --define:process.env.NODE_ENV='\"production\"' --outfile=dist/assets/offline.js");
+          jsContent = await fs.readFile(path.join(assetsDir, "offline.js"), "utf-8");
+        } catch (err) {
+          console.error("Falha ao compilar com esbuild, usando fallback...", err);
+          for (const file of files) {
+            if (file.endsWith(".js") && file !== "offline.js") {
+              jsContent += await fs.readFile(path.join(assetsDir, file), "utf-8");
+            }
+          }
+        }
+      }
+
       for (const file of files) {
-        if (file.endsWith(".js")) {
-          jsContent += await fs.readFile(path.join(assetsDir, file), "utf-8");
-        } else if (file.endsWith(".css")) {
+        if (file.endsWith(".css")) {
           cssContent += await fs.readFile(path.join(assetsDir, file), "utf-8");
         }
       }
