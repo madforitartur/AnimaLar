@@ -554,34 +554,126 @@ export default function App() {
       <div className="h-1.5 bg-gradient-to-r from-emerald-500 via-indigo-600 to-purple-500 w-full shrink-0 print:hidden"></div>
 
       {/* Primary Application Header (Hidden on Print) */}
-      <header className="bg-white border-b border-gray-100 py-4 px-6 md:px-10 sticky top-0 z-40 shadow-xs print:hidden">
-        <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <header className="bg-white border-b border-gray-100 py-4 px-4 md:px-10 sticky top-0 z-40 shadow-xs print:hidden">
+        <div className="w-full flex flex-col gap-4">
           
-          {/* Logo & App Branding */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-200">
-              <Heart className="w-5.5 h-5.5 text-white animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <h1 className="font-display font-extrabold text-slate-800 text-lg leading-none tracking-tight">
-                  AnimaLar
-                </h1>
-                <span className="text-[9px] uppercase font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">
-                  Sociocultural
-                </span>
+          {/* Top Row: Logo & App Branding + Reduced Date */}
+          <div className="flex flex-row items-center justify-between gap-2 w-full">
+            {/* Logo & App Branding */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-200 shrink-0">
+                <Heart className="w-5 sm:w-5.5 h-5 sm:h-5.5 text-white animate-pulse" />
               </div>
-              <p className="text-[10px] text-gray-400 font-medium font-mono mt-0.5">
-                Gestor de Estimulação & Rotinas de Animação
-              </p>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <h1 className="font-display font-extrabold text-slate-800 text-sm sm:text-lg leading-none tracking-tight">
+                    AnimaLar
+                  </h1>
+                  <span className="text-[8px] sm:text-[9px] uppercase font-bold text-emerald-700 bg-emerald-50 px-1 sm:px-1.5 py-0.2 rounded shrink-0">
+                    Sociocultural
+                  </span>
+                </div>
+                <p className="text-[9px] sm:text-[10px] text-gray-400 font-medium font-mono mt-0.5 max-w-[140px] xs:max-w-[200px] sm:max-w-none truncate sm:whitespace-normal">
+                  Gestor de Estimulação & Rotinas de Animação
+                </p>
+              </div>
+            </div>
+
+            {/* Time & Quick Indicator - Reduced for mobile & placed in top right */}
+            <div className="flex items-center gap-1 text-[10px] sm:text-xs font-medium bg-slate-50 border border-gray-100 px-2 py-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0">
+              <div className="flex items-center gap-1 text-gray-500">
+                <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                <span className="font-mono shrink-0">13 Julho 2026</span>
+              </div>
             </div>
           </div>
 
-          {/* Time & Quick Indicator */}
-          <div className="flex items-center gap-2 text-xs font-medium self-end md:self-auto bg-slate-50 border border-gray-100 p-2 rounded-xl">
-            <div className="flex items-center gap-1.5 text-gray-500">
-              <Clock className="w-4 h-4 text-indigo-500" />
-              <span className="font-mono">13 Julho 2026</span>
+          {/* Bottom Row (Mobile/Tablet Only): Menus (tabs switcher) placed on the line where the date currently is */}
+          <div className="lg:hidden w-full border-t border-gray-50 pt-3 print:hidden">
+            <div className="flex flex-row gap-1.5 overflow-x-auto pb-1.5 scrollbar-none scroll-smooth">
+              <button
+                onClick={() => setCurrentTab('planner')}
+                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
+                  currentTab === 'planner'
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
+                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
+                }`}
+              >
+                <CalendarIcon className="w-3.5 h-3.5 shrink-0" />
+                <span>Plano Mensal / Diário</span>
+              </button>
+
+              <button
+                onClick={() => setCurrentTab('residents')}
+                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
+                  currentTab === 'residents'
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
+                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5 shrink-0" />
+                <span>Utentes & Progresso</span>
+              </button>
+
+              <button
+                onClick={() => setCurrentTab('activities')}
+                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
+                  currentTab === 'activities'
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
+                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span>Atividades</span>
+              </button>
+
+              <button
+                onClick={() => setCurrentTab('materials')}
+                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
+                  currentTab === 'materials'
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
+                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                <span>Material de Apoio</span>
+              </button>
+
+              <button
+                onClick={() => setCurrentTab('reminders')}
+                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
+                  currentTab === 'reminders'
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
+                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
+                }`}
+              >
+                <Bell className="w-3.5 h-3.5 shrink-0" />
+                <span>Lembretes ({activeRemindersCount})</span>
+              </button>
+
+              <button
+                onClick={() => setCurrentTab('print')}
+                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
+                  currentTab === 'print'
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
+                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
+                }`}
+              >
+                <Printer className="w-3.5 h-3.5 shrink-0" />
+                <span>Imprimir Mural</span>
+              </button>
+
+              <button
+                onClick={() => setCurrentTab('database')}
+                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
+                  currentTab === 'database'
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
+                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
+                }`}
+              >
+                <Database className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                <span>Base de Dados</span>
+              </button>
             </div>
           </div>
 
@@ -595,7 +687,7 @@ export default function App() {
         <aside className="w-full lg:w-64 shrink-0 space-y-4 print:hidden" id="left-sidebar">
           
           {/* Tabs Switcher Card */}
-          <div className="bg-white border border-gray-100 p-3 rounded-2xl shadow-xs flex flex-col gap-3">
+          <div className="bg-white border border-gray-100 p-3 rounded-2xl shadow-xs lg:flex flex-col gap-3 hidden">
             <span className="text-[10px] uppercase font-bold text-gray-400 px-2 tracking-wider hidden lg:block">Navegação</span>
             
             <div className="flex flex-row lg:flex-col gap-1.5 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 scrollbar-none">
