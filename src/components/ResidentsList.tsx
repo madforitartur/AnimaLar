@@ -25,6 +25,17 @@ export default function ResidentsList({
   const [filterCog, setFilterCog] = useState<string>('todos');
   const [filterPhys, setFilterPhys] = useState<string>('todos');
 
+  // Preset Avatars Array
+  const PRESET_AVATARS = [
+    'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120&h=120',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120&h=120',
+    'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=120&h=120',
+    'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=120&h=120',
+    'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=120&h=120',
+    'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=120&h=120',
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=120&h=120',
+  ];
+
   // New Resident Form Modal State
   const [showAddResidentModal, setShowAddResidentModal] = useState(false);
   const [resName, setResName] = useState('');
@@ -33,6 +44,7 @@ export default function ResidentsList({
   const [resPhys, setResPhys] = useState<'Independente' | 'Mobilidade Reduzida' | 'Cadeira de Rodas'>('Independente');
   const [resInterests, setResInterests] = useState('');
   const [resObs, setResObs] = useState('');
+  const [resPhoto, setResPhoto] = useState<string>(''); // Holds base64 or URL
 
   // Edit Resident Form Modal State
   const [showEditResidentModal, setShowEditResidentModal] = useState(false);
@@ -44,6 +56,25 @@ export default function ResidentsList({
   const [editResPhys, setEditResPhys] = useState<'Independente' | 'Mobilidade Reduzida' | 'Cadeira de Rodas'>('Independente');
   const [editResInterests, setEditResInterests] = useState('');
   const [editResObs, setEditResObs] = useState('');
+  const [editResPhoto, setEditResPhoto] = useState<string>(''); // Holds base64 or URL
+
+  // File Upload to Base64 Helper
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, isEdit: boolean) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          if (isEdit) {
+            setEditResPhoto(reader.result);
+          } else {
+            setResPhoto(reader.result);
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Helper to open edit modal
   const openEditResidentModal = (res: Resident) => {
@@ -54,6 +85,7 @@ export default function ResidentsList({
     setEditResPhys(res.physicalLevel);
     setEditResInterests(res.interests.join(', '));
     setEditResObs(res.observations || '');
+    setEditResPhoto(res.avatar || '');
     setShowEditResidentModal(true);
   };
 
@@ -78,6 +110,7 @@ export default function ResidentsList({
       physicalLevel: editResPhys,
       interests: parsedInterests.length > 0 ? parsedInterests : ['Música', 'Ar livre'],
       observations: editResObs.trim(),
+      avatar: editResPhoto || residentToUpdate.avatar,
     });
 
     setShowEditResidentModal(false);
@@ -135,7 +168,7 @@ export default function ResidentsList({
       'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=120&h=120',
       'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=120&h=120',
     ];
-    const chosenAvatar = randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
+    const chosenAvatar = resPhoto || randomAvatars[Math.floor(Math.random() * randomAvatars.length)];
 
     onAddResident({
       name: resName.trim(),
@@ -155,6 +188,7 @@ export default function ResidentsList({
     setResPhys('Independente');
     setResInterests('');
     setResObs('');
+    setResPhoto('');
     setShowAddResidentModal(false);
   };
 
@@ -875,8 +909,8 @@ export default function ResidentsList({
       {/* Register Resident Modal */}
       {showAddResidentModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in" id="resident-modal">
-          <div className="bg-white rounded-2xl border border-gray-100 max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+          <div className="bg-white rounded-2xl border border-gray-100 max-w-md w-full p-5 sm:p-6 shadow-2xl flex flex-col max-h-[92vh]">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 shrink-0 mb-2">
               <h3 className="font-display font-bold text-slate-800 text-base">
                 Registar Utente no Lar
               </h3>
@@ -889,7 +923,76 @@ export default function ResidentsList({
               </button>
             </div>
 
-            <form onSubmit={handleCreateResident} className="space-y-4 text-xs">
+            <form onSubmit={handleCreateResident} className="flex-1 flex flex-col min-h-0 text-xs">
+              <div className="flex-1 overflow-y-auto pr-1 space-y-4 pb-4">
+              {/* Foto de Perfil Selection/Upload */}
+              <div className="space-y-2">
+                <label className="block font-semibold text-gray-700">Foto do Utente</label>
+                <div className="flex items-center gap-4 bg-slate-50 border border-slate-100 p-3 rounded-xl">
+                  {/* Current Photo Preview */}
+                  <div className="relative group w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-200 bg-white shrink-0 flex items-center justify-center">
+                    {resPhoto ? (
+                      <img
+                        src={resPhoto}
+                        alt="Foto do Utente"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-gray-300 text-[10px] text-center font-semibold p-1">Sem foto</div>
+                    )}
+                    {resPhoto && (
+                      <button
+                        type="button"
+                        onClick={() => setResPhoto('')}
+                        className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                        title="Remover Foto"
+                      >
+                        Remover
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <p className="text-[10px] text-gray-500 font-medium">Carregue um ficheiro do computador ou escolha uma das fotos sugeridas abaixo.</p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('add-res-photo-input')?.click()}
+                        className="text-[10px] font-bold bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                      >
+                        📁 Carregar Ficheiro
+                      </button>
+                      <input
+                        type="file"
+                        id="add-res-photo-input"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, false)}
+                        className="hidden"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preset Avatars Selection */}
+                <div className="space-y-1">
+                  <span className="block text-[10px] font-semibold text-gray-500">Fotos sugeridas:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {PRESET_AVATARS.map((url, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setResPhoto(url)}
+                        className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all cursor-pointer hover:scale-105 ${
+                          resPhoto === url ? 'border-indigo-600 scale-105 shadow-xs' : 'border-gray-100 hover:border-gray-300'
+                        }`}
+                      >
+                        <img src={url} alt={`Preset ${idx + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block font-semibold text-gray-700 mb-1">Nome Completo</label>
                 <input
@@ -961,23 +1064,24 @@ export default function ResidentsList({
                   className="w-full p-2.5 border border-gray-200 rounded-lg bg-white"
                 />
               </div>
+            </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => setShowAddResidentModal(false)}
-                  className="px-4 py-2 hover:bg-gray-100 text-gray-600 rounded-lg transition-colors cursor-pointer"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-all cursor-pointer"
-                >
-                  Gravar Utente
-                </button>
-              </div>
-            </form>
+            <div className="flex justify-end gap-2 pt-3 border-t border-gray-100 shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowAddResidentModal(false)}
+                className="px-4 py-2 hover:bg-gray-100 text-gray-600 rounded-lg transition-colors cursor-pointer font-semibold text-xs"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-all cursor-pointer text-xs"
+              >
+                Gravar Utente
+              </button>
+            </div>
+          </form>
           </div>
         </div>
       )}
@@ -985,8 +1089,8 @@ export default function ResidentsList({
       {/* Edit Resident Modal */}
       {showEditResidentModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in" id="edit-resident-modal">
-          <div className="bg-white rounded-2xl border border-gray-100 max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+          <div className="bg-white rounded-2xl border border-gray-100 max-w-md w-full p-5 sm:p-6 shadow-2xl flex flex-col max-h-[92vh]">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 shrink-0 mb-2">
               <h3 className="font-display font-bold text-slate-800 text-base">
                 Editar Ficha do Utente
               </h3>
@@ -999,7 +1103,76 @@ export default function ResidentsList({
               </button>
             </div>
 
-            <form onSubmit={handleUpdateResidentSubmit} className="space-y-4 text-xs">
+            <form onSubmit={handleUpdateResidentSubmit} className="flex-1 flex flex-col min-h-0 text-xs">
+              <div className="flex-1 overflow-y-auto pr-1 space-y-4 pb-4">
+              {/* Foto de Perfil Selection/Upload */}
+              <div className="space-y-2">
+                <label className="block font-semibold text-gray-700">Foto do Utente</label>
+                <div className="flex items-center gap-4 bg-slate-50 border border-slate-100 p-3 rounded-xl">
+                  {/* Current Photo Preview */}
+                  <div className="relative group w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-200 bg-white shrink-0 flex items-center justify-center">
+                    {editResPhoto ? (
+                      <img
+                        src={editResPhoto}
+                        alt="Foto do Utente"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-gray-300 text-[10px] text-center font-semibold p-1">Sem foto</div>
+                    )}
+                    {editResPhoto && (
+                      <button
+                        type="button"
+                        onClick={() => setEditResPhoto('')}
+                        className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                        title="Remover Foto"
+                      >
+                        Remover
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <p className="text-[10px] text-gray-500 font-medium">Carregue um ficheiro do computador ou escolha uma das fotos sugeridas abaixo.</p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('edit-res-photo-input')?.click()}
+                        className="text-[10px] font-bold bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                      >
+                        📁 Carregar Ficheiro
+                      </button>
+                      <input
+                        type="file"
+                        id="edit-res-photo-input"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, true)}
+                        className="hidden"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preset Avatars Selection */}
+                <div className="space-y-1">
+                  <span className="block text-[10px] font-semibold text-gray-500">Fotos sugeridas:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {PRESET_AVATARS.map((url, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setEditResPhoto(url)}
+                        className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all cursor-pointer hover:scale-105 ${
+                          editResPhoto === url ? 'border-indigo-600 scale-105 shadow-xs' : 'border-gray-100 hover:border-gray-300'
+                        }`}
+                      >
+                        <img src={url} alt={`Preset ${idx + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block font-semibold text-gray-700 mb-1">Nome Completo</label>
                 <input
@@ -1071,23 +1244,24 @@ export default function ResidentsList({
                   className="w-full p-2.5 border border-gray-200 rounded-lg bg-white"
                 />
               </div>
+            </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => setShowEditResidentModal(false)}
-                  className="px-4 py-2 hover:bg-gray-100 text-gray-600 rounded-lg transition-colors cursor-pointer"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-all cursor-pointer"
-                >
-                  Salvar Alterações
-                </button>
-              </div>
-            </form>
+            <div className="flex justify-end gap-2 pt-3 border-t border-gray-100 shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowEditResidentModal(false)}
+                className="px-4 py-2 hover:bg-gray-100 text-gray-600 rounded-lg transition-colors cursor-pointer font-semibold text-xs"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-all cursor-pointer text-xs"
+              >
+                Salvar Alterações
+              </button>
+            </div>
+          </form>
           </div>
         </div>
       )}

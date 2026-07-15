@@ -9,9 +9,22 @@ interface TooltipProps {
 
 export default function Tooltip({ content, children, position = 'top' }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+
   const handleMouseEnter = () => {
+    if (isMobile) return;
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       setIsVisible(true);
@@ -67,7 +80,7 @@ export default function Tooltip({ content, children, position = 'top' }: Tooltip
     >
       {children}
       <AnimatePresence>
-        {isVisible && (
+        {isVisible && !isMobile && (
           <motion.div
             {...getAnimationProps()}
             transition={{ duration: 0.15, ease: 'easeOut' }}

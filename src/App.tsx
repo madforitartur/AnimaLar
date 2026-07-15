@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Resident, ScheduledActivity, ResidentProgressLog, Reminder, ActivityCategory } from './types';
+import { Resident, ScheduledActivity, ResidentProgressLog, Reminder, ActivityCategory, SuggestionRules } from './types';
 import {
   PREDEFINED_ACTIVITIES,
   INITIAL_RESIDENTS,
@@ -121,6 +121,33 @@ export default function App() {
     const saved = localStorage.getItem('animar_notified_activities');
     return saved ? JSON.parse(saved) : [];
   });
+
+  // Suggestion Rules State
+  const [suggestionRules, setSuggestionRules] = useState<SuggestionRules>(() => {
+    const saved = localStorage.getItem('animar_suggestion_rules');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Error parsing suggestion rules:', e);
+      }
+    }
+    return {
+      activeDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
+      maxPhysicalDaysPerWeek: 2,
+      maxCognitiveDaysPerWeek: 5,
+      maxMusicDaysPerWeek: 3,
+      maxOtherDaysPerWeek: 2,
+      morningCategoryPreference: 'cognitiva',
+      afternoonCategoryPreference: 'musica',
+      morningTime: '10:30',
+      afternoonTime: '15:30'
+    };
+  });
+
+  useEffect(() => {
+    localStorage.setItem('animar_suggestion_rules', JSON.stringify(suggestionRules));
+  }, [suggestionRules]);
 
   // Helper to request notification permission
   const requestNotificationPermission = async () => {
@@ -357,8 +384,8 @@ export default function App() {
 
   // Handler: Add Scheduled Activity
   const handleAddScheduledActivity = (newAct: Omit<ScheduledActivity, 'id'>) => {
-    const id = `sch_${Date.now()}`;
-    setScheduledActivities([...scheduledActivities, { ...newAct, id }]);
+    const id = `sch_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    setScheduledActivities(prev => [...prev, { ...newAct, id }]);
 
     // Add automatic reminder for this scheduled activity
     const activityReminder: Reminder = {
@@ -369,6 +396,27 @@ export default function App() {
       completed: false
     };
     setReminders(prev => [activityReminder, ...prev]);
+  };
+
+  // Handler: Add Multiple Scheduled Activities
+  const handleAddScheduledActivities = (newActs: Omit<ScheduledActivity, 'id'>[]) => {
+    const now = Date.now();
+    const newScheduled = newActs.map((act, index) => ({
+      ...act,
+      id: `sch_${now}_${index}_${Math.random().toString(36).substr(2, 5)}`
+    }));
+
+    setScheduledActivities(prev => [...prev, ...newScheduled]);
+
+    const newReminders = newScheduled.map(act => ({
+      id: `rem_auto_${act.id}`,
+      text: `Executar a atividade planeada: "${act.title}" agendada para as ${act.time}.`,
+      date: act.date,
+      type: 'atividade' as const,
+      completed: false
+    }));
+
+    setReminders(prev => [...newReminders, ...prev]);
   };
 
   // Handler: Toggle complete scheduled activity
@@ -398,6 +446,13 @@ export default function App() {
       }
       return r;
     }));
+  };
+
+  const handleReorderScheduledActivities = (reorderedForDay: ScheduledActivity[], dateStr: string) => {
+    setScheduledActivities(prev => {
+      const otherDays = prev.filter(a => a.date !== dateStr);
+      return [...otherDays, ...reorderedForDay];
+    });
   };
 
   // Handler: Manual add individual progress log
@@ -523,40 +578,11 @@ export default function App() {
           </div>
 
           {/* Time & Quick Indicator */}
-          <div className="flex items-center gap-4 text-xs font-medium self-end md:self-auto bg-slate-50 border border-gray-100 p-2 rounded-xl">
+          <div className="flex items-center gap-2 text-xs font-medium self-end md:self-auto bg-slate-50 border border-gray-100 p-2 rounded-xl">
             <div className="flex items-center gap-1.5 text-gray-500">
               <Clock className="w-4 h-4 text-indigo-500" />
               <span className="font-mono">13 Julho 2026</span>
             </div>
-            <div className="h-4 w-px bg-gray-200"></div>
-            <Tooltip position="bottom" content="Alertas no Navegador: Ative para receber lembretes automáticos no ecrã antes das sessões começarem">
-              <button
-                onClick={requestNotificationPermission}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer font-bold text-[11px] border ${
-                  notificationPermission === 'granted'
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                    : notificationPermission === 'denied'
-                    ? 'bg-rose-50 text-rose-700 border-rose-100'
-                    : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-100'
-                }`}
-              >
-                <Bell className={`w-3.5 h-3.5 ${notificationPermission === 'granted' ? 'animate-bounce' : ''}`} />
-                <span>
-                  {notificationPermission === 'granted'
-                    ? 'Notificações: Ativas'
-                    : notificationPermission === 'denied'
-                    ? 'Notificações: Bloqueadas'
-                    : 'Ativar Alertas'}
-                </span>
-              </button>
-            </Tooltip>
-            <div className="h-4 w-px bg-gray-200"></div>
-            <Tooltip position="bottom" content="Estado da Sessão: Indica que a aplicação está em execução ativa e síncrona">
-              <div className="flex items-center gap-1 text-emerald-700 select-none">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                <span>Sessão Ativa</span>
-              </div>
-            </Tooltip>
           </div>
 
         </div>
@@ -675,7 +701,7 @@ export default function App() {
           </div>
 
           {/* Quick Metrics Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3">
+          <div className="hidden md:grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3">
             
             <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-xs flex items-center justify-between">
               <div className="space-y-0.5">
@@ -732,11 +758,14 @@ export default function App() {
               scheduledActivities={scheduledActivities}
               residents={residents}
               activities={activities}
+              suggestionRules={suggestionRules}
               onAddScheduledActivity={handleAddScheduledActivity}
+              onAddScheduledActivities={handleAddScheduledActivities}
               onToggleCompleteActivity={handleToggleCompleteActivity}
               onDeleteScheduledActivity={handleDeleteScheduledActivity}
               onUpdateScheduledActivity={handleUpdateScheduledActivity}
               onOpenParticipationLog={handleOpenParticipationLog}
+              onReorderScheduledActivities={handleReorderScheduledActivities}
             />
           )}
 
@@ -755,6 +784,8 @@ export default function App() {
             <ActivitiesPanel
               activities={activities}
               scheduledActivities={scheduledActivities}
+              suggestionRules={suggestionRules}
+              onSetSuggestionRules={setSuggestionRules}
               onAddActivity={handleAddActivity}
               onDeleteActivity={handleDeleteActivity}
               onUpdateActivity={handleUpdateActivity}

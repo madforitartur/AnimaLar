@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, ScheduledActivity, ActivityCategory } from '../types';
+import { Activity, ScheduledActivity, ActivityCategory, SuggestionRules } from '../types';
 import {
   Plus, Search, Filter, Clock, BookOpen, BrainCircuit, Activity as PhysIcon,
   Music, Sparkles, Trash2, Calendar, CheckCircle, ListTodo, HelpCircle, Edit,
@@ -10,6 +10,8 @@ import Tooltip from './Tooltip';
 interface ActivitiesPanelProps {
   activities: Activity[];
   scheduledActivities: ScheduledActivity[];
+  suggestionRules?: SuggestionRules;
+  onSetSuggestionRules?: (rules: SuggestionRules) => void;
   onAddActivity: (activity: Omit<Activity, 'id'>) => void;
   onDeleteActivity: (id: string) => void;
   onUpdateActivity?: (activity: Activity) => void;
@@ -19,11 +21,14 @@ interface ActivitiesPanelProps {
 export default function ActivitiesPanel({
   activities,
   scheduledActivities,
+  suggestionRules,
+  onSetSuggestionRules,
   onAddActivity,
   onDeleteActivity,
   onUpdateActivity,
   onSelectTab
 }: ActivitiesPanelProps) {
+  const [activeSubTab, setActiveSubTab] = useState<'catalog' | 'rules'>('catalog');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<ActivityCategory | 'todos'>('todos');
   
@@ -151,6 +156,19 @@ export default function ActivitiesPanel({
     setShowAddModal(false);
   };
 
+  const handleToggleDay = (day: string) => {
+    if (!suggestionRules || !onSetSuggestionRules) return;
+    const activeDays = suggestionRules.activeDays.includes(day)
+      ? suggestionRules.activeDays.filter(d => d !== day)
+      : [...suggestionRules.activeDays, day];
+    onSetSuggestionRules({ ...suggestionRules, activeDays });
+  };
+
+  const handleRuleChange = (key: keyof SuggestionRules, value: any) => {
+    if (!suggestionRules || !onSetSuggestionRules) return;
+    onSetSuggestionRules({ ...suggestionRules, [key]: value });
+  };
+
   // Compute some quick statistics
   const scheduledCount = scheduledActivities.length;
   const completedCount = scheduledActivities.filter(a => a.completed).length;
@@ -178,8 +196,34 @@ export default function ActivitiesPanel({
         </button>
       </div>
 
-      {/* Grid containing filters, statistics, and main list */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Submenu de Navegação */}
+      <div className="flex border-b border-gray-100 pb-px print:hidden">
+        <button
+          onClick={() => setActiveSubTab('catalog')}
+          className={`px-5 py-3 text-xs font-bold border-b-2 -mb-px transition-all cursor-pointer ${
+            activeSubTab === 'catalog'
+              ? 'border-indigo-600 text-indigo-600 font-extrabold'
+              : 'border-transparent text-gray-500 hover:text-gray-800 font-medium'
+          }`}
+        >
+          📖 Catálogo de Modelos
+        </button>
+        <button
+          onClick={() => setActiveSubTab('rules')}
+          className={`px-5 py-3 text-xs font-bold border-b-2 -mb-px transition-all cursor-pointer ${
+            activeSubTab === 'rules'
+              ? 'border-indigo-600 text-indigo-600 font-extrabold'
+              : 'border-transparent text-gray-500 hover:text-gray-800 font-medium'
+          }`}
+          id="btn-rules-submenu"
+        >
+          ⚙️ Regras para Sugestão
+        </button>
+      </div>
+
+      {activeSubTab === 'catalog' ? (
+        /* Grid containing filters, statistics, and main list */
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* Sidebar Controls and Statistics */}
         <div className="lg:col-span-1 space-y-4">
@@ -404,6 +448,243 @@ export default function ActivitiesPanel({
         </div>
 
       </div>
+    ) : (
+      /* Rules for suggestion editor screen */
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-xs space-y-6 animate-fade-in" id="rules-view-container">
+        <div className="space-y-1">
+          <h3 className="font-display font-bold text-slate-800 text-sm sm:text-base flex items-center gap-1.5">
+            <span>⚙️</span> Regras para Sugestão de Planos
+          </h3>
+          <p className="text-gray-400 text-xs leading-relaxed">
+            As regras aqui estipuladas orientam a criação automática de planos semanais e mensais de estimulação. O algoritmo garantirá que as restrições e preferências definidas sejam cumpridas.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          {/* Card 1: Days of the week */}
+          <div className="bg-slate-50/50 border border-slate-100 p-5 rounded-2xl space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-base">📅</span>
+              <h4 className="font-display font-bold text-slate-800 text-xs uppercase tracking-wider">
+                Dias da Semana Ativos
+              </h4>
+            </div>
+            <p className="text-[11px] text-gray-400 font-medium">
+              Selecione em que dias da semana podem decorrer as atividades e rotinas de estimulação:
+            </p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((day) => {
+                const isActive = suggestionRules?.activeDays.includes(day);
+                return (
+                  <button
+                    key={day}
+                    type="button"
+                    onClick={() => handleToggleDay(day)}
+                    className={`w-11 h-11 rounded-xl text-xs font-bold transition-all border cursor-pointer flex items-center justify-center ${
+                      isActive
+                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100'
+                        : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600'
+                    }`}
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Card 2: Limits */}
+          <div className="bg-slate-50/50 border border-slate-100 p-5 rounded-2xl space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-base">⚖️</span>
+              <h4 className="font-display font-bold text-slate-800 text-xs uppercase tracking-wider">
+                Frequência Semanal Máxima por Categoria
+              </h4>
+            </div>
+            <p className="text-[11px] text-gray-400 font-medium">
+              Estipule o número máximo de dias por semana que podem incluir cada categoria de estimulação (ex: no máximo 2 dias com exercícios físicos):
+            </p>
+            
+            <div className="space-y-3 pt-1">
+              {/* Physical Limit */}
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-600 font-medium flex items-center gap-1.5">
+                  🏃‍♂️ Exercício Físico:
+                </span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="7"
+                    value={suggestionRules?.maxPhysicalDaysPerWeek ?? 2}
+                    onChange={(e) => handleRuleChange('maxPhysicalDaysPerWeek', Number(e.target.value))}
+                    className="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  />
+                  <span className="font-mono font-bold text-slate-800 w-8 text-right bg-white border border-gray-200 px-1.5 py-0.5 rounded">
+                    {suggestionRules?.maxPhysicalDaysPerWeek ?? 2}d
+                  </span>
+                </div>
+              </div>
+
+              {/* Cognitive Limit */}
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-600 font-medium flex items-center gap-1.5">
+                  🧠 Estimulação Cognitiva:
+                </span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="7"
+                    value={suggestionRules?.maxCognitiveDaysPerWeek ?? 5}
+                    onChange={(e) => handleRuleChange('maxCognitiveDaysPerWeek', Number(e.target.value))}
+                    className="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  />
+                  <span className="font-mono font-bold text-slate-800 w-8 text-right bg-white border border-gray-200 px-1.5 py-0.5 rounded">
+                    {suggestionRules?.maxCognitiveDaysPerWeek ?? 5}d
+                  </span>
+                </div>
+              </div>
+
+              {/* Music Limit */}
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-600 font-medium flex items-center gap-1.5">
+                  🎶 Musicoterapia:
+                </span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="7"
+                    value={suggestionRules?.maxMusicDaysPerWeek ?? 3}
+                    onChange={(e) => handleRuleChange('maxMusicDaysPerWeek', Number(e.target.value))}
+                    className="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  />
+                  <span className="font-mono font-bold text-slate-800 w-8 text-right bg-white border border-gray-200 px-1.5 py-0.5 rounded">
+                    {suggestionRules?.maxMusicDaysPerWeek ?? 3}d
+                  </span>
+                </div>
+              </div>
+
+              {/* Other Limit */}
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-600 font-medium flex items-center gap-1.5">
+                  🎨 Outros (Artes/Lazer):
+                </span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="7"
+                    value={suggestionRules?.maxOtherDaysPerWeek ?? 2}
+                    onChange={(e) => handleRuleChange('maxOtherDaysPerWeek', Number(e.target.value))}
+                    className="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    />
+                  <span className="font-mono font-bold text-slate-800 w-8 text-right bg-white border border-gray-200 px-1.5 py-0.5 rounded">
+                    {suggestionRules?.maxOtherDaysPerWeek ?? 2}d
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Preferences */}
+          <div className="bg-slate-50/50 border border-slate-100 p-5 rounded-2xl space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-base">💡</span>
+              <h4 className="font-display font-bold text-slate-800 text-xs uppercase tracking-wider">
+                Preferências por Período do Dia
+              </h4>
+            </div>
+            <p className="text-[11px] text-gray-400 font-medium">
+              Selecione as categorias que prefere realizar preferencialmente em cada período do dia:
+            </p>
+            
+            <div className="space-y-3 pt-1">
+              {/* Morning Preference */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                <span className="text-gray-600 font-medium">🌅 Período da Manhã:</span>
+                <select
+                  value={suggestionRules?.morningCategoryPreference ?? 'cognitiva'}
+                  onChange={(e) => handleRuleChange('morningCategoryPreference', e.target.value)}
+                  className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-indigo-500 bg-white cursor-pointer"
+                >
+                  <option value="cognitiva">🧠 Estimulação Cognitiva</option>
+                  <option value="fisica">🏃‍♂️ Exercício Físico</option>
+                  <option value="musica">🎶 Musicoterapia</option>
+                  <option value="outro">🎨 Outras (Artes / Lazer)</option>
+                  <option value="aleatorio">🎲 Aleatório / Variado</option>
+                </select>
+              </div>
+
+              {/* Afternoon Preference */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                <span className="text-gray-600 font-medium">🌇 Período da Tarde:</span>
+                <select
+                  value={suggestionRules?.afternoonCategoryPreference ?? 'musica'}
+                  onChange={(e) => handleRuleChange('afternoonCategoryPreference', e.target.value)}
+                  className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-indigo-500 bg-white cursor-pointer"
+                >
+                  <option value="cognitiva">🧠 Estimulação Cognitiva</option>
+                  <option value="fisica">🏃‍♂️ Exercício Físico</option>
+                  <option value="musica">🎶 Musicoterapia</option>
+                  <option value="outro">🎨 Outras (Artes / Lazer)</option>
+                  <option value="aleatorio">🎲 Aleatório / Variado</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: Hours */}
+          <div className="bg-slate-50/50 border border-slate-100 p-5 rounded-2xl space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-base">🕒</span>
+              <h4 className="font-display font-bold text-slate-800 text-xs uppercase tracking-wider">
+                Horários de Realização Padrão
+              </h4>
+            </div>
+            <p className="text-[11px] text-gray-400 font-medium">
+              Configure o horário padrão em que as sessões de animação devem idealmente começar em cada turno:
+            </p>
+
+            <div className="grid grid-cols-2 gap-4 pt-1">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Manhã</label>
+                <input
+                  type="text"
+                  value={suggestionRules?.morningTime ?? '10:30'}
+                  onChange={(e) => handleRuleChange('morningTime', e.target.value)}
+                  placeholder="Ex: 10:30"
+                  className="w-full text-xs border border-gray-200 rounded-xl px-3 py-2 focus:outline-hidden focus:border-indigo-500 bg-white font-mono text-center"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Tarde</label>
+                <input
+                  type="text"
+                  value={suggestionRules?.afternoonTime ?? '15:30'}
+                  onChange={(e) => handleRuleChange('afternoonTime', e.target.value)}
+                  placeholder="Ex: 15:30"
+                  className="w-full text-xs border border-gray-200 rounded-xl px-3 py-2 focus:outline-hidden focus:border-indigo-500 bg-white font-mono text-center"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-gray-100 flex justify-end">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveSubTab('catalog');
+            }}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer shadow-md shadow-indigo-100 transition-all flex items-center gap-1.5"
+          >
+            <span>Guardar e Ver Catálogo</span>
+          </button>
+        </div>
+      </div>
+    )}
 
       {/* CREATE NEW ACTIVITY MODAL */}
       {showAddModal && (

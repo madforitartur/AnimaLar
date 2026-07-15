@@ -55,3 +55,16 @@ export interface Reminder {
   type: 'atividade' | 'saude' | 'geral';
   completed: boolean;
 }
+
+export interface SuggestionRules {
+  activeDays: string[]; // e.g. ['Seg', 'Ter', 'Qua', 'Qui', 'Sex']
+  maxPhysicalDaysPerWeek: number;
+  maxCognitiveDaysPerWeek: number;
+  maxMusicDaysPerWeek: number;
+  maxOtherDaysPerWeek: number;
+  morningCategoryPreference: 'cognitiva' | 'fisica' | 'musica' | 'outro' | 'aleatorio';
+  afternoonCategoryPreference: 'cognitiva' | 'fisica' | 'musica' | 'outro' | 'aleatorio';
+  morningTime: string; // e.g. "10:30"
+  afternoonTime: string; // e.g. "15:30"
+}
+
