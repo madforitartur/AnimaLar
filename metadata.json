@@ -1,0 +1,6 @@
+{
+  "name": "AnimaLar",
+  "description": "Programa de planeamento de atividades de animação sociocultural e monitorização individual em lares de idosos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
