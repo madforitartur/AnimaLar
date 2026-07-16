@@ -609,23 +609,26 @@ export default function App() {
         <div className="w-full flex flex-col gap-4">
           
           {/* Top Row: Logo & App Branding + Reduced Date */}
-          <div className="flex flex-row items-center justify-between gap-2 w-full">
-            {/* Logo & App Branding */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-200 shrink-0">
-                <Heart className="w-5 sm:w-5.5 h-5 sm:h-5.5 text-white animate-pulse" />
-              </div>
-              <div>
+          <div className="flex flex-row items-center justify-between gap-4 w-full">
+            {/* Logo & App Branding (Lar de Santo António) */}
+            <div className="flex items-center gap-3 sm:gap-4 select-none">
+              <img 
+                src="/lar_santo_antonio_logo.jpg" 
+                alt="Logo Lar de Santo António" 
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-gray-100 shadow-xs shrink-0"
+                referrerPolicy="no-referrer"
+              />
+              <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
-                  <h1 className="font-display font-extrabold text-slate-800 text-sm sm:text-lg leading-none tracking-tight">
-                    AnimaLar
+                  <h1 className="font-display font-extrabold text-slate-800 text-xs sm:text-lg leading-tight tracking-tight">
+                    Lar de Santo António
                   </h1>
-                  <span className="text-[8px] sm:text-[9px] uppercase font-bold text-emerald-700 bg-emerald-50 px-1 sm:px-1.5 py-0.2 rounded shrink-0">
-                    Sociocultural
-                  </span>
                 </div>
-                <p className="text-[9px] sm:text-[10px] text-gray-400 font-medium font-mono mt-0.5 max-w-[140px] xs:max-w-[200px] sm:max-w-none truncate sm:whitespace-normal">
-                  Gestor de Estimulação & Rotinas de Animação
+                <p className="text-[8px] sm:text-xs text-gray-500 font-medium leading-none mt-1">
+                  Rua Pedro Alvares Cabral, 165 Creixomil — 4835-091
+                </p>
+                <p className="text-[8px] sm:text-[10px] text-gray-400 font-semibold font-mono mt-0.5">
+                  Tel: 253 521 801
                 </p>
               </div>
             </div>

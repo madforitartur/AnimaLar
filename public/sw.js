@@ -1,9 +1,10 @@
-const CACHE_NAME = 'animalar-cache-v2';
+const CACHE_NAME = 'animalar-cache-v3';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/favicon.ico'
+  '/favicon.ico',
+  '/lar_santo_antonio_logo.jpg'
 ];
 
 self.addEventListener('install', event => {

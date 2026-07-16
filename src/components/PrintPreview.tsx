@@ -435,6 +435,18 @@ export default function PrintPreview({ scheduledActivities }: PrintPreviewProps)
 
   const activeWeek = weeks[selectedWeekIndex] || weeks[0] || Array(7).fill(null);
 
+  const getPeriodoReferencia = () => {
+    if (viewMode === 'mensal') {
+      return `De 01 a ${totalDays} de ${monthNames[month]} de ${year}`;
+    } else {
+      const validDays = activeWeek.filter((d): d is number => d !== null);
+      if (validDays.length === 0) return `Semana ${selectedWeekIndex + 1} de ${monthNames[month]} de ${year}`;
+      const firstDay = validDays[0];
+      const lastDay = validDays[validDays.length - 1];
+      return `Semana ${selectedWeekIndex + 1} (${firstDay} a ${lastDay} de ${monthNames[month]} de ${year})`;
+    }
+  };
+
   return (
     <div className="space-y-6" id="print-preview-container">
       {/* Estilos dinâmicos para otimização de impressão física em A4 Landscape */}
@@ -644,21 +656,44 @@ export default function PrintPreview({ scheduledActivities }: PrintPreviewProps)
       {/* Printable Sheet (Always Visible, Styled beautifully for screen and printed cleanly for paper) */}
       <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm print:shadow-none print:border-none print:p-0 font-sans" id="printable-sheet">
         {/* Document Header */}
-        <div className="border-b border-gray-300 pb-5 mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-3">
-          <div className="space-y-1">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-700 print:text-black">Plano de Atividades de Animação Sociocultural</span>
-            <h1 className="font-display font-black text-2xl text-slate-800 print:text-black">
-              {viewMode === 'mensal' 
-                ? `Rotina Mensal de Atividades — ${monthNames[month]} de ${year}`
-                : `Rotina Semanal de Atividades — ${weeks[selectedWeekIndex] ? getWeekLabel(weeks[selectedWeekIndex], selectedWeekIndex).split(' (')[1].replace(')', '') : `${monthNames[month]} de ${year}`}`
-              }
-            </h1>
-            <p className="text-xs text-gray-500 print:text-black">
-              Foco terapêutico: Estimulação Cognitiva, Exercícios Físicos Adaptados, Musicoterapia e Integração Social.
-            </p>
+        <div className="border-b border-gray-300 pb-5 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          {/* Logo & App Branding (Lar de Santo António) */}
+          <div className="flex items-center gap-3.5 select-none">
+            <img 
+              src="/lar_santo_antonio_logo.jpg" 
+              alt="Logo Lar de Santo António" 
+              className="w-14 h-14 rounded-full object-cover border border-gray-100 shadow-xs shrink-0"
+              referrerPolicy="no-referrer"
+            />
+            <div className="flex flex-col">
+              <h1 className="font-display font-extrabold text-slate-800 text-lg leading-tight tracking-tight">
+                Lar de Santo António
+              </h1>
+              <p className="text-xs text-gray-500 font-medium leading-none mt-1">
+                Rua Pedro Alvares Cabral, 165 Creixomil — 4835-091
+              </p>
+              <p className="text-[10px] text-gray-400 font-semibold font-mono mt-0.5">
+                Tel: 253 521 801
+              </p>
+            </div>
           </div>
-          <div className="text-right text-[10px] text-gray-400 font-mono print:text-black">
-            Lar de Idosos São Francisco • Emitido em 13/07/2026
+
+          {/* Document & Period Info */}
+          <div className="text-left md:text-right space-y-1.5 md:max-w-md">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-700 print:text-black block">
+              Plano de Atividades de Animação Sociocultural
+            </span>
+            <div className="bg-slate-50 border border-slate-100 rounded-lg px-3 py-1.5 md:inline-block text-left">
+              <span className="text-[8px] uppercase font-bold text-slate-400 tracking-wider block">
+                Período de Referência
+              </span>
+              <span className="text-xs font-bold text-slate-800 print:text-black">
+                {getPeriodoReferencia()}
+              </span>
+            </div>
+            <p className="text-[9px] text-gray-400 font-mono block">
+              Emitido em 13/07/2026
+            </p>
           </div>
         </div>
 

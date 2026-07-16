@@ -224,7 +224,7 @@ export default function ResidentsList({
 
     if (resLogs.length === 0) {
       setGeneratedReport(
-        `RELATÓRIO DE PROGRESSO INDIVIDUAL\nLar de Idosos São Francisco\nData: 13/07/2026\n\nResidente: ${
+        `RELATÓRIO DE PROGRESSO INDIVIDUAL\nLar de Santo António\nData: 13/07/2026\n\nResidente: ${
           selectedResident.name
         } (${calculateAge(selectedResident.birthDate)} anos)\nNível Cognitivo: ${
           selectedResident.cognitiveLevel
