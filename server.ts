@@ -662,6 +662,9 @@ Por favor, garante que a resposta respeita exatamente a estrutura do JSON requer
   // -------------------------------------------------------------------------
   // Vite Integration (Dev Mode vs. Production Mode)
   // -------------------------------------------------------------------------
+  // Servir ficheiros estáticos da pasta public diretamente (como o logo e manifest)
+  app.use(express.static(path.join(process.cwd(), "public")));
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animalar-cache-v3';
+const CACHE_NAME = 'animalar-cache-v4';
 const urlsToCache = [
   '/',
   '/index.html',

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild src/main.tsx --bundle --minify --target=es2018 --format=iife --global-name=AnimaLar --loader:.css=empty --define:process.env.NODE_ENV='\"production\"' --outfile=dist/assets/offline.js && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "build": "vite build && esbuild src/main.tsx --bundle --minify --target=es2018 --format=iife --global-name=AnimaLar --loader:.css=empty --loader:.jpg=dataurl --define:process.env.NODE_ENV='\"production\"' --outfile=dist/assets/offline.js && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",

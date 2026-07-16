@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+// @ts-ignore
+import logoUrl from '../assets/images/lar_santo_antonio_logo_perfect_1784226948200.jpg';
 import { ScheduledActivity } from '../types';
 import { Printer, Download, Info, Calendar, LayoutGrid, ListTodo } from 'lucide-react';
 
@@ -660,7 +662,7 @@ export default function PrintPreview({ scheduledActivities }: PrintPreviewProps)
           {/* Logo & App Branding (Lar de Santo António) */}
           <div className="flex items-center gap-3.5 select-none">
             <img 
-              src="/lar_santo_antonio_logo.jpg" 
+              src={logoUrl} 
               alt="Logo Lar de Santo António" 
               className="w-14 h-14 rounded-full object-cover border border-gray-100 shadow-xs shrink-0"
               referrerPolicy="no-referrer"

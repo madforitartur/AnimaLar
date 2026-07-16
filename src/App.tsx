@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+// @ts-ignore
+import logoUrl from './assets/images/lar_santo_antonio_logo_perfect_1784226948200.jpg';
 import { Resident, ScheduledActivity, ResidentProgressLog, Reminder, ActivityCategory, SuggestionRules } from './types';
 import {
   PREDEFINED_ACTIVITIES,
@@ -613,7 +615,7 @@ export default function App() {
             {/* Logo & App Branding (Lar de Santo António) */}
             <div className="flex items-center gap-3 sm:gap-4 select-none">
               <img 
-                src="/lar_santo_antonio_logo.jpg" 
+                src={logoUrl} 
                 alt="Logo Lar de Santo António" 
                 className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-gray-100 shadow-xs shrink-0"
                 referrerPolicy="no-referrer"
