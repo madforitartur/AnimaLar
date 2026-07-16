@@ -973,7 +973,7 @@ export default function App() {
 
       {/* Application Footer (Hidden on Print) */}
       <footer className="bg-white border-t border-gray-100 py-6 text-center text-xs text-gray-400 font-medium shrink-0 print:hidden">
-        <p>© 2026 AnimaLar Sociocultural — Desenvolvido com foco no envelhecimento ativo e estimulação terapêutica diária.</p>
+        <p>© 2026 AnimaLar Sociocultural — Gestor de Estimulação & Rotinas de Animação, desenvolvido para Carina Fontes</p>
       </footer>
 
       {/* BATCH ATTENDANCE & LOG PROGRESS MODAL */}

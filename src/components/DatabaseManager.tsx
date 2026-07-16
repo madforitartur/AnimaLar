@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Resident, ScheduledActivity, ResidentProgressLog, Reminder } from '../types';
 import {
   Database,
@@ -15,7 +15,9 @@ import {
   FileSpreadsheet,
   Settings,
   Flame,
-  HelpCircle
+  HelpCircle,
+  Smartphone,
+  Plus
 } from 'lucide-react';
 
 interface DatabaseManagerProps {
@@ -47,6 +49,61 @@ export default function DatabaseManager({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // PWA states and logic
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    // Check if running in standalone display mode
+    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || 
+                           (window.navigator as any).standalone === true ||
+                           document.referrer.includes('android-app://');
+    
+    if (isStandaloneMode) {
+      setIsInstalled(true);
+    }
+
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      setIsInstallable(false);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (!deferredPrompt) {
+      alert("Para instalar a aplicação no seu telemóvel ou tablet:\n\n• No iPhone/iPad (Safari): Toque no ícone de Partilhar (↑) no navegador e escolha a opção 'Adicionar ao Ecrã Principal'.\n\n• No Android (Chrome/Edge): Toque nos três pontos (⋮) no canto superior direito e selecione 'Instalar aplicação' ou 'Adicionar ao ecrã principal'.");
+      return;
+    }
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsInstalled(true);
+        setIsInstallable(false);
+        setDeferredPrompt(null);
+      }
+    } catch (err) {
+      console.error("Erro ao invocar o prompt de instalação do PWA:", err);
+    }
+  };
 
   // Trigger manual synchronization with the SQLite Server
   const handleManualSync = async () => {
@@ -445,41 +502,92 @@ export default function DatabaseManager({
 
         </div>
 
-        {/* Database Stats Card */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs space-y-4 flex flex-col justify-between">
-          <div className="space-y-4">
-            <h3 className="font-display font-bold text-gray-800 text-xs sm:text-sm border-b border-gray-50 pb-3 flex items-center gap-2">
-              <Settings className="w-4 h-4 text-slate-600" />
-              Informação Estatística SQLite
-            </h3>
+        {/* Right Column: Stats & PWA Installation */}
+        <div className="flex flex-col gap-6 lg:col-span-1">
+          {/* Database Stats Card */}
+          <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs space-y-4 flex flex-col justify-between h-full">
+            <div className="space-y-4">
+              <h3 className="font-display font-bold text-gray-800 text-xs sm:text-sm border-b border-gray-50 pb-3 flex items-center gap-2">
+                <Settings className="w-4 h-4 text-slate-600" />
+                Informação Estatística SQLite
+              </h3>
 
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between text-xs border-b border-gray-50 pb-1.5">
-                <span className="text-gray-400 font-medium">Tabela Residents:</span>
-                <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{residents.length} registos</span>
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between text-xs border-b border-gray-50 pb-1.5">
+                  <span className="text-gray-400 font-medium">Tabela Residents:</span>
+                  <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{residents.length} registos</span>
+                </div>
+                <div className="flex items-center justify-between text-xs border-b border-gray-50 pb-1.5">
+                  <span className="text-gray-400 font-medium">Tabela Scheduled_activities:</span>
+                  <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{scheduledActivities.length} registos</span>
+                </div>
+                <div className="flex items-center justify-between text-xs border-b border-gray-50 pb-1.5">
+                  <span className="text-gray-400 font-medium">Tabela Progress_logs:</span>
+                  <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{progressLogs.length} registos</span>
+                </div>
+                <div className="flex items-center justify-between text-xs border-b border-gray-50 pb-1.5">
+                  <span className="text-gray-400 font-medium">Tabela Reminders:</span>
+                  <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{reminders.length} registos</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between text-xs border-b border-gray-50 pb-1.5">
-                <span className="text-gray-400 font-medium">Tabela Scheduled_activities:</span>
-                <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{scheduledActivities.length} registos</span>
-              </div>
-              <div className="flex items-center justify-between text-xs border-b border-gray-50 pb-1.5">
-                <span className="text-gray-400 font-medium">Tabela Progress_logs:</span>
-                <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{progressLogs.length} registos</span>
-              </div>
-              <div className="flex items-center justify-between text-xs border-b border-gray-50 pb-1.5">
-                <span className="text-gray-400 font-medium">Tabela Reminders:</span>
-                <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{reminders.length} registos</span>
+
+              <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-[10px] text-gray-400 space-y-1">
+                <p className="font-semibold text-slate-700">A sua informação está protegida:</p>
+                <p>Os dados clínicos, históricos de pontuação de bem-estar social, cognitivo e motor estão guardados com confidencialidade local total.</p>
               </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-[10px] text-gray-400 space-y-1">
-              <p className="font-semibold text-slate-700">A sua informação está protegida:</p>
-              <p>Os dados clínicos, históricos de pontuação de bem-estar social, cognitivo e motor estão guardados com confidencialidade local total.</p>
+            <div className="pt-4 border-t border-gray-100/50 flex flex-col gap-1.5 text-[10px]">
+              <p className="text-gray-400 text-center font-medium">Formato da base de dados: SQLite v3</p>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-gray-100/50 flex flex-col gap-1.5 text-[10px]">
-            <p className="text-gray-400 text-center font-medium">Formato da base de dados: SQLite v3</p>
+          {/* PWA Installation Card */}
+          <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs space-y-4 flex flex-col justify-between">
+            <div className="space-y-3">
+              <h3 className="font-display font-bold text-gray-800 text-xs sm:text-sm border-b border-gray-50 pb-3 flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-indigo-600" />
+                Instalar Aplicação (PWA)
+              </h3>
+              
+              <p className="text-[11px] text-gray-500 leading-relaxed">
+                Adicione o AnimaLar ao ecrã principal do seu telemóvel ou tablet. Funciona como uma aplicação nativa: acesso imediato, sem barras do browser e usabilidade perfeita.
+              </p>
+
+              {isInstalled ? (
+                <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <p className="text-[11px] font-bold text-emerald-800">Aplicação Instalada!</p>
+                    <p className="text-[10px] text-emerald-600/90 leading-snug">
+                      Já está a usufruir da experiência completa PWA no seu dispositivo.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3 pt-1">
+                  <button
+                    onClick={handleInstallApp}
+                    className="w-full flex items-center justify-center gap-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl transition-all cursor-pointer shadow-xs hover:shadow-md"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Instalar no Dispositivo
+                  </button>
+
+                  <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl space-y-2 text-[10px] text-gray-500">
+                    <p className="font-semibold text-slate-700">Instruções rápidas:</p>
+                    <ul className="list-disc list-inside space-y-1 leading-relaxed">
+                      <li>
+                        <strong className="text-slate-700">Android / Chrome:</strong> Clique no botão ou use os 3 pontos <span className="font-bold">⋮</span> &rarr; <span className="italic">Instalar aplicação</span>.
+                      </li>
+                      <li>
+                        <strong className="text-slate-700">Apple iOS / Safari:</strong> Clique no botão de partilha <span className="font-bold">↑</span> &rarr; <span className="italic">Adicionar ao Ecrã Principal</span>.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
