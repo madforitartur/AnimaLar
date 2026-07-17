@@ -11,9 +11,10 @@ interface CalendarViewProps {
   activities: Activity[];
   suggestionRules: SuggestionRules;
   onAddScheduledActivity: (activity: Omit<ScheduledActivity, 'id'>) => void;
-  onAddScheduledActivities?: (activities: Omit<ScheduledActivity, 'id'>[]) => void;
+  onAddScheduledActivities?: (activities: Omit<ScheduledActivity, 'id'>[], clearDates?: string[]) => void;
   onToggleCompleteActivity: (id: string) => void;
   onDeleteScheduledActivity: (id: string) => void;
+  onDeleteScheduledActivities?: (ids: string[]) => void;
   onUpdateScheduledActivity?: (activity: ScheduledActivity) => void;
   onOpenParticipationLog: (activity: ScheduledActivity) => void;
   onReorderScheduledActivities?: (activities: ScheduledActivity[], date: string) => void;
@@ -28,6 +29,7 @@ export default function CalendarView({
   onAddScheduledActivities,
   onToggleCompleteActivity,
   onDeleteScheduledActivity,
+  onDeleteScheduledActivities,
   onUpdateScheduledActivity,
   onOpenParticipationLog,
   onReorderScheduledActivities,
@@ -39,6 +41,33 @@ export default function CalendarView({
   const [filterCategory, setFilterCategory] = useState<ActivityCategory | 'todos'>('todos');
   const [showGeminiPlanner, setShowGeminiPlanner] = useState(false);
   const [calendarViewMode, setCalendarViewMode] = useState<'mensal' | 'semanal'>('mensal');
+  const [confirmClear, setConfirmClear] = useState(false);
+
+  const getScheduledActivitiesForPeriod = () => {
+    if (calendarViewMode === 'mensal') {
+      const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+      return scheduledActivities.filter(act => act.date.startsWith(monthPrefix));
+    } else {
+      const weekDays = getWeekDays(selectedDateStr);
+      const weekDates = new Set(weekDays.map(d => d.dateStr));
+      return scheduledActivities.filter(act => weekDates.has(act.date));
+    }
+  };
+
+  const handleClearPeriodActivities = () => {
+    const periodActs = getScheduledActivitiesForPeriod();
+    const idsToDelete = periodActs
+      .filter(act => act.activityId !== 'act_leitura_jornal' && !act.id.startsWith('sch_leitura_jornal_'))
+      .map(act => act.id);
+    if (idsToDelete.length > 0) {
+      if (onDeleteScheduledActivities) {
+        onDeleteScheduledActivities(idsToDelete);
+      } else {
+        idsToDelete.forEach(id => onDeleteScheduledActivity(id));
+      }
+    }
+    setConfirmClear(false);
+  };
 
   // Scheduling Modal State
   const [showModal, setShowModal] = useState(false);
@@ -58,7 +87,9 @@ export default function CalendarView({
   const touchCurrentIndex = useRef<number>(-1);
 
   const getSelectedDayActs = () => {
-    return scheduledActivities.filter((a) => a.date === selectedDateStr);
+    return scheduledActivities
+      .filter((a) => a.date === selectedDateStr)
+      .sort((a, b) => a.time.localeCompare(b.time));
   };
 
   const handleDragStart = (id: string, index: number) => {
@@ -275,11 +306,13 @@ export default function CalendarView({
 
   // Filter and sort activities
   const getActivitiesForDate = (dateStr: string) => {
-    return scheduledActivities.filter((act) => {
-      const matchDate = act.date === dateStr;
-      const matchFilter = filterCategory === 'todos' || act.category === filterCategory;
-      return matchDate && matchFilter;
-    });
+    return scheduledActivities
+      .filter((act) => {
+        const matchDate = act.date === dateStr;
+        const matchFilter = filterCategory === 'todos' || act.category === filterCategory;
+        return matchDate && matchFilter;
+      })
+      .sort((a, b) => a.time.localeCompare(b.time));
   };
 
   // Open modal to schedule activity
@@ -362,17 +395,39 @@ export default function CalendarView({
           >
             {/* Header of cell */}
             <div className="flex items-center justify-between mb-1.5">
-              <span
-                className={`text-xs font-mono font-bold w-5.5 h-5.5 flex items-center justify-center rounded-full ${
-                  isToday
-                    ? 'bg-indigo-600 text-white'
-                    : isSelected
-                    ? 'text-indigo-900 bg-indigo-100'
-                    : 'text-gray-500'
-                }`}
-              >
-                {dayNumber}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span
+                  className={`text-xs font-mono font-bold w-5.5 h-5.5 flex items-center justify-center rounded-full ${
+                    isToday
+                      ? 'bg-indigo-600 text-white'
+                      : isSelected
+                      ? 'text-indigo-900 bg-indigo-100'
+                      : 'text-gray-500'
+                  }`}
+                >
+                  {dayNumber}
+                </span>
+                {/* Dots signaling scheduled activities */}
+                {dailyActs.length > 0 && (
+                  <div className="flex gap-1 flex-wrap">
+                    {dailyActs.map(act => (
+                      <span
+                        key={act.id}
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          act.category === 'cognitiva'
+                            ? 'bg-purple-500'
+                            : act.category === 'fisica'
+                            ? 'bg-amber-500'
+                            : act.category === 'musica'
+                            ? 'bg-blue-500'
+                            : 'bg-slate-400'
+                        }`}
+                        title={act.title}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
               {isToday && (
                 <span className="text-[9px] uppercase font-bold text-indigo-700 bg-indigo-50 px-1 py-0.2 rounded font-sans scale-90">
                   Hoje
@@ -541,11 +596,12 @@ export default function CalendarView({
             </span>
             
             {/* Tiny Indicator dots container */}
-            <div className="flex gap-0.5 pb-1 justify-center max-w-full overflow-hidden">
-              {categories.map((cat) => (
+            <div className="flex gap-0.5 pb-1 justify-center max-w-full overflow-hidden flex-wrap">
+              {dailyActs.map((act) => (
                 <span
-                  key={cat}
-                  className={`w-1.5 h-1.5 rounded-full ${dotColors[cat] || 'bg-slate-300'}`}
+                  key={act.id}
+                  className={`w-1.5 h-1.5 rounded-full ${dotColors[act.category] || 'bg-slate-300'}`}
+                  title={act.title}
                 />
               ))}
             </div>
@@ -613,9 +669,31 @@ export default function CalendarView({
                   <span className="text-[10px] uppercase font-bold text-gray-400 block tracking-wide">
                     {day.dayName}
                   </span>
-                  <span className="font-display font-bold text-sm text-gray-800">
-                    {day.dayNumber} {day.monthShort}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-display font-bold text-sm text-gray-800">
+                      {day.dayNumber} {day.monthShort}
+                    </span>
+                    {/* Dots signaling scheduled activities */}
+                    {dailyActs.length > 0 && (
+                      <div className="flex gap-0.5">
+                        {dailyActs.map(act => (
+                          <span
+                            key={act.id}
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              act.category === 'cognitiva'
+                                ? 'bg-purple-500'
+                                : act.category === 'fisica'
+                                ? 'bg-amber-500'
+                                : act.category === 'musica'
+                                ? 'bg-blue-500'
+                                : 'bg-slate-400'
+                            }`}
+                            title={act.title}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {isToday && (
                   <span className="text-[8px] uppercase font-bold text-white bg-indigo-600 px-1.5 py-0.5 rounded font-sans shrink-0">
@@ -764,7 +842,9 @@ export default function CalendarView({
   };
 
   // Get details of selected day for the side view
-  const selectedDayActs = scheduledActivities.filter((a) => a.date === selectedDateStr);
+  const selectedDayActs = scheduledActivities
+    .filter((a) => a.date === selectedDateStr)
+    .sort((a, b) => a.time.localeCompare(b.time));
   const formattedSelectedDate = new Date(selectedDateStr).toLocaleDateString('pt-PT', {
     weekday: 'long',
     day: 'numeric',
@@ -911,16 +991,48 @@ export default function CalendarView({
               Gere automaticamente sugestões de estimulação que respeitam as regras personalizadas.
             </p>
           </div>
-          <Tooltip position="left" content="Sugerir plano: Gerar automaticamente sugestões de atividades socioculturais que cumprem as suas regras de estimulação personalizadas">
-            <button
-              onClick={() => setShowGeminiPlanner(true)}
-              className="flex items-center gap-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-xs hover:shadow-md shrink-0 w-full sm:w-auto justify-center"
-              id="btn-open-gemini-planner"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" />
-              Sugerir plano
-            </button>
-          </Tooltip>
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+            {getScheduledActivitiesForPeriod().length > 0 && (
+              <div className="relative shrink-0">
+                {confirmClear ? (
+                  <div className="flex items-center gap-1 bg-rose-50 border border-rose-200 p-1 rounded-lg">
+                    <span className="text-[9px] font-semibold text-rose-700 px-1">Apagar {getScheduledActivitiesForPeriod().length}?</span>
+                    <button
+                      onClick={handleClearPeriodActivities}
+                      className="text-[9px] font-bold bg-rose-600 hover:bg-rose-700 text-white px-2 py-1 rounded-md transition-all cursor-pointer"
+                    >
+                      Sim
+                    </button>
+                    <button
+                      onClick={() => setConfirmClear(false)}
+                      className="text-[9px] font-semibold bg-white hover:bg-slate-50 border border-gray-200 text-gray-600 px-2 py-1 rounded-md transition-all cursor-pointer"
+                    >
+                      Não
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmClear(true)}
+                    className="flex items-center justify-center gap-1 text-[10px] font-bold text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 rounded-lg px-2.5 py-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                    title="Apagar todas as atividades do período selecionado"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Limpar {calendarViewMode === 'mensal' ? 'Mês' : 'Semana'}</span>
+                  </button>
+                )}
+              </div>
+            )}
+            <Tooltip position="left" content="Sugerir plano: Gerar automaticamente sugestões de atividades socioculturais que cumprem as suas regras de estimulação personalizadas">
+              <button
+                onClick={() => setShowGeminiPlanner(true)}
+                className="flex items-center gap-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-xs hover:shadow-md shrink-0 w-full sm:w-auto justify-center"
+                id="btn-open-gemini-planner"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" />
+                Sugerir plano
+              </button>
+            </Tooltip>
+          </div>
         </div>
 
         {/* Conditional Month view vs Weekly view rendering */}

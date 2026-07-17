@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Resident, ScheduledActivity, ActivityCategory, Activity, SuggestionRules } from '../types';
 import {
   Sparkles,
@@ -18,7 +19,8 @@ import {
   CheckCircle,
   Settings,
   ChevronRight,
-  Sparkle
+  Sparkle,
+  X
 } from 'lucide-react';
 import Tooltip from './Tooltip';
 
@@ -31,7 +33,7 @@ interface GeminiPlannerProps {
   selectedDateStr: string;
   calendarViewMode: 'mensal' | 'semanal';
   onAddScheduledActivity: (activity: Omit<ScheduledActivity, 'id'>) => void;
-  onAddScheduledActivities?: (activities: Omit<ScheduledActivity, 'id'>[]) => void;
+  onAddScheduledActivities?: (activities: Omit<ScheduledActivity, 'id'>[], clearDates?: string[]) => void;
   onClose: () => void;
 }
 
@@ -54,6 +56,16 @@ export default function GeminiPlanner({
 
   // Track scheduled states for individual indices
   const [scheduledIndices, setScheduledIndices] = useState<Record<number, boolean>>({});
+  const [showToast, setShowToast] = useState(false);
+
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        setShowToast(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showToast]);
 
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -148,6 +160,18 @@ export default function GeminiPlanner({
           return;
         }
 
+        // Always insert "Leitura do Jornal" as a daily cognitive routine at 08:00 AM
+        generated.push({
+          activityId: 'act_leitura_jornal',
+          title: 'Atividade de Estimulação Cognitiva - Intelectuais / Formativas - Leitura do Jornal',
+          description: 'Leitura diária comentada de notícias, efemérides e debates sobre temas atuais nacionais e internacionais para exercitar a atenção, raciocínio de atualidades e interação social.\n\n[Materiais de Apoio]: Jornais diários portugueses, Óculos de leitura adicionais, Lupa se necessário\n[Objetivos Terapêuticos]: Estimular a atenção focada, Promover o raciocínio crítico e verbalização, Manter contacto com a realidade quotidiana',
+          category: 'cognitiva',
+          date: dateStr,
+          slot: 'manha',
+          time: '08:00',
+          completed: false,
+        });
+
         const mondayStr = getMondayOfDate(dateStr);
         if (!weeklyStats[mondayStr]) {
           weeklyStats[mondayStr] = {
@@ -213,7 +237,7 @@ export default function GeminiPlanner({
           weeklyStats[mondayStr][chosenCat].add(dateStr);
 
           // Get template
-          const templates = activities.filter(act => act.category === chosenCat);
+          const templates = activities.filter(act => act.category === chosenCat && act.id !== 'act_leitura_jornal');
           if (templates.length > 0) {
             let unused = templates.filter(t => !usedActivityIds[chosenCat].includes(t.id));
             if (unused.length === 0) {
@@ -262,8 +286,15 @@ export default function GeminiPlanner({
     const toSchedule = suggestions.filter((_, idx) => !scheduledIndices[idx]);
     if (toSchedule.length === 0) return;
 
+    let targetDates: string[] = [];
+    if (period === 'semana') {
+      targetDates = getWeekDates(selectedDateStr);
+    } else {
+      targetDates = getMonthDates(currentYear, currentMonth);
+    }
+
     if (onAddScheduledActivities) {
-      onAddScheduledActivities(toSchedule);
+      onAddScheduledActivities(toSchedule, targetDates);
     } else {
       toSchedule.forEach(act => {
         onAddScheduledActivity(act);
@@ -275,6 +306,7 @@ export default function GeminiPlanner({
       allMarked[idx] = true;
     });
     setScheduledIndices(allMarked);
+    setShowToast(true);
   };
 
   const categoryLabels = {
@@ -303,31 +335,43 @@ export default function GeminiPlanner({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <button
-            onClick={onClose}
-            className="text-xs font-bold text-gray-500 hover:text-slate-800 hover:bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 transition-all cursor-pointer"
-          >
-            Voltar ao Calendário
-          </button>
-          
-          <button
-            onClick={handleGenerateSuggestions}
-            disabled={loading}
-            className="flex items-center gap-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>A processar...</span>
-              </>
-            ) : (
-              <>
-                <Sparkle className="w-4 h-4 text-white" />
-                <span>Recalcular Sugestões</span>
-              </>
-            )}
-          </button>
+        <div className="flex flex-col gap-2 self-stretch sm:self-auto items-stretch sm:items-end">
+          <div className="flex items-center gap-2 justify-end">
+            <button
+              onClick={onClose}
+              className="text-xs font-bold text-gray-500 hover:text-slate-800 hover:bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 transition-all cursor-pointer"
+            >
+              Voltar ao Calendário
+            </button>
+            
+            <button
+              onClick={handleGenerateSuggestions}
+              disabled={loading}
+              className="flex items-center gap-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>A processar...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkle className="w-4 h-4 text-white" />
+                  <span>Recalcular Sugestões</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {suggestions.length > 0 && !loading && !error && (
+            <button
+              onClick={handleScheduleAll}
+              className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer w-full sm:max-w-xs"
+            >
+              <CalendarDays className="w-4 h-4 text-white" />
+              <span>Agendar Todas no Calendário</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -464,22 +508,12 @@ export default function GeminiPlanner({
           ) : (
             <div className="space-y-4 animate-fade-in">
               
-              {/* List Header and Bulk Action */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></span>
-                  <span className="font-bold text-slate-800 text-xs sm:text-sm">
-                    {suggestions.length} Sugestões de Estimulação Geradas com Sucesso
-                  </span>
-                </div>
-                
-                <button
-                  onClick={handleScheduleAll}
-                  className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer"
-                >
-                  <CalendarDays className="w-4 h-4 text-white" />
-                  <span>Agendar Todas no Calendário</span>
-                </button>
+              {/* List Header */}
+              <div className="flex items-center gap-2 bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs">
+                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></span>
+                <span className="font-bold text-slate-800 text-xs sm:text-sm">
+                  {suggestions.length} Sugestões de Estimulação Geradas com Sucesso
+                </span>
               </div>
 
               {/* Grid of suggested cards */}
@@ -588,6 +622,38 @@ export default function GeminiPlanner({
         </div>
 
       </div>
+
+      {/* Floating Success Toast / Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="fixed bottom-6 right-6 z-[100] bg-emerald-600 text-white rounded-2xl shadow-xl border border-emerald-500/30 px-5 py-4 flex items-center gap-3.5 max-w-sm"
+          >
+            <div className="bg-white/20 p-1.5 rounded-full">
+              <CheckCircle className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display font-bold text-xs leading-none tracking-wide text-white">
+                Agendadas com sucesso
+              </p>
+              <p className="text-[10px] text-emerald-100 mt-1 leading-normal font-medium">
+                Todas as sugestões de estimulação foram marcadas no calendário do lar!
+              </p>
+            </div>
+            <button
+              onClick={() => setShowToast(false)}
+              className="text-emerald-100 hover:text-white hover:bg-white/10 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
+              aria-label="Fechar notificação"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

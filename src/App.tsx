@@ -76,6 +76,93 @@ const ensureUniqueReminders = (list: Reminder[]): Reminder[] => {
   });
 };
 
+const ensureDailyLeituraJornal = (
+  list: ScheduledActivity[],
+  rules?: SuggestionRules,
+  deletedDates?: string[]
+): ScheduledActivity[] => {
+  const existingMap = new Map<string, ScheduledActivity>();
+  list.forEach(act => {
+    if (act.activityId === 'act_leitura_jornal' || act.id.startsWith('sch_leitura_jornal_')) {
+      existingMap.set(act.date, act);
+    }
+  });
+
+  const updatedList = list.filter(act => act.activityId !== 'act_leitura_jornal' && !act.id.startsWith('sch_leitura_jornal_'));
+
+  const years = [2025, 2026, 2027];
+  const deletedSet = new Set(deletedDates || []);
+  const activeDaysSet = new Set(rules?.activeDays || ['Seg', 'Ter', 'Qua', 'Qui', 'Sex']);
+
+  const getPortugueseWeekday = (dateStr: string): string => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    const dayOfWeek = date.getDay(); // 0 is Sunday, 1 is Monday, etc.
+    const mapping = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    return mapping[dayOfWeek];
+  };
+
+  const finalActs: ScheduledActivity[] = [...updatedList];
+
+  for (const year of years) {
+    for (let month = 1; month <= 12; month++) {
+      const daysInMonth = new Date(year, month, 0).getDate();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const weekday = getPortugueseWeekday(dateStr);
+
+        const shouldSchedule = activeDaysSet.has(weekday) && !deletedSet.has(dateStr);
+        const existing = existingMap.get(dateStr);
+
+        if (shouldSchedule) {
+          if (existing) {
+            finalActs.push({ ...existing, time: '08:00' });
+          } else {
+            let isCompleted = false;
+            if (year === 2026 && month === 7) {
+              isCompleted = day < 13;
+            }
+            finalActs.push({
+              id: `sch_leitura_jornal_${dateStr}`,
+              activityId: 'act_leitura_jornal',
+              title: 'Atividade de Estimulação Cognitiva - Intelectuais / Formativas - Leitura do Jornal',
+              description: 'Leitura diária comentada de notícias, efemérides e debates sobre temas atuais nacionais e internacionais para exercitar a atenção, raciocínio de atualidades e interação social.',
+              category: 'cognitiva',
+              date: dateStr,
+              slot: 'manha',
+              time: '08:00',
+              completed: isCompleted
+            });
+          }
+        }
+      }
+    }
+  }
+
+  if (list.length === finalActs.length) {
+    const listMap = new Map<string, ScheduledActivity>();
+    list.forEach(a => listMap.set(a.id, a));
+    
+    const isIdentical = finalActs.every(a => {
+      const orig = listMap.get(a.id);
+      if (!orig) return false;
+      return (
+        orig.time === a.time &&
+        orig.completed === a.completed &&
+        orig.title === a.title &&
+        orig.date === a.date &&
+        orig.category === a.category
+      );
+    });
+
+    if (isIdentical) {
+      return list;
+    }
+  }
+
+  return finalActs;
+};
+
 export default function App() {
   // Navigation State
   const [currentTab, setCurrentTab] = useState<'planner' | 'residents' | 'reminders' | 'print' | 'database' | 'activities' | 'materials'>('planner');
@@ -126,17 +213,96 @@ export default function App() {
     return INITIAL_RESIDENTS;
   });
 
-  const [scheduledActivities, setScheduledActivities] = useState<ScheduledActivity[]>(() => {
+  // Suggestion Rules State
+  const [suggestionRules, setSuggestionRules] = useState<SuggestionRules>(() => {
+    const saved = safeLocalStorage.getItem('animar_suggestion_rules');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Error parsing suggestion rules:', e);
+      }
+    }
+    return {
+      activeDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
+      maxPhysicalDaysPerWeek: 2,
+      maxCognitiveDaysPerWeek: 5,
+      maxMusicDaysPerWeek: 3,
+      maxOtherDaysPerWeek: 2,
+      morningCategoryPreference: 'cognitiva',
+      afternoonCategoryPreference: 'musica',
+      morningTime: '10:30',
+      afternoonTime: '15:30'
+    };
+  });
+
+  useEffect(() => {
+    safeLocalStorage.setItem('animar_suggestion_rules', JSON.stringify(suggestionRules));
+  }, [suggestionRules]);
+
+  const [deletedLeituraJornalDates, setDeletedLeituraJornalDates] = useState<string[]>(() => {
+    try {
+      const saved = safeLocalStorage.getItem('animar_deleted_leitura_jornal_dates');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error('Error parsing deleted leitura jornal dates:', e);
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    safeLocalStorage.setItem('animar_deleted_leitura_jornal_dates', JSON.stringify(deletedLeituraJornalDates));
+  }, [deletedLeituraJornalDates]);
+
+  const [scheduledActivities, _setScheduledActivities] = useState<ScheduledActivity[]>(() => {
+    let baseList: ScheduledActivity[] = [];
     try {
       const saved = safeLocalStorage.getItem('animar_scheduled');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        baseList = JSON.parse(saved);
+      }
     } catch (e) {
       console.error("Erro ao analisar atividades agendadas guardadas em localStorage:", e);
     }
-    const offlineData = (window as any).INITIAL_OFFLINE_DATA;
-    if (offlineData && offlineData.scheduledActivities) return offlineData.scheduledActivities;
-    return getInitialScheduledActivities();
+
+    if (baseList.length === 0) {
+      const offlineData = (window as any).INITIAL_OFFLINE_DATA;
+      if (offlineData && offlineData.scheduledActivities) {
+        baseList = offlineData.scheduledActivities;
+      } else {
+        baseList = getInitialScheduledActivities();
+      }
+    }
+
+    // Load initial values from localStorage directly since state variables might be uninitialized during lazy initializers, or we can use the default rules/deleted dates as fallback.
+    const savedRulesStr = safeLocalStorage.getItem('animar_suggestion_rules');
+    let rulesVal = { activeDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'] };
+    if (savedRulesStr) {
+      try { rulesVal = JSON.parse(savedRulesStr); } catch(e){}
+    }
+    const savedDeletedStr = safeLocalStorage.getItem('animar_deleted_leitura_jornal_dates');
+    let deletedVal: string[] = [];
+    if (savedDeletedStr) {
+      try { deletedVal = JSON.parse(savedDeletedStr); } catch(e){}
+    }
+
+    return ensureDailyLeituraJornal(baseList, rulesVal as SuggestionRules, deletedVal);
   });
+
+  const setScheduledActivities = (
+    value: ScheduledActivity[] | ((prev: ScheduledActivity[]) => ScheduledActivity[])
+  ) => {
+    _setScheduledActivities(prev => {
+      const next = typeof value === 'function' ? value(prev) : value;
+      return ensureDailyLeituraJornal(next, suggestionRules, deletedLeituraJornalDates);
+    });
+  };
+
+  useEffect(() => {
+    _setScheduledActivities(prev => {
+      return ensureDailyLeituraJornal(prev, suggestionRules, deletedLeituraJornalDates);
+    });
+  }, [suggestionRules, deletedLeituraJornalDates]);
 
   const [progressLogs, setProgressLogs] = useState<ResidentProgressLog[]>(() => {
     try {
@@ -175,32 +341,7 @@ export default function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Suggestion Rules State
-  const [suggestionRules, setSuggestionRules] = useState<SuggestionRules>(() => {
-    const saved = safeLocalStorage.getItem('animar_suggestion_rules');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Error parsing suggestion rules:', e);
-      }
-    }
-    return {
-      activeDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
-      maxPhysicalDaysPerWeek: 2,
-      maxCognitiveDaysPerWeek: 5,
-      maxMusicDaysPerWeek: 3,
-      maxOtherDaysPerWeek: 2,
-      morningCategoryPreference: 'cognitiva',
-      afternoonCategoryPreference: 'musica',
-      morningTime: '10:30',
-      afternoonTime: '15:30'
-    };
-  });
 
-  useEffect(() => {
-    safeLocalStorage.setItem('animar_suggestion_rules', JSON.stringify(suggestionRules));
-  }, [suggestionRules]);
 
   // Helper to request notification permission
   const requestNotificationPermission = async () => {
@@ -437,6 +578,10 @@ export default function App() {
 
   // Handler: Add Scheduled Activity
   const handleAddScheduledActivity = (newAct: Omit<ScheduledActivity, 'id'>) => {
+    if (newAct.activityId === 'act_leitura_jornal') {
+      setDeletedLeituraJornalDates(prev => prev.filter(d => d !== newAct.date));
+    }
+
     const id = `sch_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     setScheduledActivities(prev => [...prev, { ...newAct, id }]);
 
@@ -452,14 +597,29 @@ export default function App() {
   };
 
   // Handler: Add Multiple Scheduled Activities
-  const handleAddScheduledActivities = (newActs: Omit<ScheduledActivity, 'id'>[]) => {
+  const handleAddScheduledActivities = (newActs: Omit<ScheduledActivity, 'id'>[], clearDates?: string[]) => {
+    const datesToRemove = newActs
+      .filter(act => act.activityId === 'act_leitura_jornal')
+      .map(act => act.date);
+    if (datesToRemove.length > 0) {
+      setDeletedLeituraJornalDates(prev => prev.filter(d => !datesToRemove.includes(d)));
+    }
+
     const now = Date.now();
     const newScheduled = newActs.map((act, index) => ({
       ...act,
       id: `sch_${now}_${index}_${Math.random().toString(36).substr(2, 5)}`
     }));
 
-    setScheduledActivities(prev => [...prev, ...newScheduled]);
+    const targetDates = new Set(clearDates && clearDates.length > 0 ? clearDates : newActs.map(act => act.date));
+
+    setScheduledActivities(prev => {
+      // Filter out pre-existing activities for target dates, but PRESERVE Leitura do Jornal
+      const preserved = prev.filter(
+        act => !targetDates.has(act.date) || act.activityId === 'act_leitura_jornal' || act.id.startsWith('sch_leitura_jornal_')
+      );
+      return [...preserved, ...newScheduled];
+    });
 
     const newReminders = newScheduled.map(act => ({
       id: `rem_auto_${act.id}`,
@@ -469,7 +629,10 @@ export default function App() {
       completed: false
     }));
 
-    setReminders(prev => ensureUniqueReminders([...newReminders, ...prev]));
+    setReminders(prev => {
+      const preservedReminders = prev.filter(r => !targetDates.has(r.date) || !r.id.startsWith('rem_auto_'));
+      return ensureUniqueReminders([...newReminders, ...preservedReminders]);
+    });
   };
 
   // Handler: Toggle complete scheduled activity
@@ -481,9 +644,41 @@ export default function App() {
 
   // Handler: Delete scheduled activity
   const handleDeleteScheduledActivity = (id: string) => {
+    const act = scheduledActivities.find(a => a.id === id);
+    if (act && (act.activityId === 'act_leitura_jornal' || act.id.startsWith('sch_leitura_jornal_'))) {
+      if (!deletedLeituraJornalDates.includes(act.date)) {
+        setDeletedLeituraJornalDates(prev => [...prev, act.date]);
+      }
+    }
+
     setScheduledActivities(prev => prev.filter(act => act.id !== id));
     // Also clear associated automatic reminder if exists
     setReminders(prev => prev.filter(r => r.id !== `rem_auto_${id}`));
+  };
+
+  const handleDeleteScheduledActivities = (ids: string[]) => {
+    const idSet = new Set(ids);
+    const deletedDates = scheduledActivities
+      .filter(act => idSet.has(act.id) && (act.activityId === 'act_leitura_jornal' || act.id.startsWith('sch_leitura_jornal_')))
+      .map(act => act.date);
+    if (deletedDates.length > 0) {
+      setDeletedLeituraJornalDates(prev => {
+        const next = [...prev];
+        deletedDates.forEach(d => {
+          if (!next.includes(d)) next.push(d);
+        });
+        return next;
+      });
+    }
+
+    setScheduledActivities(prev => prev.filter(act => !idSet.has(act.id)));
+    setReminders(prev => prev.filter(r => {
+      if (r.id.startsWith('rem_auto_')) {
+        const actId = r.id.replace('rem_auto_', '');
+        return !idSet.has(actId);
+      }
+      return true;
+    }));
   };
 
   const handleUpdateScheduledActivity = (updatedAct: ScheduledActivity) => {
@@ -911,6 +1106,7 @@ export default function App() {
               onAddScheduledActivities={handleAddScheduledActivities}
               onToggleCompleteActivity={handleToggleCompleteActivity}
               onDeleteScheduledActivity={handleDeleteScheduledActivity}
+              onDeleteScheduledActivities={handleDeleteScheduledActivities}
               onUpdateScheduledActivity={handleUpdateScheduledActivity}
               onOpenParticipationLog={handleOpenParticipationLog}
               onReorderScheduledActivities={handleReorderScheduledActivities}

@@ -2,6 +2,15 @@ import { Activity, Resident, ScheduledActivity, ResidentProgressLog, Reminder } 
 
 export const ORIGINAL_PREDEFINED_ACTIVITIES: Activity[] = [
   {
+    id: 'act_leitura_jornal',
+    title: 'Atividade de Estimulação Cognitiva - Intelectuais / Formativas - Leitura do Jornal',
+    description: 'Leitura diária comentada de notícias, efemérides e debates sobre temas atuais nacionais e internacionais para exercitar a atenção, raciocínio de atualidades e interação social.',
+    category: 'cognitiva',
+    durationMinutes: 45,
+    materials: ['Jornais diários portugueses', 'Óculos de leitura adicionais', 'Lupa se necessário'],
+    objectives: ['Estimular a atenção focada', 'Promover o raciocínio crítico e verbalização', 'Manter contacto com a realidade quotidiana']
+  },
+  {
     id: 'act_1',
     title: 'Jogo da Memória dos Provérbios',
     description: 'Exercício de completar ditos populares e provérbios antigos portugueses para estimular a memória semântica e a fluência verbal.',
@@ -378,6 +387,22 @@ export const getInitialScheduledActivities = (): ScheduledActivity[] => {
       completed: false
     }
   ];
+
+  // Generate Leitura do Jornal for every single day of July 2026 (1 to 31)
+  for (let day = 1; day <= 31; day++) {
+    const dateStr = `2026-07-${String(day).padStart(2, '0')}`;
+    list.push({
+      id: `sch_leitura_jornal_${day}`,
+      activityId: 'act_leitura_jornal',
+      title: 'Atividade de Estimulação Cognitiva - Intelectuais / Formativas - Leitura do Jornal',
+      description: 'Leitura diária comentada de notícias, efemérides e debates sobre temas atuais nacionais e internacionais para exercitar a atenção, raciocínio de atualidades e interação social.',
+      category: 'cognitiva',
+      date: dateStr,
+      slot: 'manha',
+      time: '08:00',
+      completed: day < 13
+    });
+  }
 
   return list;
 };

@@ -38,7 +38,9 @@ export default function PrintPreview({ scheduledActivities }: PrintPreviewProps)
     
     for (let day = 1; day <= totalDays; day++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const dayActs = scheduledActivities.filter(a => a.date === dateStr);
+      const dayActs = scheduledActivities
+        .filter(a => a.date === dateStr)
+        .sort((a, b) => a.time.localeCompare(b.time));
       
       map[day] = {
         manha: dayActs.filter(a => a.slot === 'manha'),
@@ -360,30 +362,11 @@ export default function PrintPreview({ scheduledActivities }: PrintPreviewProps)
       const pdfWidth = 297; // A4 landscape width in mm
       const pdfHeight = 210; // A4 landscape height in mm
       
-      // Compute the scaling factor to fit the entire weekly or monthly view perfectly on a single page
-      const margin = 8; // Margin in mm around the paper edge
-      const printableWidth = pdfWidth - (margin * 2); // 281 mm
-      const printableHeight = pdfHeight - (margin * 2); // 194 mm
-
-      const canvasRatio = canvas.width / canvas.height;
-      const printableRatio = printableWidth / printableHeight;
-
-      let finalWidth = printableWidth;
-      let finalHeight = printableHeight;
-
-      if (canvasRatio > printableRatio) {
-        // Limited by the width of A4 Landscape
-        finalWidth = printableWidth;
-        finalHeight = printableWidth / canvasRatio;
-      } else {
-        // Limited by the height of A4 Landscape
-        finalHeight = printableHeight;
-        finalWidth = printableHeight * canvasRatio;
-      }
-
-      // Center the graphic on the A4 page
-      const xOffset = margin + (printableWidth - finalWidth) / 2;
-      const yOffset = margin + (printableHeight - finalHeight) / 2;
+      // Configure to fill the entire A4 Landscape sheet perfectly from edge to edge (0 margins)
+      const xOffset = 0;
+      const yOffset = 0;
+      const finalWidth = pdfWidth;
+      const finalHeight = pdfHeight;
 
       pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
 
