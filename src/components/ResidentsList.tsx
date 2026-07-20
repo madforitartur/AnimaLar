@@ -135,7 +135,7 @@ export default function ResidentsList({
   // Helper: Compute Age
   const calculateAge = (birthDateStr: string) => {
     const birth = new Date(birthDateStr);
-    const today = new Date('2026-07-13'); // Matches simulated current time
+    const today = new Date(); // Actual current time
     let age = today.getFullYear() - birth.getFullYear();
     const m = today.getMonth() - birth.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {

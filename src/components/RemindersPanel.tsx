@@ -29,7 +29,7 @@ export default function RemindersPanel({
   // Compute automatic alerts
   const generateAutoAlerts = () => {
     const alerts: { id: string; text: string; type: 'warning' | 'info'; residentId: string }[] = [];
-    const today = new Date('2026-07-13'); // Fixed simulated date matching local time mock
+    const today = new Date(); // Actual current time
 
     residents.forEach((resident) => {
       // Find logs for this resident

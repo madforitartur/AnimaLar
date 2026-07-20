@@ -20,6 +20,14 @@ interface CalendarViewProps {
   onReorderScheduledActivities?: (activities: ScheduledActivity[], date: string) => void;
 }
 
+const getTodayStr = (): string => {
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
 export default function CalendarView({
   scheduledActivities,
   residents,
@@ -34,10 +42,10 @@ export default function CalendarView({
   onOpenParticipationLog,
   onReorderScheduledActivities,
 }: CalendarViewProps) {
-  // Current month being viewed - default to July 2026
-  const [currentYear, setCurrentYear] = useState(2026);
-  const [currentMonth, setCurrentMonth] = useState(6); // 0-indexed, so 6 is July
-  const [selectedDateStr, setSelectedDateStr] = useState('2026-07-13'); // default selected date
+  // Current month being viewed - default to the current month/year
+  const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth()); // 0-indexed
+  const [selectedDateStr, setSelectedDateStr] = useState(() => getTodayStr()); // default selected date is today
   const [filterCategory, setFilterCategory] = useState<ActivityCategory | 'todos'>('todos');
   const [showGeminiPlanner, setShowGeminiPlanner] = useState(false);
   const [calendarViewMode, setCalendarViewMode] = useState<'mensal' | 'semanal'>('mensal');
@@ -231,6 +239,12 @@ export default function CalendarView({
 
   const daysOfWeek = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
+  // Helper: Parse YYYY-MM-DD into a Date object in the local timezone (avoiding UTC timezone shift)
+  const parseLocalDate = (dateStr: string): Date => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   // Helper: Get days in month
   const getDaysInMonth = (year: number, month: number) => {
     return new Date(year, month + 1, 0).getDate();
@@ -248,7 +262,7 @@ export default function CalendarView({
 
   // Month and Week navigation
   const handlePrevWeek = () => {
-    const date = new Date(selectedDateStr);
+    const date = parseLocalDate(selectedDateStr);
     date.setDate(date.getDate() - 7);
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -260,7 +274,7 @@ export default function CalendarView({
   };
 
   const handleNextWeek = () => {
-    const date = new Date(selectedDateStr);
+    const date = parseLocalDate(selectedDateStr);
     date.setDate(date.getDate() + 7);
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -382,7 +396,7 @@ export default function CalendarView({
         const morningActs = dailyActs.filter((a) => a.slot === 'manha');
         const afternoonActs = dailyActs.filter((a) => a.slot === 'tarde');
         const isSelected = selectedDateStr === dateStr;
-        const isToday = dateStr === '2026-07-13'; // Simulating 13th July 2026
+        const isToday = dateStr === getTodayStr();
 
         cells.push(
           <div
@@ -562,7 +576,7 @@ export default function CalendarView({
         const dateStr = formatDateString(dayNumber);
         const dailyActs = getActivitiesForDate(dateStr);
         const isSelected = selectedDateStr === dateStr;
-        const isToday = dateStr === '2026-07-13'; // Simulating today
+        const isToday = dateStr === getTodayStr();
 
         // Unique categories for dot indicators
         const categories = Array.from(new Set(dailyActs.map(a => a.category)));
@@ -614,7 +628,7 @@ export default function CalendarView({
 
   // Helper: Get days of the week for the selected date
   const getWeekDays = (dateStr: string) => {
-    const date = new Date(dateStr);
+    const date = parseLocalDate(dateStr);
     const day = date.getDay();
     // JS getDay(): 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     // Shift so Monday is 0 and Sunday is 6
@@ -650,7 +664,7 @@ export default function CalendarView({
           const morningActs = dailyActs.filter((a) => a.slot === 'manha');
           const afternoonActs = dailyActs.filter((a) => a.slot === 'tarde');
           const isSelected = selectedDateStr === day.dateStr;
-          const isToday = day.dateStr === '2026-07-13'; // Simulating today
+          const isToday = day.dateStr === getTodayStr();
 
           return (
             <div
@@ -845,7 +859,7 @@ export default function CalendarView({
   const selectedDayActs = scheduledActivities
     .filter((a) => a.date === selectedDateStr)
     .sort((a, b) => a.time.localeCompare(b.time));
-  const formattedSelectedDate = new Date(selectedDateStr).toLocaleDateString('pt-PT', {
+  const formattedSelectedDate = parseLocalDate(selectedDateStr).toLocaleDateString('pt-PT', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

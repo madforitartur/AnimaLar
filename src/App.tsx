@@ -63,6 +63,23 @@ const safeLocalStorage = {
 
 const isStandalone = (window as any).IS_OFFLINE_STANDALONE || window.location.protocol === 'file:';
 
+export const getTodayStr = (): string => {
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
+export const getTodayFormatted = (): string => {
+  const today = new Date();
+  const months = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ];
+  return `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+};
+
 const ensureUniqueReminders = (list: Reminder[]): Reminder[] => {
   const seen = new Set<string>();
   return list.map((rem, idx) => {
@@ -786,11 +803,11 @@ export default function App() {
 
   // Compute stats for top cards
   const completedTodayCount = scheduledActivities.filter(
-    a => a.date === '2026-07-13' && a.completed
+    a => a.date === getTodayStr() && a.completed
   ).length;
 
   const totalTodayCount = scheduledActivities.filter(
-    a => a.date === '2026-07-13'
+    a => a.date === getTodayStr()
   ).length;
 
   const activeRemindersCount = reminders.filter(r => !r.completed).length;
@@ -834,7 +851,7 @@ export default function App() {
             <div className="flex items-center gap-1 text-[10px] sm:text-xs font-medium bg-slate-50 border border-gray-100 px-2 py-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0">
               <div className="flex items-center gap-1 text-gray-500">
                 <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                <span className="font-mono shrink-0">13 Julho 2026</span>
+                <span className="font-mono shrink-0">{getTodayFormatted()}</span>
               </div>
             </div>
           </div>

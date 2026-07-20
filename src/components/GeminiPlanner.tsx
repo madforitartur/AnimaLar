@@ -72,9 +72,15 @@ export default function GeminiPlanner({
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
 
+  // Helper: Parse YYYY-MM-DD into a Date object in the local timezone (avoiding UTC timezone shift)
+  const parseLocalDate = (dateStr: string): Date => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   // Helper: Get Monday date for any YYYY-MM-DD date
   const getMondayOfDate = (dateStr: string) => {
-    const d = new Date(dateStr);
+    const d = parseLocalDate(dateStr);
     const day = d.getDay();
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     const monday = new Date(d.setDate(diff));
@@ -87,7 +93,7 @@ export default function GeminiPlanner({
   // Helper: Get all dates for the current week starting on Monday
   const getWeekDates = (baseDateStr: string) => {
     const dates: string[] = [];
-    const baseDate = new Date(baseDateStr);
+    const baseDate = parseLocalDate(baseDateStr);
     const dayOfW = baseDate.getDay();
     const shift = dayOfW === 0 ? -6 : 1 - dayOfW; // Shift to Monday
     const monday = new Date(baseDate);
@@ -152,7 +158,7 @@ export default function GeminiPlanner({
       };
 
       targetDates.forEach(dateStr => {
-        const dObj = new Date(dateStr);
+        const dObj = parseLocalDate(dateStr);
         const dayName = weekdayMap[dObj.getDay()];
         
         // Only schedule on active days
@@ -521,7 +527,7 @@ export default function GeminiPlanner({
                 {suggestions.map((act, idx) => {
                   const catInfo = categoryLabels[act.category];
                   const isScheduled = scheduledIndices[idx];
-                  const dateObj = new Date(act.date);
+                  const dateObj = parseLocalDate(act.date);
                   const formattedDate = dateObj.toLocaleDateString('pt-PT', {
                     weekday: 'long',
                     day: 'numeric',
