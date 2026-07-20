@@ -33,33 +33,51 @@ export function InstallPrompt() {
     const now = Date.now();
     const isDismissedRecently = lastDismissed && (now - parseInt(lastDismissed, 10)) < 24 * 60 * 60 * 1000;
 
+    let installTimer: any = null;
+
+    const triggerPromptWithDelay = (promptEvent: any) => {
+      setDeferredPrompt(promptEvent);
+      if (!isDismissedRecently && isMobileOrTablet()) {
+        if (installTimer) clearTimeout(installTimer);
+        installTimer = setTimeout(() => {
+          setShowPrompt(true);
+        }, 1500); // reduced delay for quicker engagement
+      }
+    };
+
+    // Check if early capture grabbed the prompt event
+    if ((window as any).deferredInstallPrompt) {
+      triggerPromptWithDelay((window as any).deferredInstallPrompt);
+    }
+
+    // Listen for custom dispatch if it fires later
+    const handlePwaInstallable = () => {
+      if ((window as any).deferredInstallPrompt) {
+        triggerPromptWithDelay((window as any).deferredInstallPrompt);
+      }
+    };
+    window.addEventListener('pwa-installable', handlePwaInstallable);
+
     // 4. Listen for Chrome / Android beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
-      
-      // Only show prompt if not dismissed recently and on a mobile screen size/agent
-      if (!isDismissedRecently && isMobileOrTablet()) {
-        // Show after a subtle delay to let the page load
-        const timer = setTimeout(() => {
-          setShowPrompt(true);
-        }, 3000);
-        return () => clearTimeout(timer);
-      }
+      (window as any).deferredInstallPrompt = e;
+      triggerPromptWithDelay(e);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     // 5. Fallback for iOS/Safari where beforeinstallprompt doesn't fire
-    if (detectIOS && !isDismissedRecently && isMobileOrTablet()) {
-      const timer = setTimeout(() => {
+    if (detectIOS && !isDismissedRecently && isMobileOrTablet() && !((window as any).deferredInstallPrompt)) {
+      installTimer = setTimeout(() => {
         setShowPrompt(true);
       }, 4000);
-      return () => clearTimeout(timer);
     }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('pwa-installable', handlePwaInstallable);
+      if (installTimer) clearTimeout(installTimer);
     };
   }, []);
 

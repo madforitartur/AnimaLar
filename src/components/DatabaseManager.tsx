@@ -65,13 +65,29 @@ export default function DatabaseManager({
       setIsInstalled(true);
     }
 
+    // Load from early-captured prompt if it exists
+    if ((window as any).deferredInstallPrompt) {
+      setDeferredPrompt((window as any).deferredInstallPrompt);
+      setIsInstallable(true);
+    }
+
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
+      (window as any).deferredInstallPrompt = e;
       setDeferredPrompt(e);
       setIsInstallable(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    // Listen for custom dispatch if it fires later
+    const handlePwaInstallable = () => {
+      if ((window as any).deferredInstallPrompt) {
+        setDeferredPrompt((window as any).deferredInstallPrompt);
+        setIsInstallable(true);
+      }
+    };
+    window.addEventListener('pwa-installable', handlePwaInstallable);
 
     const handleAppInstalled = () => {
       setIsInstalled(true);
@@ -83,6 +99,7 @@ export default function DatabaseManager({
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('pwa-installable', handlePwaInstallable);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
