@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // @ts-ignore
-import logoUrl from './assets/images/lar_santo_antonio_logo_perfect_1784226948200.jpg';
+import logoUrl from './assets/images/lar_santo_antonio_logo_official_1784530465177.jpg';
 import { Resident, ScheduledActivity, ResidentProgressLog, Reminder, ActivityCategory, SuggestionRules } from './types';
 import {
   PREDEFINED_ACTIVITIES,

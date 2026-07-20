@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // @ts-ignore
-import logoUrl from '../assets/images/lar_santo_antonio_logo_perfect_1784226948200.jpg';
+import logoUrl from '../assets/images/lar_santo_antonio_logo_official_1784530465177.jpg';
 import { ScheduledActivity } from '../types';
 import { Printer, Download, Info, Calendar, LayoutGrid, ListTodo } from 'lucide-react';
 
