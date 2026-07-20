@@ -1,10 +1,11 @@
-const CACHE_NAME = 'animalar-cache-v4';
+const CACHE_NAME = 'animalar-cache-v5';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/favicon.ico',
-  '/lar_santo_antonio_logo.jpg'
+  '/lar_santo_antonio_logo_192.png',
+  '/lar_santo_antonio_logo_512.png',
+  '/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', event => {
