@@ -18,6 +18,7 @@ import ActivitiesPanel from './components/ActivitiesPanel';
 import SupportMaterialsPanel from './components/SupportMaterialsPanel';
 import { Activity } from './types';
 import Tooltip from './components/Tooltip';
+import { InstallPrompt } from './components/InstallPrompt';
 
 import {
   Calendar as CalendarIcon,
@@ -1383,6 +1384,9 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* PWA Install Prompt for Mobile Devices */}
+      <InstallPrompt />
 
     </div>
   );
