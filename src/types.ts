@@ -1,4 +1,4 @@
-export type ActivityCategory = 'cognitiva' | 'fisica' | 'musica' | 'outro';
+export type ActivityCategory = 'cognitiva' | 'fisica' | 'musica' | 'outro' | 'sensorial' | 'expressao_artistica';
 
 export interface Resident {
   id: string;
@@ -62,8 +62,8 @@ export interface SuggestionRules {
   maxCognitiveDaysPerWeek: number;
   maxMusicDaysPerWeek: number;
   maxOtherDaysPerWeek: number;
-  morningCategoryPreference: 'cognitiva' | 'fisica' | 'musica' | 'outro' | 'aleatorio';
-  afternoonCategoryPreference: 'cognitiva' | 'fisica' | 'musica' | 'outro' | 'aleatorio';
+  morningCategoryPreference: ActivityCategory | 'aleatorio';
+  afternoonCategoryPreference: ActivityCategory | 'aleatorio';
   morningTime: string; // e.g. "10:30"
   afternoonTime: string; // e.g. "15:30"
 }

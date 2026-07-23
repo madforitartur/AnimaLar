@@ -3,7 +3,7 @@ import { Activity, ScheduledActivity, ActivityCategory, SuggestionRules } from '
 import {
   Plus, Search, Filter, Clock, BookOpen, BrainCircuit, Activity as PhysIcon,
   Music, Sparkles, Trash2, Calendar, CheckCircle, ListTodo, HelpCircle, Edit,
-  Printer
+  Printer, Palette, Eye
 } from 'lucide-react';
 import Tooltip from './Tooltip';
 
@@ -105,8 +105,12 @@ export default function ActivitiesPanel({
         return <PhysIcon className="w-4 h-4 text-emerald-600" />;
       case 'musica':
         return <Music className="w-4 h-4 text-sky-600" />;
+      case 'sensorial':
+        return <Eye className="w-4 h-4 text-rose-600" />;
+      case 'expressao_artistica':
+        return <Palette className="w-4 h-4 text-purple-600" />;
       default:
-        return <Sparkles className="w-4 h-4 text-purple-600" />;
+        return <Sparkles className="w-4 h-4 text-slate-600" />;
     }
   };
 
@@ -118,8 +122,12 @@ export default function ActivitiesPanel({
         return 'bg-emerald-50 text-emerald-700 border-emerald-100';
       case 'musica':
         return 'bg-sky-50 text-sky-700 border-sky-100';
-      default:
+      case 'sensorial':
+        return 'bg-rose-50 text-rose-700 border-rose-100';
+      case 'expressao_artistica':
         return 'bg-purple-50 text-purple-700 border-purple-100';
+      default:
+        return 'bg-slate-50 text-slate-700 border-slate-100';
     }
   };
 
@@ -284,7 +292,7 @@ export default function ActivitiesPanel({
             </h4>
             
             <div className="flex flex-col gap-1">
-              {(['todos', 'cognitiva', 'fisica', 'musica', 'outro'] as const).map((cat) => (
+              {(['todos', 'cognitiva', 'fisica', 'musica', 'sensorial', 'expressao_artistica', 'outro'] as const).map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setFilterCategory(cat)}
@@ -294,7 +302,14 @@ export default function ActivitiesPanel({
                       : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
                   }`}
                 >
-                  <span className="capitalize">{cat === 'todos' ? 'Todas as Categorias' : cat === 'fisica' ? 'Física' : cat === 'cognitiva' ? 'Cognitiva' : cat === 'musica' ? 'Música' : 'Outra'}</span>
+                  <span className="capitalize">
+                    {cat === 'todos' ? 'Todas as Categorias' :
+                     cat === 'fisica' ? 'Física' :
+                     cat === 'cognitiva' ? 'Cognitiva' :
+                     cat === 'musica' ? 'Música' :
+                     cat === 'sensorial' ? 'Sensorial' :
+                     cat === 'expressao_artistica' ? 'Exp. Artística' : 'Outra'}
+                  </span>
                   {cat !== 'todos' && (
                     <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full text-slate-500">
                       {activities.filter(a => a.category === cat).length}
@@ -343,7 +358,13 @@ export default function ActivitiesPanel({
                     <div className="flex items-center justify-between">
                       <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md border ${getCategoryColor(act.category)}`}>
                         {getCategoryIcon(act.category)}
-                        <span>{act.category === 'fisica' ? 'Física' : act.category === 'cognitiva' ? 'Cognitiva' : act.category === 'musica' ? 'Música' : 'Outra'}</span>
+                        <span>
+                          {act.category === 'fisica' ? 'Física' :
+                           act.category === 'cognitiva' ? 'Cognitiva' :
+                           act.category === 'musica' ? 'Música' :
+                           act.category === 'sensorial' ? 'Sensorial' :
+                           act.category === 'expressao_artistica' ? 'Exp. Artística' : 'Outra'}
+                        </span>
                       </span>
                       <span className="text-[10px] font-semibold text-gray-400 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
@@ -857,6 +878,8 @@ export default function ActivitiesPanel({
                     <option value="cognitiva">Cognitiva</option>
                     <option value="fisica">Física</option>
                     <option value="musica">Música</option>
+                    <option value="sensorial">Sensorial</option>
+                    <option value="expressao_artistica">Expressão Artística / Artes Manuais</option>
                     <option value="outro">Outra / Lúdica</option>
                   </select>
                 </div>

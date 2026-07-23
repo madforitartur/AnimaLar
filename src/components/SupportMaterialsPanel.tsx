@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Printer, Download, BookOpen, FileText, Music, Map, HelpCircle, Lightbulb, Grid } from 'lucide-react';
+import { Printer, Download, BookOpen, FileText, Music, Map, HelpCircle, Lightbulb, Grid, Eye, Palette } from 'lucide-react';
 import Tooltip from './Tooltip';
 
-type MaterialType = 'proverbios' | 'quiz' | 'sabedoria' | 'matematica' | 'rimas' | 'cancioneiro' | 'mapa';
+type MaterialType = 'proverbios' | 'quiz' | 'sabedoria' | 'matematica' | 'rimas' | 'cancioneiro' | 'mapa' | 'sensorial' | 'artes';
 
 export default function SupportMaterialsPanel() {
   const [activeMaterial, setActiveMaterial] = useState<MaterialType>('proverbios');
@@ -127,6 +127,30 @@ export default function SupportMaterialsPanel() {
               <Map className="w-4 h-4 text-slate-600" />
               <span>Mapa de Portugal em Branco</span>
             </button>
+
+            <button
+              onClick={() => setActiveMaterial('sensorial')}
+              className={`flex items-center gap-2.5 text-xs font-semibold px-3 py-2.5 rounded-xl transition-all cursor-pointer w-full text-left ${
+                activeMaterial === 'sensorial'
+                  ? 'bg-rose-50 text-rose-800 border-l-4 border-rose-500'
+                  : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
+              }`}
+            >
+              <Eye className="w-4 h-4 text-rose-500" />
+              <span>Roteiro de Estimulação Sensorial</span>
+            </button>
+
+            <button
+              onClick={() => setActiveMaterial('artes')}
+              className={`flex items-center gap-2.5 text-xs font-semibold px-3 py-2.5 rounded-xl transition-all cursor-pointer w-full text-left ${
+                activeMaterial === 'artes'
+                  ? 'bg-purple-50 text-purple-800 border-l-4 border-purple-500'
+                  : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
+              }`}
+            >
+              <Palette className="w-4 h-4 text-purple-500" />
+              <span>Moldes e Guia de Expressão Artística</span>
+            </button>
           </div>
 
           <div className="bg-indigo-50/50 border border-indigo-100 p-4 rounded-2xl text-[11px] text-indigo-950 space-y-1.5 leading-relaxed">
@@ -158,6 +182,8 @@ export default function SupportMaterialsPanel() {
                   {activeMaterial === 'rimas' && 'Oficina Literária: Guia e Dicionário de Rimas'}
                   {activeMaterial === 'cancioneiro' && 'Cancioneiro Tradicional (Letra Aumentada)'}
                   {activeMaterial === 'mapa' && 'Exercício de Geografia: Mapa de Portugal'}
+                  {activeMaterial === 'sensorial' && 'Ficha Terapêutica: Protocolo de Estimulação Sensorial e Aromaterapia'}
+                  {activeMaterial === 'artes' && 'Guia de Atividade: Moldes e Padrões para Expressão Artística e Mosaico'}
                 </h3>
               </div>
               <div className="text-right text-[9px] text-slate-400 font-mono">
@@ -621,6 +647,80 @@ export default function SupportMaterialsPanel() {
                         <span className="text-gray-400 text-[10px] italic">(Dica: Extremo Sul / Sol)</span>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Document Body: Sensorial Protocol */}
+            {activeMaterial === 'sensorial' && (
+              <div className="space-y-6">
+                <p className="text-xs text-slate-500 print:text-black mb-4">
+                  Ficha de apoio para orientação de sessões de estimulação tátil, olfativa e auditiva com grupo sénior. Imprima e utilize como guia no espaço Snoezelen ou sala de atividades.
+                </p>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="border border-rose-200 bg-rose-50/30 p-4 rounded-xl space-y-2">
+                    <span className="text-[9px] font-extrabold uppercase text-rose-700 tracking-wider">Estação 1 • Aromaterapia dos Citrinos</span>
+                    <h5 className="font-bold text-xs text-slate-800">Citrinos e Ervas Medicinais</h5>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      1. Apresentar frascos perfurados com casca de laranja fresca, alecrim e canela.<br/>
+                      2. Questionar: "Que recordação lhe traz este aroma?" / "Lembra-se das compotas de outono?"
+                    </p>
+                  </div>
+
+                  <div className="border border-amber-200 bg-amber-50/30 p-4 rounded-xl space-y-2">
+                    <span className="text-[9px] font-extrabold uppercase text-amber-700 tracking-wider">Estação 2 • Caixa do Mar e Texturas</span>
+                    <h5 className="font-bold text-xs text-slate-800">Conchas, Pedras do Rio e Areia</h5>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      1. Convidar o utente a tocar nas pedras polidas e conchas sem olhar.<br/>
+                      2. Estimular a descrição tátil: "É liso, áspero, frio ou quente?"
+                    </p>
+                  </div>
+
+                  <div className="border border-emerald-200 bg-emerald-50/30 p-4 rounded-xl space-y-2">
+                    <span className="text-[9px] font-extrabold uppercase text-emerald-700 tracking-wider">Estação 3 • Sons do Meio Rural</span>
+                    <h5 className="font-bold text-xs text-slate-800">Chocalhos, Água e Pássaros</h5>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      1. Reproduzir 30 segundos de som de chocalho de ovelhas ou moenda de água.<br/>
+                      2. Pedir aos residentes para identificar o animal ou elemento da natureza.
+                    </p>
+                  </div>
+
+                  <div className="border border-purple-200 bg-purple-50/30 p-4 rounded-xl space-y-2">
+                    <span className="text-[9px] font-extrabold uppercase text-purple-700 tracking-wider">Estação 4 • Caixa dos Sabores Antigos</span>
+                    <h5 className="font-bold text-xs text-slate-800">Marmelada, Mel e Queijo</h5>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      1. Pequena degustação guiada com colher descartável em ambiente calmo.<br/>
+                      2. Promover o relaxamento e o resgate da memória gustativa.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Document Body: Artes Protocol */}
+            {activeMaterial === 'artes' && (
+              <div className="space-y-6">
+                <p className="text-xs text-slate-500 print:text-black mb-4">
+                  Grelhas e moldes geométricos para atividades de pintura de mandalas, mosaicos portugueses e pintura em tecido.
+                </p>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="border-2 border-dashed border-purple-300 p-6 rounded-xl flex flex-col items-center justify-center text-center space-y-3 bg-purple-50/20">
+                    <span className="text-[9px] font-bold uppercase text-purple-600 tracking-wider">Molde 1 • Azulejo Tradicional Português</span>
+                    <div className="w-24 h-24 border-4 border-purple-400 rounded-lg flex items-center justify-center relative">
+                      <div className="w-12 h-12 border-2 border-purple-300 rotate-45"></div>
+                    </div>
+                    <span className="text-[10px] text-slate-500">Pronto para recortar, pintar com tinta guache azul e colhar em cartolina.</span>
+                  </div>
+
+                  <div className="border-2 border-dashed border-teal-300 p-6 rounded-xl flex flex-col items-center justify-center text-center space-y-3 bg-teal-50/20">
+                    <span className="text-[9px] font-bold uppercase text-teal-600 tracking-wider">Molde 2 • Mandala de Primavera</span>
+                    <div className="w-24 h-24 border-4 border-dashed border-teal-400 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 border-2 border-teal-300 rounded-full"></div>
+                    </div>
+                    <span className="text-[10px] text-slate-500">Exercício de preenchimento de cor para motricidade fina e paciência.</span>
                   </div>
                 </div>
               </div>

@@ -485,6 +485,10 @@ export default function CalendarView({
                           ? 'bg-amber-50 border-amber-100 text-amber-900 hover:bg-amber-100'
                           : act.category === 'musica'
                           ? 'bg-blue-50 border-blue-100 text-blue-900 hover:bg-blue-100'
+                          : act.category === 'sensorial'
+                          ? 'bg-rose-50 border-rose-100 text-rose-900 hover:bg-rose-100'
+                          : act.category === 'expressao_artistica'
+                          ? 'bg-teal-50 border-teal-100 text-teal-900 hover:bg-teal-100'
                           : 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-100'
                       }`}
                       id={`cal-act-${act.id}`}
@@ -536,6 +540,10 @@ export default function CalendarView({
                           ? 'bg-amber-50 border-amber-100 text-amber-900 hover:bg-amber-100'
                           : act.category === 'musica'
                           ? 'bg-blue-50 border-blue-100 text-blue-900 hover:bg-blue-100'
+                          : act.category === 'sensorial'
+                          ? 'bg-rose-50 border-rose-100 text-rose-900 hover:bg-rose-100'
+                          : act.category === 'expressao_artistica'
+                          ? 'bg-teal-50 border-teal-100 text-teal-900 hover:bg-teal-100'
                           : 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-100'
                       }`}
                       id={`cal-act-${act.id}`}
@@ -1381,18 +1389,22 @@ export default function CalendarView({
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">Categoria</label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {(['cognitiva', 'fisica', 'musica', 'outro'] as ActivityCategory[]).map((cat) => {
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                      {(['cognitiva', 'fisica', 'musica', 'sensorial', 'expressao_artistica', 'outro'] as ActivityCategory[]).map((cat) => {
                         const labels = {
                           cognitiva: '🧠 Cognitiva',
                           fisica: '🏃‍♂️ Física',
                           musica: '🎶 Música',
-                          outro: '🎨 Outro',
+                          sensorial: '🌿 Sensorial',
+                          expressao_artistica: '🎨 Arte',
+                          outro: '🌟 Outro',
                         };
                         const colors = {
                           cognitiva: 'peer-checked:bg-purple-600 peer-checked:text-white text-purple-700 bg-purple-50 hover:bg-purple-100 border-purple-200',
                           fisica: 'peer-checked:bg-amber-600 peer-checked:text-white text-amber-700 bg-amber-50 hover:bg-amber-100 border-amber-200',
                           musica: 'peer-checked:bg-blue-600 peer-checked:text-white text-blue-700 bg-blue-50 hover:bg-blue-100 border-blue-200',
+                          sensorial: 'peer-checked:bg-rose-600 peer-checked:text-white text-rose-700 bg-rose-50 hover:bg-rose-100 border-rose-200',
+                          expressao_artistica: 'peer-checked:bg-teal-600 peer-checked:text-white text-teal-700 bg-teal-50 hover:bg-teal-100 border-teal-200',
                           outro: 'peer-checked:bg-slate-700 peer-checked:text-white text-slate-700 bg-slate-50 hover:bg-slate-100 border-slate-200',
                         };
 
@@ -1665,6 +1677,8 @@ export default function CalendarView({
                     cognitiva: 'bg-purple-100 text-purple-800 border-purple-200',
                     fisica: 'bg-amber-100 text-amber-800 border-amber-200',
                     musica: 'bg-blue-100 text-blue-800 border-blue-200',
+                    sensorial: 'bg-rose-100 text-rose-800 border-rose-200',
+                    expressao_artistica: 'bg-teal-100 text-teal-800 border-teal-200',
                     outro: 'bg-slate-100 text-slate-800 border-slate-200',
                   };
 
@@ -1672,6 +1686,8 @@ export default function CalendarView({
                     cognitiva: 'Estimulação Cognitiva',
                     fisica: 'Atividade Física',
                     musica: 'Estimulação Musical',
+                    sensorial: 'Estimulação Sensorial',
+                    expressao_artistica: 'Expressão Artística',
                     outro: 'Atividade Social/Outra',
                   };
 
