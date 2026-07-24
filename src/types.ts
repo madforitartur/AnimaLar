@@ -32,6 +32,7 @@ export interface ScheduledActivity {
   slot: 'manha' | 'tarde';
   time: string; // e.g., "10:00" or "15:30"
   completed: boolean;
+  status?: 'pending_approval' | 'approved';
 }
 
 export interface ResidentProgressLog {
@@ -59,6 +60,7 @@ export interface Reminder {
 export interface SuggestionRules {
   activeDays: string[]; // e.g. ['Seg', 'Ter', 'Qua', 'Qui', 'Sex']
   maxPhysicalDaysPerWeek: number;
+  physicalDaysConfig?: Record<string, 'manha' | 'tarde'>;
   maxCognitiveDaysPerWeek: number;
   maxMusicDaysPerWeek: number;
   maxOtherDaysPerWeek: number;

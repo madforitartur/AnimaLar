@@ -22,7 +22,7 @@ import {
   Sparkle,
   X
 } from 'lucide-react';
-import Tooltip from './Tooltip';
+import { generateSuggestedPlan } from '../utils/suggestionGenerator';
 
 interface GeminiPlannerProps {
   residents: Resident[];
@@ -134,139 +134,15 @@ export default function GeminiPlanner({
     setSuggestions([]);
     setScheduledIndices({});
 
-    // Small delay to make it feel deliberate and premium
     setTimeout(() => {
-      let targetDates: string[] = [];
-      if (period === 'semana') {
-        targetDates = getWeekDates(selectedDateStr);
-      } else {
-        targetDates = getMonthDates(currentYear, currentMonth);
-      }
-
-      const generated: Omit<ScheduledActivity, 'id'>[] = [];
-      const weekdayMap = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-      
-      // Weekly limit trackers: mondayDateStr -> category -> set of active dates scheduled
-      const weeklyStats: Record<string, Record<ActivityCategory, Set<string>>> = {};
-      
-      // Rotation tracker for templates in this suggestion run to prevent immediate duplicates
-      const usedActivityIds: Record<ActivityCategory, string[]> = {
-        cognitiva: [],
-        fisica: [],
-        musica: [],
-        outro: [],
-      };
-
-      targetDates.forEach(dateStr => {
-        const dObj = parseLocalDate(dateStr);
-        const dayName = weekdayMap[dObj.getDay()];
-        
-        // Only schedule on active days
-        if (!suggestionRules.activeDays.includes(dayName)) {
-          return;
-        }
-
-        // Always insert "Leitura do Jornal" as a daily cognitive routine at 08:00 AM
-        generated.push({
-          activityId: 'act_leitura_jornal',
-          title: 'Atividade de Estimulação Cognitiva - Intelectuais / Formativas - Leitura do Jornal',
-          description: 'Leitura diária comentada de notícias, efemérides e debates sobre temas atuais nacionais e internacionais para exercitar a atenção, raciocínio de atualidades e interação social.\n\n[Materiais de Apoio]: Jornais diários portugueses, Óculos de leitura adicionais, Lupa se necessário\n[Objetivos Terapêuticos]: Estimular a atenção focada, Promover o raciocínio crítico e verbalização, Manter contacto com a realidade quotidiana',
-          category: 'cognitiva',
-          date: dateStr,
-          slot: 'manha',
-          time: '08:00',
-          completed: false,
-        });
-
-        const mondayStr = getMondayOfDate(dateStr);
-        if (!weeklyStats[mondayStr]) {
-          weeklyStats[mondayStr] = {
-            cognitiva: new Set<string>(),
-            fisica: new Set<string>(),
-            musica: new Set<string>(),
-            outro: new Set<string>(),
-          };
-        }
-
-        // Two slots: morning and afternoon
-        const slots: ('manha' | 'tarde')[] = ['manha', 'tarde'];
-
-        slots.forEach(slot => {
-          const pref = slot === 'manha' 
-            ? suggestionRules.morningCategoryPreference 
-            : suggestionRules.afternoonCategoryPreference;
-
-          // Determine which categories are allowed under constraints
-          const allowedCategories: ActivityCategory[] = [];
-          
-          const checkAllowed = (cat: ActivityCategory, limit: number) => {
-            const currentSet = weeklyStats[mondayStr][cat];
-            if (currentSet.has(dateStr)) {
-              return true; // Already scheduled on this day, no additional cost
-            }
-            return currentSet.size < limit;
-          };
-
-          if (checkAllowed('cognitiva', suggestionRules.maxCognitiveDaysPerWeek)) {
-            allowedCategories.push('cognitiva');
-          }
-          if (checkAllowed('fisica', suggestionRules.maxPhysicalDaysPerWeek)) {
-            allowedCategories.push('fisica');
-          }
-          if (checkAllowed('musica', suggestionRules.maxMusicDaysPerWeek)) {
-            allowedCategories.push('musica');
-          }
-          if (checkAllowed('outro', suggestionRules.maxOtherDaysPerWeek)) {
-            allowedCategories.push('outro');
-          }
-
-          if (allowedCategories.length === 0) {
-            // Absolute fallback: if constraints are too tight, use anything with a non-zero limit
-            if (suggestionRules.maxCognitiveDaysPerWeek > 0) allowedCategories.push('cognitiva');
-            else if (suggestionRules.maxPhysicalDaysPerWeek > 0) allowedCategories.push('fisica');
-            else if (suggestionRules.maxMusicDaysPerWeek > 0) allowedCategories.push('musica');
-            else allowedCategories.push('outro');
-          }
-
-          // Choose category based on preference or lowest relative usage
-          let chosenCat: ActivityCategory = 'cognitiva';
-          if (pref !== 'aleatorio' && allowedCategories.includes(pref as ActivityCategory)) {
-            chosenCat = pref as ActivityCategory;
-          } else {
-            const sortedByUsage = [...allowedCategories].sort((a, b) => {
-              return weeklyStats[mondayStr][a].size - weeklyStats[mondayStr][b].size;
-            });
-            chosenCat = sortedByUsage[0] || 'outro';
-          }
-
-          // Register stats
-          weeklyStats[mondayStr][chosenCat].add(dateStr);
-
-          // Get template
-          const templates = activities.filter(act => act.category === chosenCat && act.id !== 'act_leitura_jornal');
-          if (templates.length > 0) {
-            let unused = templates.filter(t => !usedActivityIds[chosenCat].includes(t.id));
-            if (unused.length === 0) {
-              usedActivityIds[chosenCat] = []; // reset rotation
-              unused = templates;
-            }
-
-            const pickedTemplate = unused[Math.floor(Math.random() * unused.length)] || templates[0];
-            usedActivityIds[chosenCat].push(pickedTemplate.id);
-
-            const time = slot === 'manha' ? suggestionRules.morningTime : suggestionRules.afternoonTime;
-
-            generated.push({
-              title: pickedTemplate.title,
-              description: `${pickedTemplate.description}\n\n[Materiais de Apoio]: ${pickedTemplate.materials.join(', ')}\n[Objetivos Terapêuticos]: ${pickedTemplate.objectives.join(', ')}`,
-              category: chosenCat,
-              date: dateStr,
-              slot,
-              time,
-              completed: false,
-            });
-          }
-        });
+      const { suggestions: generated } = generateSuggestedPlan({
+        activities,
+        suggestionRules,
+        period,
+        selectedDateStr,
+        currentYear,
+        currentMonth,
+        status: 'pending_approval'
       });
 
       if (generated.length === 0) {
@@ -275,7 +151,7 @@ export default function GeminiPlanner({
         setSuggestions(generated);
       }
       setLoading(false);
-    }, 700);
+    }, 400);
   };
 
   // Generate automatically on open

@@ -244,6 +244,10 @@ export default function App() {
     return {
       activeDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
       maxPhysicalDaysPerWeek: 2,
+      physicalDaysConfig: {
+        'Seg': 'manha',
+        'Qua': 'tarde'
+      },
       maxCognitiveDaysPerWeek: 5,
       maxMusicDaysPerWeek: 3,
       maxOtherDaysPerWeek: 2,

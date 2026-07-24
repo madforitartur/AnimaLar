@@ -526,24 +526,123 @@ export default function ActivitiesPanel({
               Estipule o número máximo de dias por semana que podem incluir cada categoria de estimulação (ex: no máximo 2 dias com exercícios físicos):
             </p>
             
-            <div className="space-y-3 pt-1">
-              {/* Physical Limit */}
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-600 font-medium flex items-center gap-1.5">
-                  🏃‍♂️ Exercício Físico:
-                </span>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="7"
-                    value={suggestionRules?.maxPhysicalDaysPerWeek ?? 2}
-                    onChange={(e) => handleRuleChange('maxPhysicalDaysPerWeek', Number(e.target.value))}
-                    className="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                  />
-                  <span className="font-mono font-bold text-slate-800 w-8 text-right bg-white border border-gray-200 px-1.5 py-0.5 rounded">
-                    {suggestionRules?.maxPhysicalDaysPerWeek ?? 2}d
+            <div className="space-y-4 pt-1">
+              {/* Physical Limit & Days/Period Schedule */}
+              <div className="bg-amber-50/50 border border-amber-100 p-3.5 rounded-2xl space-y-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-amber-950 font-bold flex items-center gap-1.5">
+                    🏃‍♂️ Exercício Físico:
                   </span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="7"
+                      value={suggestionRules?.maxPhysicalDaysPerWeek ?? 2}
+                      onChange={(e) => handleRuleChange('maxPhysicalDaysPerWeek', Number(e.target.value))}
+                      className="w-24 h-1.5 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                    />
+                    <span className="font-mono font-bold text-amber-950 w-8 text-right bg-white border border-amber-200 px-1.5 py-0.5 rounded text-xs">
+                      {suggestionRules?.maxPhysicalDaysPerWeek ?? 2}d
+                    </span>
+                  </div>
+                </div>
+
+                {/* Days of week and period selector for physical exercise */}
+                <div className="space-y-2 pt-2 border-t border-amber-200/60">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-amber-900 uppercase tracking-wider">
+                      Dias e Período das Sessões de Exercício:
+                    </span>
+                    <span className="text-[10px] text-amber-800 font-semibold">
+                      {Object.keys(suggestionRules?.physicalDaysConfig || {}).length} dia(s) atribuído(s)
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-1.5">
+                    {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((day) => {
+                      const config = suggestionRules?.physicalDaysConfig || {};
+                      const isSelected = !!config[day];
+                      const slot = config[day] || 'manha';
+
+                      return (
+                        <div
+                          key={day}
+                          className={`rounded-xl border p-2 flex flex-col items-center justify-between gap-1.5 transition-all text-xs ${
+                            isSelected
+                              ? 'bg-amber-500 border-amber-600 text-white shadow-2xs'
+                              : 'bg-white border-gray-200 text-gray-500 hover:border-amber-300'
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newConfig = { ...config };
+                              if (isSelected) {
+                                delete newConfig[day];
+                              } else {
+                                newConfig[day] = 'manha';
+                              }
+                              const newDaysCount = Object.keys(newConfig).length;
+                              if (!suggestionRules || !onSetSuggestionRules) return;
+                              onSetSuggestionRules({
+                                ...suggestionRules,
+                                physicalDaysConfig: newConfig,
+                                maxPhysicalDaysPerWeek: newDaysCount > 0 ? newDaysCount : suggestionRules.maxPhysicalDaysPerWeek
+                              });
+                            }}
+                            className="w-full text-center font-bold py-0.5 cursor-pointer flex items-center justify-center gap-1 select-none"
+                            title={isSelected ? `Remover ${day} do exercício físico` : `Ativar ${day} para exercício físico`}
+                          >
+                            <span>{day}</span>
+                            {isSelected && <span className="text-[10px]">✓</span>}
+                          </button>
+
+                          {isSelected && (
+                            <div className="flex items-center bg-amber-600/70 rounded-lg p-0.5 w-full justify-center">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newConfig = { ...config, [day]: 'manha' as const };
+                                  if (!suggestionRules || !onSetSuggestionRules) return;
+                                  onSetSuggestionRules({ ...suggestionRules, physicalDaysConfig: newConfig });
+                                }}
+                                className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md transition-all cursor-pointer ${
+                                  slot === 'manha'
+                                    ? 'bg-white text-amber-950 shadow-2xs font-extrabold'
+                                    : 'text-amber-100 hover:text-white'
+                                }`}
+                                title="Manhã (🌅)"
+                              >
+                                🌅 Manhã
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newConfig = { ...config, [day]: 'tarde' as const };
+                                  if (!suggestionRules || !onSetSuggestionRules) return;
+                                  onSetSuggestionRules({ ...suggestionRules, physicalDaysConfig: newConfig });
+                                }}
+                                className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md transition-all cursor-pointer ${
+                                  slot === 'tarde'
+                                    ? 'bg-white text-amber-950 shadow-2xs font-extrabold'
+                                    : 'text-amber-100 hover:text-white'
+                                }`}
+                                title="Tarde (🌇)"
+                              >
+                                🌇 Tarde
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-amber-800/80 font-medium">
+                    💡 Clique num dia da semana para o selecionar e altere o período (🌅 Manhã / 🌇 Tarde) pretendido.
+                  </p>
                 </div>
               </div>
 

@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { Activity, ScheduledActivity, ActivityCategory, Resident, SuggestionRules } from '../types';
 import { PREDEFINED_ACTIVITIES } from '../data';
-import { Calendar as CalendarIcon, Clock, Plus, Check, ChevronLeft, ChevronRight, Filter, AlertCircle, Edit, Trash2, CalendarCheck, BookOpen, Sparkles, GripVertical, RefreshCw } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Plus, Check, ChevronLeft, ChevronRight, Filter, AlertCircle, Edit, Trash2, CalendarCheck, BookOpen, Sparkles, GripVertical, RefreshCw, ListTodo, X } from 'lucide-react';
 import GeminiPlanner from './GeminiPlanner';
 import Tooltip from './Tooltip';
+import { generateSuggestedPlan } from '../utils/suggestionGenerator';
 
 interface CalendarViewProps {
   scheduledActivities: ScheduledActivity[];
@@ -46,10 +47,58 @@ export default function CalendarView({
   const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth()); // 0-indexed
   const [selectedDateStr, setSelectedDateStr] = useState(() => getTodayStr()); // default selected date is today
+  const [showDailyModal, setShowDailyModal] = useState(false);
   const [filterCategory, setFilterCategory] = useState<ActivityCategory | 'todos'>('todos');
   const [showGeminiPlanner, setShowGeminiPlanner] = useState(false);
   const [calendarViewMode, setCalendarViewMode] = useState<'mensal' | 'semanal'>('mensal');
   const [confirmClear, setConfirmClear] = useState(false);
+
+  const pendingActivities = scheduledActivities.filter(a => a.status === 'pending_approval');
+
+  const handleDirectSuggestPlan = () => {
+    if (!onAddScheduledActivities) return;
+    const period = calendarViewMode === 'mensal' ? 'mes' : 'semana';
+    const { suggestions, targetDates } = generateSuggestedPlan({
+      activities,
+      suggestionRules,
+      period,
+      selectedDateStr,
+      currentYear,
+      currentMonth,
+      status: 'pending_approval'
+    });
+
+    if (suggestions.length === 0) {
+      alert("Não foi possível gerar sugestões com as regras atuais. Por favor, verifique as suas Regras para sugestão de Planos.");
+      return;
+    }
+
+    onAddScheduledActivities(suggestions, targetDates);
+  };
+
+  const handleApprovePlan = () => {
+    if (pendingActivities.length === 0) return;
+    pendingActivities.forEach(act => {
+      if (onUpdateScheduledActivity) {
+        onUpdateScheduledActivity({ ...act, status: 'approved' });
+      }
+    });
+  };
+
+  const handleDiscardPlan = () => {
+    if (pendingActivities.length === 0) return;
+    const ids = pendingActivities.map(a => a.id);
+    if (onDeleteScheduledActivities) {
+      onDeleteScheduledActivities(ids);
+    } else {
+      ids.forEach(id => onDeleteScheduledActivity(id));
+    }
+  };
+
+  const handleSelectDay = (dateStr: string) => {
+    setSelectedDateStr(dateStr);
+    setShowDailyModal(true);
+  };
 
   const getScheduledActivitiesForPeriod = () => {
     if (calendarViewMode === 'mensal') {
@@ -401,7 +450,7 @@ export default function CalendarView({
         cells.push(
           <div
             key={`day-${dayNumber}`}
-            onClick={() => setSelectedDateStr(dateStr)}
+            onClick={() => handleSelectDay(dateStr)}
             className={`min-h-28 border border-gray-100 p-1.5 transition-all flex flex-col relative cursor-pointer ${
               isSelected ? 'bg-indigo-50/45 ring-2 ring-indigo-400 ring-inset z-10' : 'bg-white hover:bg-slate-50/60'
             } ${isToday ? 'border-indigo-200' : ''}`}
@@ -474,7 +523,7 @@ export default function CalendarView({
                       key={act.id}
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedDateStr(dateStr);
+                        handleSelectDay(dateStr);
                       }}
                       className={`text-[10px] font-medium p-1 rounded border flex items-center justify-between gap-1 transition-all ${
                         act.completed
@@ -490,14 +539,16 @@ export default function CalendarView({
                           : act.category === 'expressao_artistica'
                           ? 'bg-teal-50 border-teal-100 text-teal-900 hover:bg-teal-100'
                           : 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-100'
-                      }`}
+                      } ${act.status === 'pending_approval' ? 'border-dashed border-amber-400/90 ring-1 ring-amber-300/60 shadow-2xs' : ''}`}
                       id={`cal-act-${act.id}`}
                     >
-                      <span className="truncate flex-1">
-                        <span className="font-mono text-[9px] opacity-75 mr-1 font-semibold">{act.time}</span>
-                        {act.title}
+                      <span className="truncate flex-1 flex items-center gap-1">
+                        <span className="font-mono text-[9px] opacity-75 mr-1 font-semibold shrink-0">{act.time}</span>
+                        <span className="truncate">{act.title}</span>
                       </span>
-                      {act.completed && <Check className="w-2.5 h-2.5 text-emerald-600 shrink-0" />}
+                      {act.completed && (
+                        <Check className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -529,7 +580,7 @@ export default function CalendarView({
                       key={act.id}
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedDateStr(dateStr);
+                        handleSelectDay(dateStr);
                       }}
                       className={`text-[10px] font-medium p-1 rounded border flex items-center justify-between gap-1 transition-all ${
                         act.completed
@@ -545,14 +596,16 @@ export default function CalendarView({
                           : act.category === 'expressao_artistica'
                           ? 'bg-teal-50 border-teal-100 text-teal-900 hover:bg-teal-100'
                           : 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-100'
-                      }`}
+                      } ${act.status === 'pending_approval' ? 'border-dashed border-amber-400/90 ring-1 ring-amber-300/60 shadow-2xs' : ''}`}
                       id={`cal-act-${act.id}`}
                     >
-                      <span className="truncate flex-1">
-                        <span className="font-mono text-[9px] opacity-75 mr-1 font-semibold">{act.time}</span>
-                        {act.title}
+                      <span className="truncate flex-1 flex items-center gap-1">
+                        <span className="font-mono text-[9px] opacity-75 mr-1 font-semibold shrink-0">{act.time}</span>
+                        <span className="truncate">{act.title}</span>
                       </span>
-                      {act.completed && <Check className="w-2.5 h-2.5 text-emerald-600 shrink-0" />}
+                      {act.completed && (
+                        <Check className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -599,7 +652,7 @@ export default function CalendarView({
         cells.push(
           <div
             key={`day-mob-${dayNumber}`}
-            onClick={() => setSelectedDateStr(dateStr)}
+            onClick={() => handleSelectDay(dateStr)}
             className={`aspect-square border border-gray-100 p-1 flex flex-col justify-between items-center transition-all cursor-pointer rounded-xl relative ${
               isSelected ? 'bg-indigo-50/80 border-indigo-400 ring-2 ring-indigo-400 ring-inset z-10' : 'bg-white hover:bg-slate-50/60'
             } ${isToday ? 'border-indigo-300 font-black' : ''}`}
@@ -677,7 +730,7 @@ export default function CalendarView({
           return (
             <div
               key={day.dateStr}
-              onClick={() => setSelectedDateStr(day.dateStr)}
+              onClick={() => handleSelectDay(day.dateStr)}
               className={`flex flex-col border rounded-xl p-3 min-h-[380px] transition-all cursor-pointer relative ${
                 isSelected
                   ? 'bg-indigo-50/45 ring-2 ring-indigo-400 ring-inset z-10'
@@ -754,7 +807,7 @@ export default function CalendarView({
                           key={act.id}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedDateStr(day.dateStr);
+                            handleSelectDay(day.dateStr);
                           }}
                           className={`text-[10px] font-medium p-1.5 rounded-lg border flex flex-col gap-1 transition-all relative group/act ${
                             act.completed
@@ -766,7 +819,7 @@ export default function CalendarView({
                               : act.category === 'musica'
                               ? 'bg-blue-50 border-blue-100 text-blue-900 hover:bg-blue-100'
                               : 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-100'
-                          }`}
+                          } ${act.status === 'pending_approval' ? 'border-dashed border-amber-400/90 ring-1 ring-amber-300/60 shadow-2xs' : ''}`}
                           id={`week-act-${act.id}`}
                         >
                           <div className="flex items-center justify-between gap-1">
@@ -819,7 +872,7 @@ export default function CalendarView({
                           key={act.id}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedDateStr(day.dateStr);
+                            handleSelectDay(day.dateStr);
                           }}
                           className={`text-[10px] font-medium p-1.5 rounded-lg border flex flex-col gap-1 transition-all relative group/act ${
                             act.completed
@@ -831,7 +884,7 @@ export default function CalendarView({
                               : act.category === 'musica'
                               ? 'bg-blue-50 border-blue-100 text-blue-900 hover:bg-blue-100'
                               : 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-100'
-                          }`}
+                          } ${act.status === 'pending_approval' ? 'border-dashed border-amber-400/90 ring-1 ring-amber-300/60 shadow-2xs' : ''}`}
                           id={`week-act-${act.id}`}
                         >
                           <div className="flex items-center justify-between gap-1">
@@ -892,9 +945,9 @@ export default function CalendarView({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6" id="calendar-view-container">
-      {/* Calendar Grid (Main 3 Columns) */}
-      <div className="lg:col-span-3 bg-white border border-gray-100 rounded-2xl p-5 shadow-xs flex flex-col space-y-4">
+    <div className="w-full space-y-6" id="calendar-view-container">
+      {/* Calendar Grid (Full Width) */}
+      <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs flex flex-col space-y-4">
         {/* Header Controls */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -992,15 +1045,93 @@ export default function CalendarView({
               Música 🎶
             </button>
             <button
+              onClick={() => setFilterCategory('sensorial')}
+              className={`text-[10px] font-semibold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                filterCategory === 'sensorial' ? 'bg-rose-100 text-rose-900 shadow-xs font-bold' : 'text-rose-600/80 hover:text-rose-950'
+              }`}
+            >
+              Sensorial 🌿
+            </button>
+            <button
+              onClick={() => setFilterCategory('expressao_artistica')}
+              className={`text-[10px] font-semibold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                filterCategory === 'expressao_artistica' ? 'bg-teal-100 text-teal-900 shadow-xs font-bold' : 'text-teal-600/80 hover:text-teal-950'
+              }`}
+            >
+              Artes 🎨
+            </button>
+            <button
               onClick={() => setFilterCategory('outro')}
               className={`text-[10px] font-semibold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
                 filterCategory === 'outro' ? 'bg-slate-200 text-slate-900 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'
               }`}
             >
-              Outro 🎨
+              Outro 🌟
             </button>
           </div>
         </div>
+
+        {/* Pending Approval Banner when generated suggestions exist */}
+        {pendingActivities.length > 0 && (
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300/80 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 animate-fade-in" id="pending-approval-banner">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-amber-500 text-white rounded-xl shadow-xs shrink-0">
+                <Sparkles className="w-5 h-5 animate-pulse" />
+              </div>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="text-sm font-bold text-amber-950">
+                    Plano Sugerido Gerado ({pendingActivities.length} {pendingActivities.length === 1 ? 'atividade' : 'atividades'})
+                  </h4>
+                  <span className="text-[10px] font-extrabold bg-amber-200 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    ⏳ A aguardar aprovação
+                  </span>
+                </div>
+                <p className="text-xs text-amber-800/90 leading-relaxed">
+                  As atividades foram colocadas diretamente no calendário. Clique em <span className="font-semibold text-amber-950">"Aprovar Plano"</span> para as guardar definitivamente ou <span className="font-semibold text-amber-950">"Descartar"</span> para as remover.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                onClick={handleApprovePlan}
+                className="flex items-center justify-center gap-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md transition-all cursor-pointer w-full sm:w-auto"
+                id="btn-approve-suggested-plan"
+              >
+                <Check className="w-4 h-4" />
+                <span>Aprovar Plano</span>
+              </button>
+
+              <button
+                onClick={handleDiscardPlan}
+                className="flex items-center justify-center gap-1.5 text-xs font-bold bg-white hover:bg-rose-50 border border-rose-200 text-rose-700 px-4 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer w-full sm:w-auto"
+                id="btn-discard-suggested-plan"
+              >
+                <Trash2 className="w-4 h-4 text-rose-600" />
+                <span>Descartar</span>
+              </button>
+
+              <button
+                onClick={handleDirectSuggestPlan}
+                className="flex items-center justify-center gap-1.5 text-xs font-semibold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300/80 px-3 py-2.5 rounded-xl transition-all cursor-pointer w-full sm:w-auto"
+                id="btn-recalculate-suggested-plan"
+                title="Gerar outra combinação de atividades"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Gerar Novamente</span>
+              </button>
+
+              <button
+                onClick={() => setShowGeminiPlanner(true)}
+                className="text-[11px] font-semibold text-amber-800 hover:text-amber-950 underline px-2 py-1 transition-all cursor-pointer"
+                title="Ajustar regras e opções avançadas"
+              >
+                Ajustar Regras
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Banner para Sugerir plano de Estimulação com IA */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-indigo-50/60 border border-indigo-100/80 rounded-xl p-3 sm:p-4 animate-fade-in gap-3">
@@ -1010,7 +1141,7 @@ export default function CalendarView({
               Sugerir Plano com IA
             </h4>
             <p className="text-[10px] text-indigo-800 leading-normal">
-              Gere automaticamente sugestões de estimulação que respeitam as regras personalizadas.
+              Gere automaticamente sugestões de estimulação diretamente no calendário que respeitam as regras personalizadas.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
@@ -1044,9 +1175,9 @@ export default function CalendarView({
                 )}
               </div>
             )}
-            <Tooltip position="left" content="Sugerir plano: Gerar automaticamente sugestões de atividades socioculturais que cumprem as suas regras de estimulação personalizadas">
+            <Tooltip position="left" content="Sugerir plano: Gerar automaticamente sugestões de atividades no calendário a aguardar aprovação">
               <button
-                onClick={() => setShowGeminiPlanner(true)}
+                onClick={handleDirectSuggestPlan}
                 className="flex items-center gap-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-xs hover:shadow-md shrink-0 w-full sm:w-auto justify-center"
                 id="btn-open-gemini-planner"
               >
@@ -1093,177 +1224,215 @@ export default function CalendarView({
             <span className="flex items-center gap-1 font-medium text-blue-800 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded">
               🎶 Musicoterapia
             </span>
+            <span className="flex items-center gap-1 font-medium text-rose-800 bg-rose-50 border border-rose-100 px-1.5 py-0.5 rounded">
+              🌿 Sensorial
+            </span>
+            <span className="flex items-center gap-1 font-medium text-teal-800 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
+              🎨 Artes Manuais
+            </span>
             <span className="flex items-center gap-1 font-medium text-slate-800 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded">
-              🎨 Outros Ateliers
+              🌟 Outros
             </span>
           </div>
-          <div className="text-gray-400 text-[10px] font-mono">
-            Clique em 🌅 / 🌇 para agendar rapidamente
-          </div>
+          <button
+            onClick={() => setShowDailyModal(true)}
+            className="flex items-center gap-2 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3.5 py-2 rounded-xl transition-all cursor-pointer shadow-2xs hover:shadow-xs"
+            id="btn-open-daily-modal-bar"
+          >
+            <ListTodo className="w-4 h-4 text-indigo-600" />
+            <span>Ver Rotina Diária ({formattedSelectedDate})</span>
+          </button>
         </div>
       </div>
 
-      {/* Daily Routine Sidebar (1 Column) */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs flex flex-col space-y-4">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-2">
-          <div>
-            <span className="text-[10px] uppercase font-bold text-indigo-600 tracking-wider">Rotina Diária</span>
-            <h3 className="font-display font-semibold text-gray-800 text-xs sm:text-sm leading-tight capitalize mt-0.5">
-              {formattedSelectedDate}
-            </h3>
-          </div>
-          <button
-            onClick={() => openScheduleModal(selectedDateStr, 'manha')}
-            className="flex items-center gap-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2.5 sm:py-1.5 rounded-lg shadow-xs transition-all cursor-pointer shrink-0"
-            id="btn-sidebar-add-new"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Agendar</span>
-          </button>
-        </div>
-
-        {selectedDayActs.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-12 text-center bg-gray-50 border border-dashed border-gray-200 rounded-xl p-4">
-            <AlertCircle className="w-8 h-8 text-gray-300 mb-2" />
-            <p className="text-xs font-semibold text-gray-600">Nenhuma Atividade Planeada</p>
-            <p className="text-[10px] text-gray-400 mt-1 max-w-44">Agende sessões de ginástica, estimulação cognitiva ou música para hoje.</p>
-            <div className="mt-4 flex gap-1.5">
-              <button
-                onClick={() => openScheduleModal(selectedDateStr, 'manha')}
-                className="text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg transition-colors cursor-pointer"
-                id="btn-quick-manha"
-              >
-                + Manhã
-              </button>
-              <button
-                onClick={() => openScheduleModal(selectedDateStr, 'tarde')}
-                className="text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2.5 rounded-lg transition-colors cursor-pointer"
-                id="btn-quick-tarde"
-              >
-                + Tarde
-              </button>
+      {/* Daily Routine Pop-up Modal */}
+      {showDailyModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in" id="daily-routine-modal">
+          <div className="bg-white rounded-2xl border border-gray-100 max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3 shrink-0">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-indigo-600 tracking-wider">Rotina Diária • Plano do Dia</span>
+                <h3 className="font-display font-semibold text-gray-800 text-sm sm:text-base leading-tight capitalize mt-0.5">
+                  {formattedSelectedDate}
+                </h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => openScheduleModal(selectedDateStr, 'manha')}
+                  className="flex items-center gap-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg shadow-xs transition-all cursor-pointer shrink-0"
+                  id="btn-daily-modal-add-new"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Agendar</span>
+                </button>
+                <button
+                  onClick={() => setShowDailyModal(false)}
+                  className="text-gray-400 hover:text-gray-700 p-1.5 rounded-lg hover:bg-slate-100 text-lg font-bold cursor-pointer transition-colors"
+                  id="close-daily-modal-btn"
+                  title="Fechar"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-4 flex-1 flex flex-col">
-            <div className="text-[10px] text-gray-400 font-medium bg-slate-50 border border-slate-100 rounded-lg p-2 flex items-center justify-between select-none">
-              <span>💡 Toque e arraste pela pega (⠿) para reordenar as atividades de hoje</span>
-            </div>
-            <div 
-              id="selected-acts-list"
-              className="space-y-4 flex-1 overflow-y-auto max-h-[460px] pr-1"
-            >
-              {selectedDayActs.map((act, idx) => {
-                const categoryColor = {
-                  cognitiva: 'border-l-purple-500 bg-purple-50/50',
-                  fisica: 'border-l-amber-500 bg-amber-50/50',
-                  musica: 'border-l-blue-500 bg-blue-50/50',
-                  outro: 'border-l-slate-400 bg-slate-50/50',
-                };
 
-                const isCurrentlyDragged = draggedId === act.id;
-
-                return (
-                  <div
-                    key={act.id}
-                    draggable
-                    onDragStart={() => handleDragStart(act.id, idx)}
-                    onDragOver={(e) => handleDragOver(e, idx)}
-                    onDragEnd={handleDragEnd}
-                    className={`border-l-4 rounded-r-xl border border-gray-100 p-4 space-y-3 transition-all hover:shadow-xs relative ${categoryColor[act.category]} ${
-                      act.completed ? 'opacity-80' : ''
-                    } ${isCurrentlyDragged ? 'scale-[1.03] bg-indigo-50/90 ring-2 ring-indigo-300 opacity-95 shadow-md z-30 cursor-grabbing' : ''}`}
-                    id={`side-act-${act.id}`}
+            {/* Modal Content - Selected Day Activities */}
+            {selectedDayActs.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center py-10 text-center bg-gray-50 border border-dashed border-gray-200 rounded-xl p-4">
+                <AlertCircle className="w-8 h-8 text-gray-300 mb-2" />
+                <p className="text-xs font-semibold text-gray-600">Nenhuma Atividade Planeada para este dia</p>
+                <p className="text-[10px] text-gray-400 mt-1 max-w-52">Agende sessões de ginástica, estimulação cognitiva, sensorial ou música para este dia.</p>
+                <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={() => openScheduleModal(selectedDateStr, 'manha')}
+                    className="text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                    id="btn-quick-manha"
                   >
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <div 
-                          className="flex items-center gap-1 cursor-grab active:cursor-grabbing select-none"
-                          onTouchStart={(e) => handleTouchStart(e, idx)}
-                          onTouchMove={handleTouchMove}
-                          onTouchEnd={handleTouchEnd}
-                          title="Arraste para reordenar"
-                        >
-                          <GripVertical className="w-4 h-4 text-gray-400 shrink-0" />
-                          <span className="text-[9px] uppercase font-mono text-gray-400 flex items-center gap-1 font-bold">
-                            <Clock className="w-3 h-3 text-indigo-500" />
-                            {act.slot === 'manha' ? 'Manhã' : 'Tarde'} • {act.time}
-                          </span>
-                        </div>
-                      <div className="flex items-center gap-1.5">
-                        <Tooltip position="top" content={act.completed ? "Marcar Pendente: Alterar o estado desta atividade de volta para pendente" : "Concluir Atividade: Registar a atividade de hoje como concluída e realizada com sucesso"}>
-                          <button
-                            onClick={() => onToggleCompleteActivity(act.id)}
-                            className={`w-8 h-8 rounded-lg border transition-all cursor-pointer flex items-center justify-center ${
-                              act.completed
-                                ? 'bg-emerald-600 border-emerald-600 text-white'
-                                : 'bg-white hover:bg-slate-100 border-gray-200 text-gray-400'
-                            }`}
-                            id={`complete-btn-${act.id}`}
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                          </button>
-                        </Tooltip>
-                        <Tooltip position="top" content="Trocar Atividade: Substituir esta atividade por outra atividade registada">
-                          <button
-                            onClick={() => setSwappingActivity(act)}
-                            className="w-8 h-8 rounded-lg border bg-white border-gray-200 text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer flex items-center justify-center"
-                            id={`swap-btn-${act.id}`}
-                          >
-                            <RefreshCw className="w-3.5 h-3.5" />
-                          </button>
-                        </Tooltip>
-                        <Tooltip position="top" content="Editar Atividade: Alterar horário, período ou informações desta sessão agendada">
-                          <button
-                            onClick={() => handleOpenEditScheduledModal(act)}
-                            className="w-8 h-8 rounded-lg border bg-white border-gray-200 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer flex items-center justify-center"
-                            id={`edit-sched-btn-${act.id}`}
-                          >
-                            <Edit className="w-3.5 h-3.5" />
-                          </button>
-                        </Tooltip>
-                        <Tooltip position="top" content="Desmarcar Atividade: Remover esta atividade do plano diário atual">
-                          <button
-                            onClick={() => onDeleteScheduledActivity(act.id)}
-                            className="w-8 h-8 rounded-lg border bg-white border-gray-200 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer flex items-center justify-center"
-                            id={`delete-btn-${act.id}`}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </Tooltip>
-                      </div>
-                    </div>
-                    <h4 className={`font-display font-bold text-xs text-slate-800 ${act.completed ? 'line-through text-slate-400' : ''}`}>
-                      {act.title}
-                    </h4>
-                    <p className="text-[10px] text-gray-500 leading-relaxed line-clamp-3">
-                      {act.description}
-                    </p>
-                  </div>
-
-                  {/* Log Participation Button */}
-                  <div className="pt-2 border-t border-gray-100/55 flex items-center justify-between">
-                    <span className="text-[10px] text-gray-400 font-mono">
-                      {act.completed ? 'Concluída ✓' : 'Pendente'}
-                    </span>
-                    <Tooltip position="left" content="Registar Progresso: Registar e avaliar a participação, nível de atenção e cooperação do grupo de utentes nesta atividade">
-                      <button
-                        onClick={() => onOpenParticipationLog(act)}
-                        className="text-[10px] font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-xs hover:shadow-md transition-all cursor-pointer"
-                        id={`log-part-btn-${act.id}`}
-                      >
-                        <CalendarCheck className="w-3.5 h-3.5" />
-                        Registar Progresso
-                      </button>
-                    </Tooltip>
-                  </div>
+                    + Manhã
+                  </button>
+                  <button
+                    onClick={() => openScheduleModal(selectedDateStr, 'tarde')}
+                    className="text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                    id="btn-quick-tarde"
+                  >
+                    + Tarde
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            ) : (
+              <div className="space-y-3 flex-1 flex flex-col overflow-hidden">
+                <div className="text-[10px] text-gray-400 font-medium bg-slate-50 border border-slate-100 rounded-lg p-2 flex items-center justify-between select-none shrink-0">
+                  <span>💡 Toque e arraste pela pega (⠿) para reordenar as atividades de hoje</span>
+                  <span className="font-mono text-indigo-600 font-bold">{selectedDayActs.length} {selectedDayActs.length === 1 ? 'atividade' : 'atividades'}</span>
+                </div>
+                <div 
+                  id="selected-acts-list"
+                  className="space-y-3 flex-1 overflow-y-auto max-h-[480px] pr-1"
+                >
+                  {selectedDayActs.map((act, idx) => {
+                    const categoryColor = {
+                      cognitiva: 'border-l-purple-500 bg-purple-50/50',
+                      fisica: 'border-l-amber-500 bg-amber-50/50',
+                      musica: 'border-l-blue-500 bg-blue-50/50',
+                      sensorial: 'border-l-rose-500 bg-rose-50/50',
+                      expressao_artistica: 'border-l-teal-500 bg-teal-50/50',
+                      outro: 'border-l-slate-400 bg-slate-50/50',
+                    };
+
+                    const isCurrentlyDragged = draggedId === act.id;
+
+                    return (
+                      <div
+                        key={act.id}
+                        draggable
+                        onDragStart={() => handleDragStart(act.id, idx)}
+                        onDragOver={(e) => handleDragOver(e, idx)}
+                        onDragEnd={handleDragEnd}
+                        className={`border-l-4 rounded-r-xl border border-gray-100 p-3.5 space-y-2.5 transition-all hover:shadow-xs relative ${categoryColor[act.category] || 'border-l-slate-400 bg-slate-50/50'} ${
+                          act.completed ? 'opacity-80' : ''
+                        } ${isCurrentlyDragged ? 'scale-[1.02] bg-indigo-50/90 ring-2 ring-indigo-300 opacity-95 shadow-md z-30 cursor-grabbing' : ''}`}
+                        id={`side-act-${act.id}`}
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <div 
+                              className="flex items-center gap-1 cursor-grab active:cursor-grabbing select-none"
+                              onTouchStart={(e) => handleTouchStart(e, idx)}
+                              onTouchMove={handleTouchMove}
+                              onTouchEnd={handleTouchEnd}
+                              title="Arraste para reordenar"
+                            >
+                              <GripVertical className="w-4 h-4 text-gray-400 shrink-0" />
+                              <span className="text-[9px] uppercase font-mono text-gray-500 flex items-center gap-1 font-bold">
+                                <Clock className="w-3 h-3 text-indigo-500" />
+                                {act.slot === 'manha' ? 'Manhã' : 'Tarde'} • {act.time}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Tooltip position="top" content={act.completed ? "Marcar Pendente: Alterar o estado desta atividade de volta para pendente" : "Concluir Atividade: Registar a atividade de hoje como concluída e realizada com sucesso"}>
+                                <button
+                                  onClick={() => onToggleCompleteActivity(act.id)}
+                                  className={`w-7 h-7 rounded-lg border transition-all cursor-pointer flex items-center justify-center ${
+                                    act.completed
+                                      ? 'bg-emerald-600 border-emerald-600 text-white'
+                                      : 'bg-white hover:bg-slate-100 border-gray-200 text-gray-400'
+                                  }`}
+                                  id={`complete-btn-${act.id}`}
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                </button>
+                              </Tooltip>
+                              <Tooltip position="top" content="Trocar Atividade: Substituir esta atividade por outra atividade registada">
+                                <button
+                                  onClick={() => setSwappingActivity(act)}
+                                  className="w-7 h-7 rounded-lg border bg-white border-gray-200 text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer flex items-center justify-center"
+                                  id={`swap-btn-${act.id}`}
+                                >
+                                  <RefreshCw className="w-3 h-3" />
+                                </button>
+                              </Tooltip>
+                              <Tooltip position="top" content="Editar Atividade: Alterar horário, período ou informações desta sessão agendada">
+                                <button
+                                  onClick={() => handleOpenEditScheduledModal(act)}
+                                  className="w-7 h-7 rounded-lg border bg-white border-gray-200 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer flex items-center justify-center"
+                                  id={`edit-sched-btn-${act.id}`}
+                                >
+                                  <Edit className="w-3 h-3" />
+                                </button>
+                              </Tooltip>
+                              <Tooltip position="top" content="Desmarcar Atividade: Remover esta atividade do plano diário atual">
+                                <button
+                                  onClick={() => onDeleteScheduledActivity(act.id)}
+                                  className="w-7 h-7 rounded-lg border bg-white border-gray-200 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer flex items-center justify-center"
+                                  id={`delete-btn-${act.id}`}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </Tooltip>
+                            </div>
+                          </div>
+                          <h4 className={`font-display font-bold text-xs sm:text-sm text-slate-800 ${act.completed ? 'line-through text-slate-400' : ''}`}>
+                            {act.title}
+                          </h4>
+                          <p className="text-[11px] text-gray-600 leading-relaxed line-clamp-3">
+                            {act.description}
+                          </p>
+                        </div>
+
+                        {/* Log Participation Button */}
+                        <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+                          <span className="text-[10px] text-gray-400 font-mono">
+                            {act.completed ? 'Concluída ✓' : 'Pendente'}
+                          </span>
+                          <Tooltip position="left" content="Registar Progresso: Registar e avaliar a participação, nível de atenção e cooperação do grupo de utentes nesta atividade">
+                            <button
+                              onClick={() => onOpenParticipationLog(act)}
+                              className="text-[10px] font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-xs hover:shadow-md transition-all cursor-pointer"
+                              id={`log-part-btn-${act.id}`}
+                            >
+                              <CalendarCheck className="w-3.5 h-3.5" />
+                              Registar Progresso
+                            </button>
+                          </Tooltip>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            <div className="pt-3 border-t border-gray-100 flex justify-end shrink-0">
+              <button
+                onClick={() => setShowDailyModal(false)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              >
+                Fechar
+              </button>
+            </div>
           </div>
         </div>
       )}
-    </div>
 
       {/* Schedulling Modal */}
       {showModal && (
