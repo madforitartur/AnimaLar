@@ -806,15 +806,6 @@ export default function App() {
     setActiveLogActivity(null);
   };
 
-  // Compute stats for top cards
-  const completedTodayCount = scheduledActivities.filter(
-    a => a.date === getTodayStr() && a.completed
-  ).length;
-
-  const totalTodayCount = scheduledActivities.filter(
-    a => a.date === getTodayStr()
-  ).length;
-
   const activeRemindersCount = reminders.filter(r => !r.completed).length;
 
   return (
@@ -827,7 +818,7 @@ export default function App() {
       <header className="bg-white border-b border-gray-100 py-4 px-4 md:px-10 sticky top-0 z-40 shadow-xs print:hidden">
         <div className="w-full flex flex-col gap-4">
           
-          {/* Top Row: Logo & App Branding + Reduced Date */}
+          {/* Top Row: Logo & App Branding + Date */}
           <div className="flex flex-row items-center justify-between gap-4 w-full">
             {/* Logo & App Branding (Lar de Santo António) */}
             <div className="flex items-center gap-3 sm:gap-4 select-none">
@@ -852,7 +843,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Time & Quick Indicator - Reduced for mobile & placed in top right */}
+            {/* Time & Quick Indicator */}
             <div className="flex items-center gap-1 text-[10px] sm:text-xs font-medium bg-slate-50 border border-gray-100 px-2 py-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0">
               <div className="flex items-center gap-1 text-gray-500">
                 <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
@@ -861,113 +852,13 @@ export default function App() {
             </div>
           </div>
 
-          {/* Bottom Row (Mobile/Tablet Only): Menus (tabs switcher) placed on the line where the date currently is */}
-          <div className="lg:hidden w-full border-t border-gray-50 pt-3 print:hidden">
-            <div className="flex flex-row gap-1.5 overflow-x-auto pb-1.5 scrollbar-none scroll-smooth">
-              <button
-                onClick={() => setCurrentTab('planner')}
-                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
-                  currentTab === 'planner'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
-                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
-                }`}
-              >
-                <CalendarIcon className="w-3.5 h-3.5 shrink-0" />
-                <span>Plano Mensal / Diário</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentTab('residents')}
-                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
-                  currentTab === 'residents'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
-                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
-                }`}
-              >
-                <Users className="w-3.5 h-3.5 shrink-0" />
-                <span>Utentes & Progresso</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentTab('activities')}
-                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
-                  currentTab === 'activities'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
-                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                <span>Atividades</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentTab('materials')}
-                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
-                  currentTab === 'materials'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
-                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
-                }`}
-              >
-                <BookOpen className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                <span>Material de Apoio</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentTab('reminders')}
-                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
-                  currentTab === 'reminders'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
-                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
-                }`}
-              >
-                <Bell className="w-3.5 h-3.5 shrink-0" />
-                <span>Lembretes ({activeRemindersCount})</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentTab('print')}
-                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
-                  currentTab === 'print'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
-                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
-                }`}
-              >
-                <Printer className="w-3.5 h-3.5 shrink-0" />
-                <span>Imprimir Mural</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentTab('database')}
-                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shrink-0 ${
-                  currentTab === 'database'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
-                    : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
-                }`}
-              >
-                <Database className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                <span>Base de Dados</span>
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="w-full flex-1 p-4 md:p-8 flex flex-col lg:flex-row gap-6 items-start print:flex-col print:p-0 print:gap-0">
-        
-        {/* Left Sidebar Menu (Hidden on Print) */}
-        <aside className="w-full lg:w-64 shrink-0 space-y-4 print:hidden" id="left-sidebar">
-          
-          {/* Tabs Switcher Card */}
-          <div className="bg-white border border-gray-100 p-3 rounded-2xl shadow-xs lg:flex flex-col gap-3 hidden">
-            <span className="text-[10px] uppercase font-bold text-gray-400 px-2 tracking-wider hidden lg:block">Navegação</span>
-            
-            <div className="flex flex-row lg:flex-col gap-1.5 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 scrollbar-none">
-              <Tooltip position="right" content="Plano Diário: Agenda de estimulação, listagem e controle de atividades agendadas">
+          {/* Navigation Menu (Top Header - Desktop & Mobile) */}
+          <nav className="w-full border-t border-gray-100 pt-3 print:hidden">
+            <div className="flex flex-row items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-none scroll-smooth w-full">
+              <Tooltip position="bottom" content="Plano Diário: Agenda de estimulação, listagem e controle de atividades agendadas">
                 <button
                   onClick={() => setCurrentTab('planner')}
-                  className={`flex items-center gap-1.5 text-xs font-bold px-4 py-3 rounded-xl transition-all cursor-pointer shrink-0 lg:shrink-1 lg:w-full ${
+                  className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shrink-0 ${
                     currentTab === 'planner'
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
                       : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
@@ -975,13 +866,14 @@ export default function App() {
                   id="tab-planner"
                 >
                   <CalendarIcon className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Plano Mensal / Diário</span>
+                  <span className="whitespace-nowrap">Plano Mensal / Diário</span>
                 </button>
               </Tooltip>
-              <Tooltip position="right" content="Utentes & Progresso: Fichas clínicas individuais, notas de evolução e relatórios">
+
+              <Tooltip position="bottom" content="Utentes & Progresso: Fichas clínicas individuais, notas de evolução e relatórios">
                 <button
                   onClick={() => setCurrentTab('residents')}
-                  className={`flex items-center gap-1.5 text-xs font-bold px-4 py-3 rounded-xl transition-all cursor-pointer shrink-0 lg:shrink-1 lg:w-full ${
+                  className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shrink-0 ${
                     currentTab === 'residents'
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
                       : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
@@ -989,13 +881,14 @@ export default function App() {
                   id="tab-residents"
                 >
                   <Users className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Utentes & Progresso</span>
+                  <span className="whitespace-nowrap">Utentes & Progresso</span>
                 </button>
               </Tooltip>
-              <Tooltip position="right" content="Catálogo de Atividades: Biblioteca de rotinas de animação sociocultural catalogadas">
+
+              <Tooltip position="bottom" content="Catálogo de Atividades: Biblioteca de rotinas de animação sociocultural catalogadas">
                 <button
                   onClick={() => setCurrentTab('activities')}
-                  className={`flex items-center gap-1.5 text-xs font-bold px-4 py-3 rounded-xl transition-all cursor-pointer shrink-0 lg:shrink-1 lg:w-full ${
+                  className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shrink-0 ${
                     currentTab === 'activities'
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
                       : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
@@ -1003,13 +896,14 @@ export default function App() {
                   id="tab-activities"
                 >
                   <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-                  <span className="truncate">Atividades</span>
+                  <span className="whitespace-nowrap">Atividades</span>
                 </button>
               </Tooltip>
-              <Tooltip position="right" content="Material de Apoio: Fichas, cartões, rimas, letras e mapas prontos para imprimir">
+
+              <Tooltip position="bottom" content="Material de Apoio: Fichas, cartões, rimas, letras e mapas prontos para imprimir">
                 <button
                   onClick={() => setCurrentTab('materials')}
-                  className={`flex items-center gap-1.5 text-xs font-bold px-4 py-3 rounded-xl transition-all cursor-pointer shrink-0 lg:shrink-1 lg:w-full ${
+                  className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shrink-0 ${
                     currentTab === 'materials'
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
                       : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
@@ -1017,13 +911,14 @@ export default function App() {
                   id="tab-materials"
                 >
                   <BookOpen className="w-4 h-4 text-indigo-500 shrink-0" />
-                  <span className="truncate">Material de Apoio</span>
+                  <span className="whitespace-nowrap">Material de Apoio</span>
                 </button>
               </Tooltip>
-              <Tooltip position="right" content="Lembretes & Alertas: Gestor de avisos médicos, tarefas diárias e rotinas importantes">
+
+              <Tooltip position="bottom" content="Lembretes & Alertas: Gestor de avisos médicos, tarefas diárias e rotinas importantes">
                 <button
                   onClick={() => setCurrentTab('reminders')}
-                  className={`flex items-center gap-1.5 text-xs font-bold px-4 py-3 rounded-xl transition-all cursor-pointer shrink-0 lg:shrink-1 lg:w-full ${
+                  className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shrink-0 ${
                     currentTab === 'reminders'
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
                       : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
@@ -1031,13 +926,14 @@ export default function App() {
                   id="tab-reminders"
                 >
                   <Bell className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Lembretes & Alertas ({activeRemindersCount})</span>
+                  <span className="whitespace-nowrap">Lembretes & Alertas ({activeRemindersCount})</span>
                 </button>
               </Tooltip>
-              <Tooltip position="right" content="Imprimir Mural: Visualização otimizada para impressão física e exposição no mural do lar">
+
+              <Tooltip position="bottom" content="Imprimir Mural: Visualização otimizada para impressão física e exposição no mural do lar">
                 <button
                   onClick={() => setCurrentTab('print')}
-                  className={`flex items-center gap-1.5 text-xs font-bold px-4 py-3 rounded-xl transition-all cursor-pointer shrink-0 lg:shrink-1 lg:w-full ${
+                  className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shrink-0 ${
                     currentTab === 'print'
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
                       : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
@@ -1045,13 +941,14 @@ export default function App() {
                   id="tab-print"
                 >
                   <Printer className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Imprimir Mural</span>
+                  <span className="whitespace-nowrap">Imprimir Mural</span>
                 </button>
               </Tooltip>
-              <Tooltip position="right" content="Base de Dados: Salvaguarda, importação e exportação de dados em servidores SQLite/locais">
+
+              <Tooltip position="bottom" content="Base de Dados: Salvaguarda, importação e exportação de dados em servidores SQLite/locais">
                 <button
                   onClick={() => setCurrentTab('database')}
-                  className={`flex items-center gap-1.5 text-xs font-bold px-4 py-3 rounded-xl transition-all cursor-pointer shrink-0 lg:shrink-1 lg:w-full ${
+                  className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shrink-0 ${
                     currentTab === 'database'
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100'
                       : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
@@ -1059,61 +956,19 @@ export default function App() {
                   id="tab-database"
                 >
                   <Database className="w-4 h-4 text-indigo-500 shrink-0" />
-                  <span className="truncate">Base de Dados</span>
+                  <span className="whitespace-nowrap">Base de Dados</span>
                 </button>
               </Tooltip>
             </div>
-          </div>
+          </nav>
 
-          {/* Quick Metrics Cards */}
-          <div className="hidden md:grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3">
-            
-            <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-xs flex items-center justify-between">
-              <div className="space-y-0.5">
-                <span className="text-[9px] uppercase font-bold text-gray-400 block tracking-wider">Atividades de Hoje</span>
-                <p className="font-display font-black text-lg text-slate-800 leading-none">
-                  {completedTodayCount} <span className="text-[10px] font-medium text-gray-400 block sm:inline lg:block">de {totalTodayCount} concluintes</span>
-                </p>
-              </div>
-              <Tooltip position="left" content="Progresso do Dia: Relação entre as atividades concluídas e o total agendado para hoje">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
-                  <CheckCircle className="w-4 h-4 text-emerald-600" />
-                </div>
-              </Tooltip>
-            </div>
+        </div>
+      </header>
 
-            <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-xs flex items-center justify-between">
-              <div className="space-y-0.5">
-                <span className="text-[9px] uppercase font-bold text-gray-400 block tracking-wider">Utentes Ativos</span>
-                <p className="font-display font-black text-lg text-slate-800 leading-none">
-                  {residents.length} <span className="text-[10px] font-medium text-gray-400 block sm:inline lg:block">inscritos</span>
-                </p>
-              </div>
-              <Tooltip position="left" content="Utentes Ativos: Total de utentes atualmente acompanhados nos planos de estimulação">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
-                  <Users className="w-4 h-4 text-indigo-600" />
-                </div>
-              </Tooltip>
-            </div>
-
-            <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-xs flex items-center justify-between">
-              <div className="space-y-0.5">
-                <span className="text-[9px] uppercase font-bold text-gray-400 block tracking-wider">Métrica de Engajamento</span>
-                <p className="font-display font-black text-lg text-slate-800 leading-none">
-                  {residents.length > 0 ? '82%' : '0%'} <span className="text-[10px] font-medium text-gray-400 block sm:inline lg:block">envolvimento</span>
-                </p>
-              </div>
-              <Tooltip position="left" content="Índice de Envolvimento: Nível médio de adesão e participação dos utentes nas sessões">
-                <div className="w-8 h-8 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0">
-                  <TrendingUp className="w-4 h-4 text-purple-600" />
-                </div>
-              </Tooltip>
-            </div>
-
-          </div>
-        </aside>
-
-        {/* Right Content Area */}
+      {/* Main Container */}
+      <main className="w-full flex-1 p-4 md:p-8 flex flex-col space-y-6 print:p-0 print:gap-0">
+        
+        {/* Content Area (Full Width) */}
         <div className="flex-1 w-full flex flex-col space-y-6">
           
           {/* Tab Panel Renderings */}
