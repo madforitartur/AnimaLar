@@ -60,10 +60,17 @@ export interface Reminder {
 export interface SuggestionRules {
   activeDays: string[]; // e.g. ['Seg', 'Ter', 'Qua', 'Qui', 'Sex']
   maxPhysicalDaysPerWeek: number;
-  physicalDaysConfig?: Record<string, 'manha' | 'tarde'>;
+  physicalDaysConfig?: Record<string, 'manha' | 'tarde' | 'ambos'>;
   maxCognitiveDaysPerWeek: number;
+  cognitiveDaysConfig?: Record<string, 'manha' | 'tarde' | 'ambos'>;
   maxMusicDaysPerWeek: number;
+  musicDaysConfig?: Record<string, 'manha' | 'tarde' | 'ambos'>;
+  maxSensoryDaysPerWeek?: number;
+  sensoryDaysConfig?: Record<string, 'manha' | 'tarde' | 'ambos'>;
+  maxArtisticDaysPerWeek?: number;
+  artisticDaysConfig?: Record<string, 'manha' | 'tarde' | 'ambos'>;
   maxOtherDaysPerWeek: number;
+  otherDaysConfig?: Record<string, 'manha' | 'tarde' | 'ambos'>;
   morningCategoryPreference: ActivityCategory | 'aleatorio';
   afternoonCategoryPreference: ActivityCategory | 'aleatorio';
   morningTime: string; // e.g. "10:30"

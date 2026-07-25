@@ -128,9 +128,23 @@ export function generateSuggestedPlan({
         ? suggestionRules.morningCategoryPreference 
         : suggestionRules.afternoonCategoryPreference;
 
-      const physicalConfig = suggestionRules.physicalDaysConfig;
-      const isPhysicalConfiguredForThisSlot = physicalConfig && physicalConfig[dayName] === slot;
-      const isPhysicalConfiguredForOtherSlot = physicalConfig && physicalConfig[dayName] && physicalConfig[dayName] !== slot;
+      const catConfigs: Record<ActivityCategory, Record<string, 'manha' | 'tarde' | 'ambos'> | undefined> = {
+        fisica: suggestionRules.physicalDaysConfig,
+        cognitiva: suggestionRules.cognitiveDaysConfig,
+        musica: suggestionRules.musicDaysConfig,
+        sensorial: suggestionRules.sensoryDaysConfig,
+        expressao_artistica: suggestionRules.artisticDaysConfig,
+        outro: suggestionRules.otherDaysConfig,
+      };
+
+      const limits: Record<ActivityCategory, number> = {
+        cognitiva: suggestionRules.maxCognitiveDaysPerWeek ?? 5,
+        fisica: suggestionRules.maxPhysicalDaysPerWeek ?? 2,
+        musica: suggestionRules.maxMusicDaysPerWeek ?? 3,
+        sensorial: suggestionRules.maxSensoryDaysPerWeek ?? 2,
+        expressao_artistica: suggestionRules.maxArtisticDaysPerWeek ?? 2,
+        outro: suggestionRules.otherDaysConfig ? (suggestionRules.maxOtherDaysPerWeek ?? 2) : (suggestionRules.maxOtherDaysPerWeek ?? 2),
+      };
 
       // Determine which categories are allowed under constraints
       const allowedCategories: ActivityCategory[] = [];
@@ -143,31 +157,36 @@ export function generateSuggestedPlan({
         return currentSet.size < limit;
       };
 
-      if (checkAllowed('cognitiva', suggestionRules.maxCognitiveDaysPerWeek)) {
-        allowedCategories.push('cognitiva');
-      }
-      if (!isPhysicalConfiguredForOtherSlot && checkAllowed('fisica', suggestionRules.maxPhysicalDaysPerWeek)) {
-        allowedCategories.push('fisica');
-      }
-      if (checkAllowed('musica', suggestionRules.maxMusicDaysPerWeek)) {
-        allowedCategories.push('musica');
-      }
-      if (checkAllowed('outro', suggestionRules.maxOtherDaysPerWeek)) {
-        allowedCategories.push('outro');
-      }
+      (Object.keys(limits) as ActivityCategory[]).forEach(cat => {
+        const cfg = catConfigs[cat];
+        const dayVal = cfg?.[dayName];
+        const otherSlot = slot === 'manha' ? 'tarde' : 'manha';
+        // Only exclude if explicitly set ONLY for the opposite slot
+        const isConfiguredOnlyForOtherSlot = dayVal === otherSlot;
+        if (!isConfiguredOnlyForOtherSlot && checkAllowed(cat, limits[cat])) {
+          allowedCategories.push(cat);
+        }
+      });
 
       if (allowedCategories.length === 0) {
         // Absolute fallback: if constraints are too tight, use anything with a non-zero limit
-        if (suggestionRules.maxCognitiveDaysPerWeek > 0) allowedCategories.push('cognitiva');
-        else if (suggestionRules.maxPhysicalDaysPerWeek > 0) allowedCategories.push('fisica');
-        else if (suggestionRules.maxMusicDaysPerWeek > 0) allowedCategories.push('musica');
-        else allowedCategories.push('outro');
+        (Object.keys(limits) as ActivityCategory[]).forEach(cat => {
+          if (limits[cat] > 0) allowedCategories.push(cat);
+        });
+        if (allowedCategories.length === 0) allowedCategories.push('cognitiva');
       }
 
-      // Choose category based on physical schedule override, preference or lowest relative usage
+      // Check if any category is specifically configured for THIS day and THIS slot (or 'ambos')
+      const explicitlyConfiguredCat = (Object.keys(catConfigs) as ActivityCategory[]).find(cat => {
+        const cfg = catConfigs[cat];
+        const dayVal = cfg?.[dayName];
+        const matchesSlot = dayVal === slot || dayVal === 'ambos';
+        return matchesSlot && allowedCategories.includes(cat);
+      });
+
       let chosenCat: ActivityCategory = 'cognitiva';
-      if (isPhysicalConfiguredForThisSlot && allowedCategories.includes('fisica')) {
-        chosenCat = 'fisica';
+      if (explicitlyConfiguredCat) {
+        chosenCat = explicitlyConfiguredCat;
       } else if (pref !== 'aleatorio' && allowedCategories.includes(pref as ActivityCategory)) {
         chosenCat = pref as ActivityCategory;
       } else {

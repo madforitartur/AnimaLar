@@ -187,6 +187,107 @@ export default function CalendarView({
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedWeekIndex, setSelectedWeekIndex] = useState(0);
 
+  // Drag and Drop state
+  const [draggedActivity, setDraggedActivity] = useState<ScheduledActivity | null>(null);
+  const [dragOverTarget, setDragOverTarget] = useState<{ date: string; slot?: 'manha' | 'tarde' } | null>(null);
+  const [isCopyMode, setIsCopyMode] = useState<boolean>(false);
+  const [dragNotification, setDragNotification] = useState<string | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, act: ScheduledActivity) => {
+    setDraggedActivity(act);
+    e.dataTransfer.setData('text/plain', JSON.stringify({
+      id: act.id,
+      activityId: act.activityId,
+      title: act.title,
+      description: act.description,
+      category: act.category,
+      date: act.date,
+      slot: act.slot,
+      time: act.time
+    }));
+    e.dataTransfer.effectAllowed = 'copyMove';
+  };
+
+  const handleDragOver = (e: React.DragEvent, dateStr: string, slot?: 'manha' | 'tarde') => {
+    e.preventDefault();
+    const isCopying = e.altKey || e.ctrlKey || isCopyMode;
+    e.dataTransfer.dropEffect = isCopying ? 'copy' : 'move';
+  };
+
+  const handleDragEnter = (e: React.DragEvent, dateStr: string, slot?: 'manha' | 'tarde') => {
+    e.preventDefault();
+    setDragOverTarget({ date: dateStr, slot });
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent, targetDateStr: string, targetSlot?: 'manha' | 'tarde') => {
+    e.preventDefault();
+    setDragOverTarget(null);
+
+    if (!draggedActivity) return;
+
+    const resolvedSlot = targetSlot || draggedActivity.slot || 'manha';
+    const isCopying = e.altKey || e.ctrlKey || isCopyMode;
+
+    const [y, m, d] = targetDateStr.split('-');
+    const dateFormatted = `${d}/${m}/${y}`;
+    const slotFormatted = resolvedSlot === 'manha' ? 'Manhã' : 'Tarde';
+
+    if (isCopying) {
+      onAddScheduledActivity({
+        activityId: draggedActivity.activityId,
+        title: draggedActivity.title,
+        description: draggedActivity.description,
+        category: draggedActivity.category,
+        date: targetDateStr,
+        slot: resolvedSlot,
+        time: targetSlot ? (targetSlot === 'manha' ? '10:30' : '15:30') : draggedActivity.time,
+        completed: false,
+      });
+      setDragNotification(`📋 Atividade "${draggedActivity.title}" copiada para ${dateFormatted} (${slotFormatted})!`);
+    } else {
+      if (draggedActivity.date === targetDateStr && draggedActivity.slot === resolvedSlot) {
+        setDraggedActivity(null);
+        return;
+      }
+
+      if (onUpdateScheduledActivity) {
+        onUpdateScheduledActivity({
+          ...draggedActivity,
+          date: targetDateStr,
+          slot: resolvedSlot,
+          time: targetSlot && targetSlot !== draggedActivity.slot ? (targetSlot === 'manha' ? '10:30' : '15:30') : draggedActivity.time,
+        });
+      } else {
+        onDeleteScheduledActivity(draggedActivity.id);
+        onAddScheduledActivity({
+          activityId: draggedActivity.activityId,
+          title: draggedActivity.title,
+          description: draggedActivity.description,
+          category: draggedActivity.category,
+          date: targetDateStr,
+          slot: resolvedSlot,
+          time: targetSlot && targetSlot !== draggedActivity.slot ? (targetSlot === 'manha' ? '10:30' : '15:30') : draggedActivity.time,
+          completed: draggedActivity.completed,
+        });
+      }
+      setDragNotification(`↔️ Atividade "${draggedActivity.title}" movida para ${dateFormatted} (${slotFormatted})!`);
+    }
+
+    setDraggedActivity(null);
+    setTimeout(() => {
+      setDragNotification(null);
+    }, 4000);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedActivity(null);
+    setDragOverTarget(null);
+  };
+
   const daysOfWeekFull = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'];
 
   const calcDaysInMonth = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
@@ -532,12 +633,12 @@ export default function CalendarView({
       .sort((a, b) => a.time.localeCompare(b.time));
   };
 
-  const handleDragStart = (id: string, index: number) => {
+  const handleSideListDragStart = (id: string, index: number) => {
     setDraggedId(id);
     setDraggedIndex(index);
   };
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleSideListDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     if (draggedIndex === null || draggedIndex === index) return;
     
@@ -553,7 +654,7 @@ export default function CalendarView({
     }
   };
 
-  const handleDragEnd = () => {
+  const handleSideListDragEnd = () => {
     setDraggedId(null);
     setDraggedIndex(null);
   };
@@ -820,7 +921,7 @@ export default function CalendarView({
       if (!isValidDay) {
         // Empty cells for padding
         cells.push(
-          <div key={`empty-${i}`} className="bg-emerald-100/20 border border-emerald-200/30 rounded-xl min-h-28 p-1 opacity-40 select-none"></div>
+          <div key={`empty-${i}`} className="bg-slate-200/30 border border-slate-200/50 rounded-xl min-h-28 p-1 opacity-40 select-none"></div>
         );
       } else {
         const dateStr = formatDateString(dayNumber);
@@ -829,15 +930,24 @@ export default function CalendarView({
         const afternoonActs = dailyActs.filter((a) => a.slot === 'tarde');
         const isSelected = selectedDateStr === dateStr;
         const isToday = dateStr === getTodayStr();
+        const isDragTargetCell = dragOverTarget?.date === dateStr && !dragOverTarget?.slot;
+        const isDragTargetMorning = dragOverTarget?.date === dateStr && dragOverTarget?.slot === 'manha';
+        const isDragTargetAfternoon = dragOverTarget?.date === dateStr && dragOverTarget?.slot === 'tarde';
 
         cells.push(
           <div
             key={`day-${dayNumber}`}
             onClick={() => handleSelectDay(dateStr)}
+            onDragOver={(e) => handleDragOver(e, dateStr)}
+            onDragEnter={(e) => handleDragEnter(e, dateStr)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, dateStr)}
             className={`min-h-28 border rounded-xl p-1.5 transition-all flex flex-col relative cursor-pointer shadow-2xs ${
-              isSelected
+              isDragTargetCell
+                ? 'bg-indigo-100/90 border-2 border-indigo-500 ring-2 ring-indigo-300 z-20 shadow-lg scale-[1.01]'
+                : isSelected
                 ? 'bg-indigo-50 border-2 border-indigo-500 ring-2 ring-indigo-300 shadow-md scale-[1.01] z-10'
-                : 'bg-white border-emerald-100 hover:border-emerald-200'
+                : 'bg-white border-slate-200 hover:border-slate-300'
             } ${isToday ? 'border-indigo-400 ring-1 ring-indigo-200 font-bold' : ''}`}
             id={`cal-cell-${dateStr}`}
           >
@@ -884,7 +994,17 @@ export default function CalendarView({
             </div>
 
             {/* Morning Slot Box */}
-            <div className="flex-1 space-y-1 mb-1 bg-gray-50/50 rounded p-1 border border-gray-100/50 group/slot">
+            <div
+              onDragOver={(e) => { e.stopPropagation(); handleDragOver(e, dateStr, 'manha'); }}
+              onDragEnter={(e) => { e.stopPropagation(); handleDragEnter(e, dateStr, 'manha'); }}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => { e.stopPropagation(); handleDrop(e, dateStr, 'manha'); }}
+              className={`flex-1 space-y-1 mb-1 rounded p-1 border transition-all group/slot ${
+                isDragTargetMorning
+                  ? 'bg-indigo-100/90 border-2 border-indigo-600 ring-2 ring-indigo-300 shadow-xs'
+                  : 'bg-gray-50/50 border-gray-100/50'
+              }`}
+            >
               <div className="flex items-center justify-between text-[9px] text-gray-400 font-medium">
                 <span>Manhã 🌅</span>
                 <button
@@ -906,11 +1026,16 @@ export default function CalendarView({
                   {morningActs.map((act) => (
                     <div
                       key={act.id}
+                      draggable={true}
+                      onDragStart={(e) => handleDragStart(e, act)}
+                      onDragEnd={handleDragEnd}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelectDay(dateStr);
                       }}
-                      className={`text-[10px] font-medium p-1 rounded border flex items-center justify-between gap-1 transition-all ${
+                      className={`text-[10px] font-medium p-1 rounded border flex items-center justify-between gap-1 transition-all cursor-grab active:cursor-grabbing hover:shadow-xs group/act ${
+                        draggedActivity?.id === act.id ? 'opacity-40 scale-95 border-dashed border-indigo-400' : ''
+                      } ${
                         act.completed
                           ? 'bg-emerald-50/50 border-emerald-100 text-emerald-800 opacity-75 line-through'
                           : act.category === 'cognitiva'
@@ -926,9 +1051,11 @@ export default function CalendarView({
                           : 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-100'
                       } ${act.status === 'pending_approval' ? 'border-dashed border-amber-400/90 ring-1 ring-amber-300/60 shadow-2xs' : ''}`}
                       id={`cal-act-${act.id}`}
+                      title="Arraste para mover ou copiar para outro dia"
                     >
                       <span className="truncate flex-1 flex items-center gap-1">
-                        <span className="font-mono text-[9px] opacity-75 mr-1 font-semibold shrink-0">{act.time}</span>
+                        <GripVertical className="w-2.5 h-2.5 text-gray-400 group-hover/act:text-indigo-600 shrink-0" />
+                        <span className="font-mono text-[9px] opacity-75 mr-0.5 font-semibold shrink-0">{act.time}</span>
                         <span className="truncate">{act.title}</span>
                       </span>
                       {act.completed && (
@@ -941,7 +1068,17 @@ export default function CalendarView({
             </div>
 
             {/* Afternoon Slot Box */}
-            <div className="flex-1 space-y-1 bg-gray-50/50 rounded p-1 border border-gray-100/50 group/aslot">
+            <div
+              onDragOver={(e) => { e.stopPropagation(); handleDragOver(e, dateStr, 'tarde'); }}
+              onDragEnter={(e) => { e.stopPropagation(); handleDragEnter(e, dateStr, 'tarde'); }}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => { e.stopPropagation(); handleDrop(e, dateStr, 'tarde'); }}
+              className={`flex-1 space-y-1 rounded p-1 border transition-all group/aslot ${
+                isDragTargetAfternoon
+                  ? 'bg-indigo-100/90 border-2 border-indigo-600 ring-2 ring-indigo-300 shadow-xs'
+                  : 'bg-gray-50/50 border-gray-100/50'
+              }`}
+            >
               <div className="flex items-center justify-between text-[9px] text-gray-400 font-medium">
                 <span>Tarde 🌇</span>
                 <button
@@ -963,11 +1100,16 @@ export default function CalendarView({
                   {afternoonActs.map((act) => (
                     <div
                       key={act.id}
+                      draggable={true}
+                      onDragStart={(e) => handleDragStart(e, act)}
+                      onDragEnd={handleDragEnd}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelectDay(dateStr);
                       }}
-                      className={`text-[10px] font-medium p-1 rounded border flex items-center justify-between gap-1 transition-all ${
+                      className={`text-[10px] font-medium p-1 rounded border flex items-center justify-between gap-1 transition-all cursor-grab active:cursor-grabbing hover:shadow-xs group/act ${
+                        draggedActivity?.id === act.id ? 'opacity-40 scale-95 border-dashed border-indigo-400' : ''
+                      } ${
                         act.completed
                           ? 'bg-emerald-50/50 border-emerald-100 text-emerald-800 opacity-75 line-through'
                           : act.category === 'cognitiva'
@@ -983,9 +1125,11 @@ export default function CalendarView({
                           : 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-100'
                       } ${act.status === 'pending_approval' ? 'border-dashed border-amber-400/90 ring-1 ring-amber-300/60 shadow-2xs' : ''}`}
                       id={`cal-act-${act.id}`}
+                      title="Arraste para mover ou copiar para outro dia"
                     >
                       <span className="truncate flex-1 flex items-center gap-1">
-                        <span className="font-mono text-[9px] opacity-75 mr-1 font-semibold shrink-0">{act.time}</span>
+                        <GripVertical className="w-2.5 h-2.5 text-gray-400 group-hover/act:text-indigo-600 shrink-0" />
+                        <span className="font-mono text-[9px] opacity-75 mr-0.5 font-semibold shrink-0">{act.time}</span>
                         <span className="truncate">{act.title}</span>
                       </span>
                       {act.completed && (
@@ -1016,7 +1160,7 @@ export default function CalendarView({
 
       if (!isValidDay) {
         cells.push(
-          <div key={`empty-mob-${i}`} className="bg-emerald-100/20 border border-emerald-200/30 rounded-xl aspect-square p-1 opacity-40 select-none"></div>
+          <div key={`empty-mob-${i}`} className="bg-slate-200/30 border border-slate-200/50 rounded-xl aspect-square p-1 opacity-40 select-none"></div>
         );
       } else {
         const dateStr = formatDateString(dayNumber);
@@ -1041,7 +1185,7 @@ export default function CalendarView({
             className={`aspect-square border rounded-xl p-1 flex flex-col justify-between items-center transition-all cursor-pointer relative shadow-2xs ${
               isSelected
                 ? 'bg-indigo-50 border-2 border-indigo-500 ring-2 ring-indigo-300 z-10 shadow-md'
-                : 'bg-white border-emerald-100'
+                : 'bg-white border-slate-200'
             } ${isToday ? 'border-indigo-400 font-black' : ''}`}
             id={`cal-cell-mob-${dateStr}`}
           >
@@ -1113,15 +1257,24 @@ export default function CalendarView({
           const afternoonActs = dailyActs.filter((a) => a.slot === 'tarde');
           const isSelected = selectedDateStr === day.dateStr;
           const isToday = day.dateStr === getTodayStr();
+          const isDragTargetCell = dragOverTarget?.date === day.dateStr && !dragOverTarget?.slot;
+          const isDragTargetMorning = dragOverTarget?.date === day.dateStr && dragOverTarget?.slot === 'manha';
+          const isDragTargetAfternoon = dragOverTarget?.date === day.dateStr && dragOverTarget?.slot === 'tarde';
 
           return (
             <div
               key={day.dateStr}
               onClick={() => handleSelectDay(day.dateStr)}
+              onDragOver={(e) => handleDragOver(e, day.dateStr)}
+              onDragEnter={(e) => handleDragEnter(e, day.dateStr)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, day.dateStr)}
               className={`flex flex-col border rounded-xl p-3 min-h-[380px] transition-all cursor-pointer relative shadow-2xs ${
-                isSelected
+                isDragTargetCell
+                  ? 'bg-indigo-100/90 border-2 border-indigo-500 ring-2 ring-indigo-300 z-20 shadow-lg scale-[1.01]'
+                  : isSelected
                   ? 'bg-indigo-50 border-2 border-indigo-500 ring-2 ring-indigo-300 z-10 shadow-md'
-                  : 'bg-white border-emerald-100 hover:border-emerald-200'
+                  : 'bg-white border-slate-200 hover:border-slate-300'
               } ${isToday ? 'border-indigo-400 shadow-xs' : ''}`}
               id={`week-col-${day.dateStr}`}
             >
@@ -1167,7 +1320,17 @@ export default function CalendarView({
               {/* Slots Section */}
               <div className="flex-1 flex flex-col gap-2.5">
                 {/* Morning Slot */}
-                <div className="flex-1 bg-gray-50/50 rounded-lg p-2 border border-gray-100/50 flex flex-col group/mslot">
+                <div
+                  onDragOver={(e) => { e.stopPropagation(); handleDragOver(e, day.dateStr, 'manha'); }}
+                  onDragEnter={(e) => { e.stopPropagation(); handleDragEnter(e, day.dateStr, 'manha'); }}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => { e.stopPropagation(); handleDrop(e, day.dateStr, 'manha'); }}
+                  className={`flex-1 rounded-lg p-2 border flex flex-col transition-all group/mslot ${
+                    isDragTargetMorning
+                      ? 'bg-indigo-100/90 border-2 border-indigo-600 ring-2 ring-indigo-300 shadow-xs'
+                      : 'bg-gray-50/50 border-gray-100/50'
+                  }`}
+                >
                   <div className="flex items-center justify-between text-[9px] text-gray-400 font-bold mb-1 border-b border-gray-100/30 pb-0.5">
                     <span>Manhã 🌅</span>
                     <button
@@ -1192,11 +1355,16 @@ export default function CalendarView({
                       {morningActs.map((act) => (
                         <div
                           key={act.id}
+                          draggable={true}
+                          onDragStart={(e) => handleDragStart(e, act)}
+                          onDragEnd={handleDragEnd}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleSelectDay(day.dateStr);
                           }}
-                          className={`text-[10px] font-medium p-1.5 rounded-lg border flex flex-col gap-1 transition-all relative group/act ${
+                          className={`text-[10px] font-medium p-1.5 rounded-lg border flex flex-col gap-1 transition-all relative cursor-grab active:cursor-grabbing group/act ${
+                            draggedActivity?.id === act.id ? 'opacity-40 scale-95 border-dashed border-indigo-400' : ''
+                          } ${
                             act.completed
                               ? 'bg-emerald-50/45 border-emerald-100 text-emerald-800 opacity-80 line-through'
                               : act.category === 'cognitiva'
@@ -1208,9 +1376,13 @@ export default function CalendarView({
                               : 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-100'
                           } ${act.status === 'pending_approval' ? 'border-dashed border-amber-400/90 ring-1 ring-amber-300/60 shadow-2xs' : ''}`}
                           id={`week-act-${act.id}`}
+                          title="Arraste para mover ou copiar para outro dia"
                         >
                           <div className="flex items-center justify-between gap-1">
-                            <span className="font-mono text-[9px] opacity-75 font-bold shrink-0">{act.time}</span>
+                            <span className="font-mono text-[9px] opacity-75 font-bold shrink-0 flex items-center gap-1">
+                              <GripVertical className="w-2.5 h-2.5 text-gray-400 group-hover/act:text-indigo-600 shrink-0" />
+                              {act.time}
+                            </span>
                             <div className="flex items-center gap-1 opacity-0 group-hover/act:opacity-100 transition-opacity shrink-0">
                               <button
                                 onClick={(e) => {
@@ -1232,7 +1404,17 @@ export default function CalendarView({
                 </div>
 
                 {/* Afternoon Slot */}
-                <div className="flex-1 bg-gray-50/50 rounded-lg p-2 border border-gray-100/50 flex flex-col group/aslot">
+                <div
+                  onDragOver={(e) => { e.stopPropagation(); handleDragOver(e, day.dateStr, 'tarde'); }}
+                  onDragEnter={(e) => { e.stopPropagation(); handleDragEnter(e, day.dateStr, 'tarde'); }}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => { e.stopPropagation(); handleDrop(e, day.dateStr, 'tarde'); }}
+                  className={`flex-1 rounded-lg p-2 border flex flex-col transition-all group/aslot ${
+                    isDragTargetAfternoon
+                      ? 'bg-indigo-100/90 border-2 border-indigo-600 ring-2 ring-indigo-300 shadow-xs'
+                      : 'bg-gray-50/50 border-gray-100/50'
+                  }`}
+                >
                   <div className="flex items-center justify-between text-[9px] text-gray-400 font-bold mb-1 border-b border-gray-100/30 pb-0.5">
                     <span>Tarde 🌇</span>
                     <button
@@ -1257,11 +1439,16 @@ export default function CalendarView({
                       {afternoonActs.map((act) => (
                         <div
                           key={act.id}
+                          draggable={true}
+                          onDragStart={(e) => handleDragStart(e, act)}
+                          onDragEnd={handleDragEnd}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleSelectDay(day.dateStr);
                           }}
-                          className={`text-[10px] font-medium p-1.5 rounded-lg border flex flex-col gap-1 transition-all relative group/act ${
+                          className={`text-[10px] font-medium p-1.5 rounded-lg border flex flex-col gap-1 transition-all relative cursor-grab active:cursor-grabbing group/act ${
+                            draggedActivity?.id === act.id ? 'opacity-40 scale-95 border-dashed border-indigo-400' : ''
+                          } ${
                             act.completed
                               ? 'bg-emerald-50/45 border-emerald-100 text-emerald-800 opacity-80 line-through'
                               : act.category === 'cognitiva'
@@ -1273,9 +1460,13 @@ export default function CalendarView({
                               : 'bg-slate-50 border-slate-100 text-slate-900 hover:bg-slate-100'
                           } ${act.status === 'pending_approval' ? 'border-dashed border-amber-400/90 ring-1 ring-amber-300/60 shadow-2xs' : ''}`}
                           id={`week-act-${act.id}`}
+                          title="Arraste para mover ou copiar para outro dia"
                         >
                           <div className="flex items-center justify-between gap-1">
-                            <span className="font-mono text-[9px] opacity-75 font-bold shrink-0">{act.time}</span>
+                            <span className="font-mono text-[9px] opacity-75 font-bold shrink-0 flex items-center gap-1">
+                              <GripVertical className="w-2.5 h-2.5 text-gray-400 group-hover/act:text-indigo-600 shrink-0" />
+                              {act.time}
+                            </span>
                             <div className="flex items-center gap-1 opacity-0 group-hover/act:opacity-100 transition-opacity shrink-0">
                               <button
                                 onClick={(e) => {
@@ -1586,6 +1777,19 @@ export default function CalendarView({
           </div>
         </div>
 
+        {/* Drag Notification Toast Banner */}
+        {dragNotification && (
+          <div className="bg-indigo-600 text-white font-bold text-xs p-3 rounded-xl shadow-md flex items-center justify-between gap-2 animate-bounce print:hidden">
+            <span>{dragNotification}</span>
+            <button
+              onClick={() => setDragNotification(null)}
+              className="text-white/80 hover:text-white font-mono text-sm px-1"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Pending Approval Banner when generated suggestions exist */}
         {pendingActivities.length > 0 && (
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300/80 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 animate-fade-in" id="pending-approval-banner">
@@ -1650,13 +1854,17 @@ export default function CalendarView({
 
         {/* Banner para Sugerir plano de Estimulação com IA */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-indigo-50/60 border border-indigo-100/80 rounded-xl p-3 sm:p-4 animate-fade-in gap-3">
-          <div className="space-y-0.5">
+          <div className="space-y-1">
             <h4 className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
               Sugerir Plano com IA
             </h4>
             <p className="text-[10px] text-indigo-800 leading-normal">
               Gere automaticamente sugestões de estimulação diretamente no calendário que respeitam as regras personalizadas.
+            </p>
+            <p className="text-[10px] text-slate-600 font-medium pt-1 border-t border-indigo-100/60 flex items-center gap-1">
+              <span className="font-bold text-indigo-900 shrink-0">↔️ Drag & Drop:</span>
+              <span>Arraste qualquer atividade entre dias ou períodos. Mantenha premido <kbd className="px-1 py-0.2 bg-white border border-gray-300 rounded font-mono text-[9px] font-semibold text-gray-700">Alt / Ctrl</kbd> para duplicar/copiar.</span>
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
@@ -1703,21 +1911,11 @@ export default function CalendarView({
           </div>
         </div>
 
-        {/* Interaction hint notice */}
-        <div className="flex items-center justify-between text-[11px] font-medium text-emerald-900 bg-emerald-50/90 border border-emerald-200/80 rounded-xl px-3.5 py-1.5 select-none">
-          <span className="flex items-center gap-1.5">
-            <span className="font-bold text-emerald-950">💡 Dica:</span> Clique num dia para o selecionar visualmente. Clique <span className="font-bold text-indigo-700 underline decoration-indigo-300">segunda vez</span> para abrir a janela com a rotina diária.
-          </span>
-          <span className="hidden sm:inline-block font-mono text-[10px] text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-md font-semibold border border-emerald-200">
-            Dia Selecionado: {formattedSelectedDate}
-          </span>
-        </div>
-
         {/* Conditional Month view vs Weekly view rendering */}
         {calendarViewMode === 'mensal' ? (
-          <div className="bg-emerald-50/70 p-3 sm:p-4 rounded-2xl border border-emerald-200/80 shadow-2xs space-y-2.5">
+          <div className="bg-slate-100/80 p-3 sm:p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5">
             {/* Days of week header */}
-            <div className="grid grid-cols-7 gap-1.5 text-center font-bold text-[11px] sm:text-xs text-emerald-950 bg-emerald-100/80 py-2.5 rounded-xl border border-emerald-200/90 shadow-2xs">
+            <div className="grid grid-cols-7 gap-1.5 text-center font-bold text-[11px] sm:text-xs text-slate-800 bg-slate-200/80 py-2.5 rounded-xl border border-slate-300/80 shadow-2xs">
               {daysOfWeek.map((day, i) => (
                 <div key={i} className="py-0.5 tracking-wide">{day}</div>
               ))}
@@ -1734,7 +1932,7 @@ export default function CalendarView({
             </div>
           </div>
         ) : (
-          <div className="bg-emerald-50/70 p-3 sm:p-4 rounded-2xl border border-emerald-200/80 shadow-2xs">
+          <div className="bg-slate-100/80 p-3 sm:p-4 rounded-2xl border border-slate-200/90 shadow-2xs">
             {renderWeeklyView()}
           </div>
         )}
@@ -1853,9 +2051,9 @@ export default function CalendarView({
                       <div
                         key={act.id}
                         draggable
-                        onDragStart={() => handleDragStart(act.id, idx)}
-                        onDragOver={(e) => handleDragOver(e, idx)}
-                        onDragEnd={handleDragEnd}
+                        onDragStart={() => handleSideListDragStart(act.id, idx)}
+                        onDragOver={(e) => handleSideListDragOver(e, idx)}
+                        onDragEnd={handleSideListDragEnd}
                         className={`border-l-4 rounded-r-xl border border-gray-100 p-3.5 space-y-2.5 transition-all hover:shadow-xs relative ${categoryColor[act.category] || 'border-l-slate-400 bg-slate-50/50'} ${
                           act.completed ? 'opacity-80' : ''
                         } ${isCurrentlyDragged ? 'scale-[1.02] bg-indigo-50/90 ring-2 ring-indigo-300 opacity-95 shadow-md z-30 cursor-grabbing' : ''}`}

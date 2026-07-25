@@ -200,6 +200,184 @@ export default function ActivitiesPanel({
     onSetSuggestionRules({ ...suggestionRules, [key]: value });
   };
 
+  const renderCategoryCard = (
+    title: string,
+    icon: string,
+    limitKey: keyof SuggestionRules,
+    configKey: keyof SuggestionRules,
+    defaultLimit: number,
+    theme: {
+      cardBg: string;
+      border: string;
+      titleColor: string;
+      subtextColor: string;
+      sliderBg: string;
+      sliderAccent: string;
+      badgeBg: string;
+      badgeText: string;
+      badgeBorder: string;
+      daySelectedBg: string;
+      daySelectedBorder: string;
+      btnActiveBg: string;
+      btnActiveText: string;
+    }
+  ) => {
+    const limitValue = (suggestionRules?.[limitKey] as number) ?? defaultLimit;
+    const config = (suggestionRules?.[configKey] as Record<string, 'manha' | 'tarde' | 'ambos'>) || {};
+    const assignedCount = Object.keys(config).length;
+
+    return (
+      <div key={limitKey as string} className={`${theme.cardBg} ${theme.border} border p-4 sm:p-5 rounded-2xl space-y-4 transition-all shadow-xs`}>
+        {/* Header: Title + Slider + Badge */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <span className={`${theme.titleColor} font-bold text-xs sm:text-sm flex items-center gap-2`}>
+            <span className="text-base">{icon}</span> {title}
+          </span>
+          <div className="flex items-center gap-2.5 self-end sm:self-auto">
+            <span className="text-[10px] text-gray-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
+              Máx/sem:
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="7"
+              value={limitValue}
+              onChange={(e) => handleRuleChange(limitKey, Number(e.target.value))}
+              className={`w-24 sm:w-28 h-1.5 ${theme.sliderBg} rounded-lg appearance-none cursor-pointer ${theme.sliderAccent}`}
+            />
+            <span className={`font-mono font-bold ${theme.badgeText} ${theme.badgeBg} ${theme.badgeBorder} border px-2 py-0.5 rounded-lg text-xs shadow-2xs min-w-[36px] text-center`}>
+              {limitValue}d
+            </span>
+          </div>
+        </div>
+
+        {/* Days of week & period selector */}
+        <div className="space-y-2.5 pt-2 border-t border-black/5 dark:border-white/10">
+          <div className="flex items-center justify-between">
+            <span className={`text-[10px] font-bold ${theme.subtextColor} uppercase tracking-wider`}>
+              Dias e Período das Sessões:
+            </span>
+            <span className={`text-[10px] font-semibold ${theme.subtextColor}`}>
+              {assignedCount} dia(s) atribuído(s)
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+            {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((day) => {
+              const val = config[day];
+              const isSelected = !!val;
+              const hasMorning = val === 'manha' || val === 'ambos';
+              const hasAfternoon = val === 'tarde' || val === 'ambos';
+
+              const toggleSlot = (targetSlot: 'manha' | 'tarde', e: React.MouseEvent) => {
+                e.stopPropagation();
+                let newVal: 'manha' | 'tarde' | 'ambos' | undefined;
+                if (val === 'ambos') {
+                  newVal = targetSlot === 'manha' ? 'tarde' : 'manha';
+                } else if (val === targetSlot) {
+                  newVal = undefined;
+                } else if (val) {
+                  newVal = 'ambos';
+                } else {
+                  newVal = targetSlot;
+                }
+
+                const newConfig = { ...config };
+                if (newVal) {
+                  newConfig[day] = newVal;
+                } else {
+                  delete newConfig[day];
+                }
+                const newDaysCount = Object.keys(newConfig).length;
+                if (!suggestionRules || !onSetSuggestionRules) return;
+                onSetSuggestionRules({
+                  ...suggestionRules,
+                  [configKey]: newConfig,
+                  [limitKey]: newDaysCount > 0 ? newDaysCount : suggestionRules[limitKey]
+                });
+              };
+
+              return (
+                <div
+                  key={day}
+                  className={`rounded-xl border p-2 flex flex-col items-center justify-between gap-1.5 transition-all text-xs ${
+                    isSelected
+                      ? `${theme.daySelectedBg} ${theme.daySelectedBorder} text-white shadow-2xs`
+                      : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300'
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newConfig = { ...config };
+                      if (isSelected) {
+                        delete newConfig[day];
+                      } else {
+                        newConfig[day] = 'manha';
+                      }
+                      const newDaysCount = Object.keys(newConfig).length;
+                      if (!suggestionRules || !onSetSuggestionRules) return;
+                      onSetSuggestionRules({
+                        ...suggestionRules,
+                        [configKey]: newConfig,
+                        [limitKey]: newDaysCount > 0 ? newDaysCount : suggestionRules[limitKey]
+                      });
+                    }}
+                    className="w-full text-center font-bold py-0.5 cursor-pointer flex items-center justify-center gap-1 select-none"
+                    title={isSelected ? `Remover ${day} de ${title}` : `Ativar ${day} para ${title}`}
+                  >
+                    <span>{day}</span>
+                    {val === 'ambos' ? (
+                      <span className="text-[9px] bg-white/25 dark:bg-black/25 px-1 py-0.2 rounded font-extrabold text-white">🌅+🌇</span>
+                    ) : isSelected ? (
+                      <span className="text-[10px]">✓</span>
+                    ) : null}
+                  </button>
+
+                  <div className={`flex items-center rounded-lg p-0.5 w-full justify-center gap-0.5 ${
+                    isSelected ? 'bg-black/20 dark:bg-black/40' : 'bg-gray-100 dark:bg-slate-800'
+                  }`}>
+                    <button
+                      type="button"
+                      onClick={(e) => toggleSlot('manha', e)}
+                      className={`text-[9px] font-bold px-1 py-0.5 rounded-md transition-all cursor-pointer flex-1 text-center ${
+                        hasMorning
+                          ? `${theme.btnActiveBg} ${theme.btnActiveText} shadow-2xs font-extrabold`
+                          : isSelected
+                            ? 'text-white/60 hover:text-white hover:bg-white/10'
+                            : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white'
+                      }`}
+                      title={hasMorning ? 'Desativar Manhã (🌅)' : 'Ativar Manhã (🌅)'}
+                    >
+                      🌅 Manhã
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => toggleSlot('tarde', e)}
+                      className={`text-[9px] font-bold px-1 py-0.5 rounded-md transition-all cursor-pointer flex-1 text-center ${
+                        hasAfternoon
+                          ? `${theme.btnActiveBg} ${theme.btnActiveText} shadow-2xs font-extrabold`
+                          : isSelected
+                            ? 'text-white/60 hover:text-white hover:bg-white/10'
+                            : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white'
+                      }`}
+                      title={hasAfternoon ? 'Desativar Tarde (🌇)' : 'Ativar Tarde (🌇)'}
+                    >
+                      🌇 Tarde
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className={`text-[10px] ${theme.subtextColor} font-medium opacity-90`}>
+            💡 Selecione 🌅 Manhã e/ou 🌇 Tarde em cada dia da semana. Pode escolher ambos os turnos no mesmo dia!
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   // Compute some quick statistics
   const scheduledCount = scheduledActivities.length;
   const completedCount = scheduledActivities.filter(a => a.completed).length;
@@ -569,26 +747,27 @@ export default function ActivitiesPanel({
       </div>
     ) : (
       /* Rules for suggestion editor screen */
-      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-xs space-y-6 animate-fade-in" id="rules-view-container">
-        <div className="space-y-1">
-          <h3 className="font-display font-bold text-slate-800 text-sm sm:text-base flex items-center gap-1.5">
-            <span>⚙️</span> Regras para Sugestão de Planos
+      <div className="bg-slate-100/70 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 shadow-xs space-y-6 animate-fade-in" id="rules-view-container">
+        <div className="space-y-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-2xl shadow-2xs">
+          <h3 className="font-display font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
+            <span className="p-1.5 bg-indigo-50 dark:bg-indigo-950/50 rounded-lg text-indigo-600 dark:text-indigo-400">⚙️</span>
+            Regras para Sugestão de Planos
           </h3>
-          <p className="text-gray-400 text-xs leading-relaxed">
+          <p className="text-gray-500 dark:text-slate-400 text-xs leading-relaxed pt-1">
             As regras aqui estipuladas orientam a criação automática de planos semanais e mensais de estimulação. O algoritmo garantirá que as restrições e preferências definidas sejam cumpridas.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-1">
           {/* Card 1: Days of the week */}
-          <div className="bg-slate-50/50 border border-slate-100 p-5 rounded-2xl space-y-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-2xl space-y-4 shadow-2xs">
             <div className="flex items-center gap-2">
-              <span className="text-base">📅</span>
-              <h4 className="font-display font-bold text-slate-800 text-xs uppercase tracking-wider">
+              <span className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 text-sm">📅</span>
+              <h4 className="font-display font-bold text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wider">
                 Dias da Semana Ativos
               </h4>
             </div>
-            <p className="text-[11px] text-gray-400 font-medium">
+            <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">
               Selecione em que dias da semana podem decorrer as atividades e rotinas de estimulação:
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
@@ -601,8 +780,8 @@ export default function ActivitiesPanel({
                     onClick={() => handleToggleDay(day)}
                     className={`w-11 h-11 rounded-xl text-xs font-bold transition-all border cursor-pointer flex items-center justify-center ${
                       isActive
-                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100'
-                        : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600'
+                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100 dark:shadow-none'
+                        : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-indigo-300'
                     }`}
                   >
                     {day}
@@ -611,242 +790,212 @@ export default function ActivitiesPanel({
               })}
             </div>
           </div>
-
-          {/* Card 2: Limits */}
-          <div className="bg-slate-50/50 border border-slate-100 p-5 rounded-2xl space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="text-base">⚖️</span>
-              <h4 className="font-display font-bold text-slate-800 text-xs uppercase tracking-wider">
-                Frequência Semanal Máxima por Categoria
-              </h4>
+           {/* Card 2: Limits and Day/Period Selector per Category */}
+          <div className="md:col-span-2 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 rounded-2xl space-y-5 shadow-2xs">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <span className="p-1.5 bg-indigo-50 dark:bg-indigo-950/50 rounded-lg text-indigo-600 dark:text-indigo-400 text-sm">⚖️</span>
+              <div>
+                <h4 className="font-display font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wider">
+                  Configuração por Categoria de Atividade (Dias, Período e Frequência)
+                </h4>
+                <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium pt-0.5">
+                  Configure em que dias da semana e em que turno (Manhã / Tarde) deseja agendar cada tipo de atividade, bem como a frequência máxima semanal:
+                </p>
+              </div>
             </div>
-            <p className="text-[11px] text-gray-400 font-medium">
-              Estipule o número máximo de dias por semana que podem incluir cada categoria de estimulação (ex: no máximo 2 dias com exercícios físicos):
-            </p>
             
             <div className="space-y-4 pt-1">
-              {/* Physical Limit & Days/Period Schedule */}
-              <div className="bg-amber-50/50 border border-amber-100 p-3.5 rounded-2xl space-y-3">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-amber-950 font-bold flex items-center gap-1.5">
-                    🏃‍♂️ Exercício Físico:
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="range"
-                      min="0"
-                      max="7"
-                      value={suggestionRules?.maxPhysicalDaysPerWeek ?? 2}
-                      onChange={(e) => handleRuleChange('maxPhysicalDaysPerWeek', Number(e.target.value))}
-                      className="w-24 h-1.5 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
-                    />
-                    <span className="font-mono font-bold text-amber-950 w-8 text-right bg-white border border-amber-200 px-1.5 py-0.5 rounded text-xs">
-                      {suggestionRules?.maxPhysicalDaysPerWeek ?? 2}d
-                    </span>
-                  </div>
-                </div>
+              {/* Exercício Físico */}
+              {renderCategoryCard(
+                'Exercício Físico',
+                '🏃‍♂️',
+                'maxPhysicalDaysPerWeek',
+                'physicalDaysConfig',
+                3,
+                {
+                  cardBg: 'bg-amber-50/70 dark:bg-amber-950/25',
+                  border: 'border-amber-200/80 dark:border-amber-800/40',
+                  titleColor: 'text-amber-950 dark:text-amber-200',
+                  subtextColor: 'text-amber-900/80 dark:text-amber-300/90',
+                  sliderBg: 'bg-amber-200 dark:bg-amber-900',
+                  sliderAccent: 'accent-amber-600',
+                  badgeBg: 'bg-white dark:bg-amber-900/70',
+                  badgeText: 'text-amber-950 dark:text-amber-100',
+                  badgeBorder: 'border-amber-200 dark:border-amber-700',
+                  daySelectedBg: 'bg-amber-500',
+                  daySelectedBorder: 'border-amber-600',
+                  btnActiveBg: 'bg-white dark:bg-amber-900',
+                  btnActiveText: 'text-amber-950 dark:text-amber-100',
+                }
+              )}
 
-                {/* Days of week and period selector for physical exercise */}
-                <div className="space-y-2 pt-2 border-t border-amber-200/60">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-amber-900 uppercase tracking-wider">
-                      Dias e Período das Sessões de Exercício:
-                    </span>
-                    <span className="text-[10px] text-amber-800 font-semibold">
-                      {Object.keys(suggestionRules?.physicalDaysConfig || {}).length} dia(s) atribuído(s)
-                    </span>
-                  </div>
+              {/* Estimulação Cognitiva */}
+              {renderCategoryCard(
+                'Estimulação Cognitiva',
+                '🧠',
+                'maxCognitiveDaysPerWeek',
+                'cognitiveDaysConfig',
+                5,
+                {
+                  cardBg: 'bg-indigo-50/70 dark:bg-indigo-950/25',
+                  border: 'border-indigo-200/80 dark:border-indigo-800/40',
+                  titleColor: 'text-indigo-950 dark:text-indigo-200',
+                  subtextColor: 'text-indigo-900/80 dark:text-indigo-300/90',
+                  sliderBg: 'bg-indigo-200 dark:bg-indigo-900',
+                  sliderAccent: 'accent-indigo-600',
+                  badgeBg: 'bg-white dark:bg-indigo-900/70',
+                  badgeText: 'text-indigo-950 dark:text-indigo-100',
+                  badgeBorder: 'border-indigo-200 dark:border-indigo-700',
+                  daySelectedBg: 'bg-indigo-600',
+                  daySelectedBorder: 'border-indigo-700',
+                  btnActiveBg: 'bg-white dark:bg-indigo-900',
+                  btnActiveText: 'text-indigo-950 dark:text-indigo-100',
+                }
+              )}
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-1.5">
-                    {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((day) => {
-                      const config = suggestionRules?.physicalDaysConfig || {};
-                      const isSelected = !!config[day];
-                      const slot = config[day] || 'manha';
+              {/* Musicoterapia */}
+              {renderCategoryCard(
+                'Musicoterapia',
+                '🎶',
+                'maxMusicDaysPerWeek',
+                'musicDaysConfig',
+                3,
+                {
+                  cardBg: 'bg-purple-50/70 dark:bg-purple-950/25',
+                  border: 'border-purple-200/80 dark:border-purple-800/40',
+                  titleColor: 'text-purple-950 dark:text-purple-200',
+                  subtextColor: 'text-purple-900/80 dark:text-purple-300/90',
+                  sliderBg: 'bg-purple-200 dark:bg-purple-900',
+                  sliderAccent: 'accent-purple-600',
+                  badgeBg: 'bg-white dark:bg-purple-900/70',
+                  badgeText: 'text-purple-950 dark:text-purple-100',
+                  badgeBorder: 'border-purple-200 dark:border-purple-700',
+                  daySelectedBg: 'bg-purple-600',
+                  daySelectedBorder: 'border-purple-700',
+                  btnActiveBg: 'bg-white dark:bg-purple-900',
+                  btnActiveText: 'text-purple-950 dark:text-purple-100',
+                }
+              )}
 
-                      return (
-                        <div
-                          key={day}
-                          className={`rounded-xl border p-2 flex flex-col items-center justify-between gap-1.5 transition-all text-xs ${
-                            isSelected
-                              ? 'bg-amber-500 border-amber-600 text-white shadow-2xs'
-                              : 'bg-white border-gray-200 text-gray-500 hover:border-amber-300'
-                          }`}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const newConfig = { ...config };
-                              if (isSelected) {
-                                delete newConfig[day];
-                              } else {
-                                newConfig[day] = 'manha';
-                              }
-                              const newDaysCount = Object.keys(newConfig).length;
-                              if (!suggestionRules || !onSetSuggestionRules) return;
-                              onSetSuggestionRules({
-                                ...suggestionRules,
-                                physicalDaysConfig: newConfig,
-                                maxPhysicalDaysPerWeek: newDaysCount > 0 ? newDaysCount : suggestionRules.maxPhysicalDaysPerWeek
-                              });
-                            }}
-                            className="w-full text-center font-bold py-0.5 cursor-pointer flex items-center justify-center gap-1 select-none"
-                            title={isSelected ? `Remover ${day} do exercício físico` : `Ativar ${day} para exercício físico`}
-                          >
-                            <span>{day}</span>
-                            {isSelected && <span className="text-[10px]">✓</span>}
-                          </button>
+              {/* Estimulação Sensorial */}
+              {renderCategoryCard(
+                'Estimulação Sensorial',
+                '🌿',
+                'maxSensoryDaysPerWeek',
+                'sensoryDaysConfig',
+                2,
+                {
+                  cardBg: 'bg-emerald-50/70 dark:bg-emerald-950/25',
+                  border: 'border-emerald-200/80 dark:border-emerald-800/40',
+                  titleColor: 'text-emerald-950 dark:text-emerald-200',
+                  subtextColor: 'text-emerald-900/80 dark:text-emerald-300/90',
+                  sliderBg: 'bg-emerald-200 dark:bg-emerald-900',
+                  sliderAccent: 'accent-emerald-600',
+                  badgeBg: 'bg-white dark:bg-emerald-900/70',
+                  badgeText: 'text-emerald-950 dark:text-emerald-100',
+                  badgeBorder: 'border-emerald-200 dark:border-emerald-700',
+                  daySelectedBg: 'bg-emerald-600',
+                  daySelectedBorder: 'border-emerald-700',
+                  btnActiveBg: 'bg-white dark:bg-emerald-900',
+                  btnActiveText: 'text-emerald-950 dark:text-emerald-100',
+                }
+              )}
 
-                          {isSelected && (
-                            <div className="flex items-center bg-amber-600/70 rounded-lg p-0.5 w-full justify-center">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const newConfig = { ...config, [day]: 'manha' as const };
-                                  if (!suggestionRules || !onSetSuggestionRules) return;
-                                  onSetSuggestionRules({ ...suggestionRules, physicalDaysConfig: newConfig });
-                                }}
-                                className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md transition-all cursor-pointer ${
-                                  slot === 'manha'
-                                    ? 'bg-white text-amber-950 shadow-2xs font-extrabold'
-                                    : 'text-amber-100 hover:text-white'
-                                }`}
-                                title="Manhã (🌅)"
-                              >
-                                🌅 Manhã
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const newConfig = { ...config, [day]: 'tarde' as const };
-                                  if (!suggestionRules || !onSetSuggestionRules) return;
-                                  onSetSuggestionRules({ ...suggestionRules, physicalDaysConfig: newConfig });
-                                }}
-                                className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md transition-all cursor-pointer ${
-                                  slot === 'tarde'
-                                    ? 'bg-white text-amber-950 shadow-2xs font-extrabold'
-                                    : 'text-amber-100 hover:text-white'
-                                }`}
-                                title="Tarde (🌇)"
-                              >
-                                🌇 Tarde
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <p className="text-[10px] text-amber-800/80 font-medium">
-                    💡 Clique num dia da semana para o selecionar e altere o período (🌅 Manhã / 🌇 Tarde) pretendido.
-                  </p>
-                </div>
-              </div>
+              {/* Expressão Artística */}
+              {renderCategoryCard(
+                'Expressão Artística',
+                '🎨',
+                'maxArtisticDaysPerWeek',
+                'artisticDaysConfig',
+                2,
+                {
+                  cardBg: 'bg-rose-50/70 dark:bg-rose-950/25',
+                  border: 'border-rose-200/80 dark:border-rose-800/40',
+                  titleColor: 'text-rose-950 dark:text-rose-200',
+                  subtextColor: 'text-rose-900/80 dark:text-rose-300/90',
+                  sliderBg: 'bg-rose-200 dark:bg-rose-900',
+                  sliderAccent: 'accent-rose-600',
+                  badgeBg: 'bg-white dark:bg-rose-900/70',
+                  badgeText: 'text-rose-950 dark:text-rose-100',
+                  badgeBorder: 'border-rose-200 dark:border-rose-700',
+                  daySelectedBg: 'bg-rose-600',
+                  daySelectedBorder: 'border-rose-700',
+                  btnActiveBg: 'bg-white dark:bg-rose-900',
+                  btnActiveText: 'text-rose-950 dark:text-rose-100',
+                }
+              )}
 
-              {/* Cognitive Limit */}
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-600 font-medium flex items-center gap-1.5">
-                  🧠 Estimulação Cognitiva:
-                </span>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="7"
-                    value={suggestionRules?.maxCognitiveDaysPerWeek ?? 5}
-                    onChange={(e) => handleRuleChange('maxCognitiveDaysPerWeek', Number(e.target.value))}
-                    className="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                  />
-                  <span className="font-mono font-bold text-slate-800 w-8 text-right bg-white border border-gray-200 px-1.5 py-0.5 rounded">
-                    {suggestionRules?.maxCognitiveDaysPerWeek ?? 5}d
-                  </span>
-                </div>
-              </div>
-
-              {/* Music Limit */}
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-600 font-medium flex items-center gap-1.5">
-                  🎶 Musicoterapia:
-                </span>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="7"
-                    value={suggestionRules?.maxMusicDaysPerWeek ?? 3}
-                    onChange={(e) => handleRuleChange('maxMusicDaysPerWeek', Number(e.target.value))}
-                    className="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                  />
-                  <span className="font-mono font-bold text-slate-800 w-8 text-right bg-white border border-gray-200 px-1.5 py-0.5 rounded">
-                    {suggestionRules?.maxMusicDaysPerWeek ?? 3}d
-                  </span>
-                </div>
-              </div>
-
-              {/* Other Limit */}
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-600 font-medium flex items-center gap-1.5">
-                  🎨 Outros (Artes/Lazer):
-                </span>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="7"
-                    value={suggestionRules?.maxOtherDaysPerWeek ?? 2}
-                    onChange={(e) => handleRuleChange('maxOtherDaysPerWeek', Number(e.target.value))}
-                    className="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                    />
-                  <span className="font-mono font-bold text-slate-800 w-8 text-right bg-white border border-gray-200 px-1.5 py-0.5 rounded">
-                    {suggestionRules?.maxOtherDaysPerWeek ?? 2}d
-                  </span>
-                </div>
-              </div>
+              {/* Outras Atividades / Lazer */}
+              {renderCategoryCard(
+                'Outras Atividades / Lazer',
+                '🌟',
+                'maxOtherDaysPerWeek',
+                'otherDaysConfig',
+                2,
+                {
+                  cardBg: 'bg-teal-50/70 dark:bg-teal-950/25',
+                  border: 'border-teal-200/80 dark:border-teal-800/40',
+                  titleColor: 'text-teal-950 dark:text-teal-200',
+                  subtextColor: 'text-teal-900/80 dark:text-teal-300/90',
+                  sliderBg: 'bg-teal-200 dark:bg-teal-900',
+                  sliderAccent: 'accent-teal-600',
+                  badgeBg: 'bg-white dark:bg-teal-900/70',
+                  badgeText: 'text-teal-950 dark:text-teal-100',
+                  badgeBorder: 'border-teal-200 dark:border-teal-700',
+                  daySelectedBg: 'bg-teal-600',
+                  daySelectedBorder: 'border-teal-700',
+                  btnActiveBg: 'bg-white dark:bg-teal-900',
+                  btnActiveText: 'text-teal-950 dark:text-teal-100',
+                }
+              )}
             </div>
           </div>
 
           {/* Card 3: Preferences */}
-          <div className="bg-slate-50/50 border border-slate-100 p-5 rounded-2xl space-y-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-2xl space-y-4 shadow-2xs">
             <div className="flex items-center gap-2">
-              <span className="text-base">💡</span>
-              <h4 className="font-display font-bold text-slate-800 text-xs uppercase tracking-wider">
+              <span className="p-1.5 bg-amber-50 dark:bg-amber-950/50 rounded-lg text-amber-600 dark:text-amber-400 text-sm">💡</span>
+              <h4 className="font-display font-bold text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wider">
                 Preferências por Período do Dia
               </h4>
             </div>
-            <p className="text-[11px] text-gray-400 font-medium">
+            <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">
               Selecione as categorias que prefere realizar preferencialmente em cada período do dia:
             </p>
             
             <div className="space-y-3 pt-1">
               {/* Morning Preference */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                <span className="text-gray-600 font-medium">🌅 Período da Manhã:</span>
+                <span className="text-gray-600 dark:text-slate-300 font-medium">🌅 Período da Manhã:</span>
                 <select
                   value={suggestionRules?.morningCategoryPreference ?? 'cognitiva'}
                   onChange={(e) => handleRuleChange('morningCategoryPreference', e.target.value)}
-                  className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-indigo-500 bg-white cursor-pointer"
+                  className="text-xs border border-gray-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-indigo-500 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 cursor-pointer"
                 >
                   <option value="cognitiva">🧠 Estimulação Cognitiva</option>
                   <option value="fisica">🏃‍♂️ Exercício Físico</option>
                   <option value="musica">🎶 Musicoterapia</option>
-                  <option value="outro">🎨 Outras (Artes / Lazer)</option>
+                  <option value="sensorial">🌿 Estimulação Sensorial</option>
+                  <option value="expressao_artistica">🎨 Expressão Artística</option>
+                  <option value="outro">🌟 Outras (Artes / Lazer)</option>
                   <option value="aleatorio">🎲 Aleatório / Variado</option>
                 </select>
               </div>
 
               {/* Afternoon Preference */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                <span className="text-gray-600 font-medium">🌇 Período da Tarde:</span>
+                <span className="text-gray-600 dark:text-slate-300 font-medium">🌇 Período da Tarde:</span>
                 <select
                   value={suggestionRules?.afternoonCategoryPreference ?? 'musica'}
                   onChange={(e) => handleRuleChange('afternoonCategoryPreference', e.target.value)}
-                  className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-indigo-500 bg-white cursor-pointer"
+                  className="text-xs border border-gray-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-indigo-500 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 cursor-pointer"
                 >
                   <option value="cognitiva">🧠 Estimulação Cognitiva</option>
                   <option value="fisica">🏃‍♂️ Exercício Físico</option>
                   <option value="musica">🎶 Musicoterapia</option>
-                  <option value="outro">🎨 Outras (Artes / Lazer)</option>
+                  <option value="sensorial">🌿 Estimulação Sensorial</option>
+                  <option value="expressao_artistica">🎨 Expressão Artística</option>
+                  <option value="outro">🌟 Outras (Artes / Lazer)</option>
                   <option value="aleatorio">🎲 Aleatório / Variado</option>
                 </select>
               </div>
@@ -854,36 +1003,36 @@ export default function ActivitiesPanel({
           </div>
 
           {/* Card 4: Hours */}
-          <div className="bg-slate-50/50 border border-slate-100 p-5 rounded-2xl space-y-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-2xl space-y-4 shadow-2xs">
             <div className="flex items-center gap-2">
-              <span className="text-base">🕒</span>
-              <h4 className="font-display font-bold text-slate-800 text-xs uppercase tracking-wider">
+              <span className="p-1.5 bg-blue-50 dark:bg-blue-950/50 rounded-lg text-blue-600 dark:text-blue-400 text-sm">🕒</span>
+              <h4 className="font-display font-bold text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wider">
                 Horários de Realização Padrão
               </h4>
             </div>
-            <p className="text-[11px] text-gray-400 font-medium">
+            <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">
               Configure o horário padrão em que as sessões de animação devem idealmente começar em cada turno:
             </p>
 
             <div className="grid grid-cols-2 gap-4 pt-1">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Manhã</label>
+                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">Manhã</label>
                 <input
                   type="text"
                   value={suggestionRules?.morningTime ?? '10:30'}
                   onChange={(e) => handleRuleChange('morningTime', e.target.value)}
                   placeholder="Ex: 10:30"
-                  className="w-full text-xs border border-gray-200 rounded-xl px-3 py-2 focus:outline-hidden focus:border-indigo-500 bg-white font-mono text-center"
+                  className="w-full text-xs border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 focus:outline-hidden focus:border-indigo-500 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-mono text-center"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Tarde</label>
+                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">Tarde</label>
                 <input
                   type="text"
                   value={suggestionRules?.afternoonTime ?? '15:30'}
                   onChange={(e) => handleRuleChange('afternoonTime', e.target.value)}
                   placeholder="Ex: 15:30"
-                  className="w-full text-xs border border-gray-200 rounded-xl px-3 py-2 focus:outline-hidden focus:border-indigo-500 bg-white font-mono text-center"
+                  className="w-full text-xs border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 focus:outline-hidden focus:border-indigo-500 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-mono text-center"
                 />
               </div>
             </div>

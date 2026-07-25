@@ -37,7 +37,9 @@ import {
   Search,
   UserCheck,
   Database,
-  BookOpen
+  BookOpen,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 const safeLocalStorage = {
@@ -218,6 +220,20 @@ export default function App() {
     return baseActivities;
   });
 
+  // Dark Mode State
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    return safeLocalStorage.getItem('animar_theme_mode') === 'dark';
+  });
+
+  useEffect(() => {
+    safeLocalStorage.setItem('animar_theme_mode', isDarkMode ? 'dark' : 'light');
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   // Core Database States (Persisted in LocalStorage)
   const [residents, setResidents] = useState<Resident[]>(() => {
     try {
@@ -243,14 +259,31 @@ export default function App() {
     }
     return {
       activeDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
-      maxPhysicalDaysPerWeek: 2,
+      maxPhysicalDaysPerWeek: 3,
       physicalDaysConfig: {
         'Seg': 'manha',
-        'Qua': 'tarde'
+        'Qua': 'manha',
+        'Sex': 'manha'
       },
       maxCognitiveDaysPerWeek: 5,
-      maxMusicDaysPerWeek: 3,
+      cognitiveDaysConfig: {
+        'Seg': 'tarde',
+        'Ter': 'manha',
+        'Qua': 'tarde',
+        'Qui': 'manha',
+        'Sex': 'tarde'
+      },
+      maxMusicDaysPerWeek: 2,
+      musicDaysConfig: {
+        'Ter': 'tarde',
+        'Qui': 'tarde'
+      },
+      maxSensoryDaysPerWeek: 2,
+      sensoryDaysConfig: {},
+      maxArtisticDaysPerWeek: 2,
+      artisticDaysConfig: {},
       maxOtherDaysPerWeek: 2,
+      otherDaysConfig: {},
       morningCategoryPreference: 'cognitiva',
       afternoonCategoryPreference: 'musica',
       morningTime: '10:30',
@@ -809,46 +842,70 @@ export default function App() {
   const activeRemindersCount = reminders.filter(r => !r.completed).length;
 
   return (
-    <div className="min-h-screen bg-slate-50/70 text-slate-700 font-sans flex flex-col selection:bg-indigo-100 selection:text-indigo-900">
+    <div className={`min-h-screen ${isDarkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50/70 text-slate-700'} font-sans flex flex-col selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-200`}>
       
       {/* Decorative Top Accent */}
       <div className="h-1.5 bg-gradient-to-r from-emerald-500 via-indigo-600 to-purple-500 w-full shrink-0 print:hidden"></div>
 
       {/* Primary Application Header (Hidden on Print) */}
-      <header className="bg-white border-b border-gray-100 py-4 px-4 md:px-10 sticky top-0 z-40 shadow-xs print:hidden">
+      <header className={`border-b py-4 px-4 md:px-10 sticky top-0 z-40 shadow-xs print:hidden transition-colors duration-200 ${isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-gray-100'}`}>
         <div className="w-full flex flex-col gap-4">
           
-          {/* Top Row: Logo & App Branding + Date */}
+          {/* Top Row: Logo & App Branding + Date + Theme Toggle */}
           <div className="flex flex-row items-center justify-between gap-4 w-full">
             {/* Logo & App Branding (Lar de Santo António) */}
             <div className="flex items-center gap-3 sm:gap-4 select-none">
               <img 
                 src={logoUrl} 
                 alt="Logo Lar de Santo António" 
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-gray-100 shadow-xs shrink-0"
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-gray-100 dark:border-slate-700 shadow-xs shrink-0"
                 referrerPolicy="no-referrer"
               />
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
-                  <h1 className="font-display font-extrabold text-slate-800 text-xs sm:text-lg leading-tight tracking-tight">
+                  <h1 className={`font-display font-extrabold text-xs sm:text-lg leading-tight tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-800'}`}>
                     Lar de Santo António
                   </h1>
                 </div>
-                <p className="text-[8px] sm:text-xs text-gray-500 font-medium leading-none mt-1">
+                <p className={`text-[8px] sm:text-xs font-medium leading-none mt-1 ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>
                   Rua Pedro Alvares Cabral, 165 Creixomil — 4835-091
                 </p>
-                <p className="text-[8px] sm:text-[10px] text-gray-400 font-semibold font-mono mt-0.5">
+                <p className={`text-[8px] sm:text-[10px] font-semibold font-mono mt-0.5 ${isDarkMode ? 'text-slate-500' : 'text-gray-400'}`}>
                   Tel: 253 521 801
                 </p>
               </div>
             </div>
 
-            {/* Time & Quick Indicator */}
-            <div className="flex items-center gap-1 text-[10px] sm:text-xs font-medium bg-slate-50 border border-gray-100 px-2 py-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0">
-              <div className="flex items-center gap-1 text-gray-500">
+            {/* Time & Quick Indicator + Theme Switcher */}
+            <div className="flex items-center gap-2">
+              <div className={`flex items-center gap-1 text-[10px] sm:text-xs font-medium border px-2 py-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0 ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-50 border-gray-100 text-gray-500'}`}>
                 <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                 <span className="font-mono shrink-0">{getTodayFormatted()}</span>
               </div>
+
+              <button
+                type="button"
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border transition-all cursor-pointer shrink-0 ${
+                  isDarkMode
+                    ? 'bg-slate-800 border-slate-700 text-amber-300 hover:bg-slate-700 shadow-xs ring-1 ring-amber-400/20'
+                    : 'bg-white border-gray-200 text-slate-700 hover:bg-slate-100 shadow-xs'
+                }`}
+                title={isDarkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro (Noturno - Reduz a fadiga ocular)'}
+                id="theme-toggle-btn"
+              >
+                {isDarkMode ? (
+                  <>
+                    <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span className="hidden sm:inline">Modo Claro</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                    <span className="hidden sm:inline">Modo Noturno</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
 
