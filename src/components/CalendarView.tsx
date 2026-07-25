@@ -476,8 +476,11 @@ export default function CalendarView({
   };
 
   const handleSelectDay = (dateStr: string) => {
-    setSelectedDateStr(dateStr);
-    setShowDailyModal(true);
+    if (selectedDateStr === dateStr) {
+      setShowDailyModal(true);
+    } else {
+      setSelectedDateStr(dateStr);
+    }
   };
 
   const getScheduledActivitiesForPeriod = () => {
@@ -817,7 +820,7 @@ export default function CalendarView({
       if (!isValidDay) {
         // Empty cells for padding
         cells.push(
-          <div key={`empty-${i}`} className="bg-gray-50/50 border border-gray-100 min-h-24 p-1 opacity-40 select-none"></div>
+          <div key={`empty-${i}`} className="bg-emerald-100/20 border border-emerald-200/30 rounded-xl min-h-28 p-1 opacity-40 select-none"></div>
         );
       } else {
         const dateStr = formatDateString(dayNumber);
@@ -831,9 +834,11 @@ export default function CalendarView({
           <div
             key={`day-${dayNumber}`}
             onClick={() => handleSelectDay(dateStr)}
-            className={`min-h-28 border border-gray-100 p-1.5 transition-all flex flex-col relative cursor-pointer ${
-              isSelected ? 'bg-indigo-50/45 ring-2 ring-indigo-400 ring-inset z-10' : 'bg-white hover:bg-slate-50/60'
-            } ${isToday ? 'border-indigo-200' : ''}`}
+            className={`min-h-28 border rounded-xl p-1.5 transition-all flex flex-col relative cursor-pointer shadow-2xs ${
+              isSelected
+                ? 'bg-indigo-50 border-2 border-indigo-500 ring-2 ring-indigo-300 shadow-md scale-[1.01] z-10'
+                : 'bg-white border-emerald-100 hover:border-emerald-200'
+            } ${isToday ? 'border-indigo-400 ring-1 ring-indigo-200 font-bold' : ''}`}
             id={`cal-cell-${dateStr}`}
           >
             {/* Header of cell */}
@@ -1011,7 +1016,7 @@ export default function CalendarView({
 
       if (!isValidDay) {
         cells.push(
-          <div key={`empty-mob-${i}`} className="bg-gray-50/50 border border-gray-100 aspect-square p-1 opacity-40 select-none"></div>
+          <div key={`empty-mob-${i}`} className="bg-emerald-100/20 border border-emerald-200/30 rounded-xl aspect-square p-1 opacity-40 select-none"></div>
         );
       } else {
         const dateStr = formatDateString(dayNumber);
@@ -1033,9 +1038,11 @@ export default function CalendarView({
           <div
             key={`day-mob-${dayNumber}`}
             onClick={() => handleSelectDay(dateStr)}
-            className={`aspect-square border border-gray-100 p-1 flex flex-col justify-between items-center transition-all cursor-pointer rounded-xl relative ${
-              isSelected ? 'bg-indigo-50/80 border-indigo-400 ring-2 ring-indigo-400 ring-inset z-10' : 'bg-white hover:bg-slate-50/60'
-            } ${isToday ? 'border-indigo-300 font-black' : ''}`}
+            className={`aspect-square border rounded-xl p-1 flex flex-col justify-between items-center transition-all cursor-pointer relative shadow-2xs ${
+              isSelected
+                ? 'bg-indigo-50 border-2 border-indigo-500 ring-2 ring-indigo-300 z-10 shadow-md'
+                : 'bg-white border-emerald-100'
+            } ${isToday ? 'border-indigo-400 font-black' : ''}`}
             id={`cal-cell-mob-${dateStr}`}
           >
             <span
@@ -1111,11 +1118,11 @@ export default function CalendarView({
             <div
               key={day.dateStr}
               onClick={() => handleSelectDay(day.dateStr)}
-              className={`flex flex-col border rounded-xl p-3 min-h-[380px] transition-all cursor-pointer relative ${
+              className={`flex flex-col border rounded-xl p-3 min-h-[380px] transition-all cursor-pointer relative shadow-2xs ${
                 isSelected
-                  ? 'bg-indigo-50/45 ring-2 ring-indigo-400 ring-inset z-10'
-                  : 'bg-white hover:bg-slate-50/60 border-gray-150'
-              } ${isToday ? 'border-indigo-300 shadow-xs' : ''}`}
+                  ? 'bg-indigo-50 border-2 border-indigo-500 ring-2 ring-indigo-300 z-10 shadow-md'
+                  : 'bg-white border-emerald-100 hover:border-emerald-200'
+              } ${isToday ? 'border-indigo-400 shadow-xs' : ''}`}
               id={`week-col-${day.dateStr}`}
             >
               {/* Day Header */}
@@ -1696,28 +1703,40 @@ export default function CalendarView({
           </div>
         </div>
 
+        {/* Interaction hint notice */}
+        <div className="flex items-center justify-between text-[11px] font-medium text-emerald-900 bg-emerald-50/90 border border-emerald-200/80 rounded-xl px-3.5 py-1.5 select-none">
+          <span className="flex items-center gap-1.5">
+            <span className="font-bold text-emerald-950">💡 Dica:</span> Clique num dia para o selecionar visualmente. Clique <span className="font-bold text-indigo-700 underline decoration-indigo-300">segunda vez</span> para abrir a janela com a rotina diária.
+          </span>
+          <span className="hidden sm:inline-block font-mono text-[10px] text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-md font-semibold border border-emerald-200">
+            Dia Selecionado: {formattedSelectedDate}
+          </span>
+        </div>
+
         {/* Conditional Month view vs Weekly view rendering */}
         {calendarViewMode === 'mensal' ? (
-          <>
+          <div className="bg-emerald-50/70 p-3 sm:p-4 rounded-2xl border border-emerald-200/80 shadow-2xs space-y-2.5">
             {/* Days of week header */}
-            <div className="grid grid-cols-7 gap-1 text-center font-bold text-[11px] sm:text-xs text-slate-800 bg-slate-100 py-2.5 rounded-xl border border-gray-300 shadow-2xs">
+            <div className="grid grid-cols-7 gap-1.5 text-center font-bold text-[11px] sm:text-xs text-emerald-950 bg-emerald-100/80 py-2.5 rounded-xl border border-emerald-200/90 shadow-2xs">
               {daysOfWeek.map((day, i) => (
                 <div key={i} className="py-0.5 tracking-wide">{day}</div>
               ))}
             </div>
 
             {/* Calendar Day Grid - Desktop */}
-            <div className="hidden md:grid grid-cols-7 gap-1">
+            <div className="hidden md:grid grid-cols-7 gap-1.5">
               {renderCalendarCells()}
             </div>
 
             {/* Calendar Day Grid - Mobile Compact */}
-            <div className="grid md:hidden grid-cols-7 gap-1">
+            <div className="grid md:hidden grid-cols-7 gap-1.5">
               {renderMobileCalendarCells()}
             </div>
-          </>
+          </div>
         ) : (
-          renderWeeklyView()
+          <div className="bg-emerald-50/70 p-3 sm:p-4 rounded-2xl border border-emerald-200/80 shadow-2xs">
+            {renderWeeklyView()}
+          </div>
         )}
 
         <div className="flex flex-wrap items-center justify-between gap-4 text-xs bg-slate-50/50 border border-slate-100 rounded-xl p-3.5">

@@ -3,7 +3,7 @@ import { Activity, ScheduledActivity, ActivityCategory, SuggestionRules } from '
 import {
   Plus, Search, Filter, Clock, BookOpen, BrainCircuit, Activity as PhysIcon,
   Music, Sparkles, Trash2, Calendar, CheckCircle, ListTodo, HelpCircle, Edit,
-  Printer, Palette, Eye
+  Printer, Palette, Eye, ChevronDown, ChevronUp
 } from 'lucide-react';
 import Tooltip from './Tooltip';
 
@@ -31,6 +31,29 @@ export default function ActivitiesPanel({
   const [activeSubTab, setActiveSubTab] = useState<'catalog' | 'rules'>('catalog');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<ActivityCategory | 'todos'>('todos');
+  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
+  const [expandedActivityIds, setExpandedActivityIds] = useState<string[]>([]);
+
+  const toggleActivityExpand = (id: string) => {
+    setExpandedActivityIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleActivityClick = (id: string) => {
+    if (selectedActivityId === id) {
+      toggleActivityExpand(id);
+    } else {
+      setSelectedActivityId(id);
+    }
+  };
+
+  const handleActivityDoubleClick = (id: string) => {
+    setSelectedActivityId(id);
+    if (!expandedActivityIds.includes(id)) {
+      setExpandedActivityIds((prev) => [...prev, id]);
+    }
+  };
   
   // Create New Activity State
   const [showAddModal, setShowAddModal] = useState(false);
@@ -337,10 +360,17 @@ export default function ActivitiesPanel({
             />
           </div>
 
-          {/* Main Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Hint Notice */}
+          <div className="flex items-center justify-between text-[11px] font-medium text-slate-600 bg-indigo-50/60 border border-indigo-100 rounded-xl px-3.5 py-2 select-none">
+            <span className="flex items-center gap-1.5">
+              <span className="font-bold text-indigo-900">💡 Dica:</span> O 1º clique seleciona a atividade na lista. O 2º clique (ou duplo-clique) expande ou recolhe os detalhes.
+            </span>
+          </div>
+
+          {/* Main Cards List */}
+          <div className="space-y-2.5">
             {filteredActivities.length === 0 ? (
-              <div className="col-span-2 bg-slate-50 border border-dashed border-gray-200 p-8 text-center rounded-2xl flex flex-col items-center justify-center space-y-3">
+              <div className="bg-slate-50 border border-dashed border-gray-200 p-8 text-center rounded-2xl flex flex-col items-center justify-center space-y-3">
                 <HelpCircle className="w-10 h-10 text-gray-300" />
                 <div>
                   <p className="font-display font-bold text-slate-700 text-sm">Nenhuma atividade encontrada</p>
@@ -348,13 +378,80 @@ export default function ActivitiesPanel({
                 </div>
               </div>
             ) : (
-              filteredActivities.map((act) => (
-                <div 
-                  key={act.id} 
-                  className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-gray-200 transition-all group"
-                >
-                  <div className="space-y-3">
-                    {/* Top Row: Category and Duration */}
+              filteredActivities.map((act) => {
+                const isExpanded = expandedActivityIds.includes(act.id);
+                const isSelected = selectedActivityId === act.id;
+
+                if (!isExpanded) {
+                  return (
+                    <div
+                      key={act.id}
+                      onClick={() => handleActivityClick(act.id)}
+                      onDoubleClick={() => handleActivityDoubleClick(act.id)}
+                      className={`rounded-xl px-4 py-3 transition-all cursor-pointer select-none flex items-center justify-between gap-3 group ${
+                        isSelected
+                          ? 'bg-indigo-50/80 border-2 border-indigo-500 ring-2 ring-indigo-200/90 shadow-xs scale-[1.002]'
+                          : 'bg-white border border-gray-200/80 hover:border-indigo-300 shadow-2xs'
+                      }`}
+                      id={`act-collapsed-${act.id}`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className={`p-1.5 rounded-lg border shrink-0 ${getCategoryColor(act.category)}`}>
+                          {getCategoryIcon(act.category)}
+                        </span>
+                        <h3 className={`font-display font-bold text-sm truncate ${
+                          isSelected ? 'text-indigo-950 font-black' : 'text-slate-800 group-hover:text-indigo-600'
+                        }`}>
+                          {act.title}
+                        </h3>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`hidden sm:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md border ${getCategoryColor(act.category)}`}>
+                          {act.category === 'fisica' ? 'Física' :
+                           act.category === 'cognitiva' ? 'Cognitiva' :
+                           act.category === 'musica' ? 'Música' :
+                           act.category === 'sensorial' ? 'Sensorial' :
+                           act.category === 'expressao_artistica' ? 'Exp. Artística' : 'Outra'}
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-medium hidden md:inline-block">
+                          {isSelected ? '(clique de novo p/ expandir)' : '(clique p/ selecionar)'}
+                        </span>
+                        <ChevronDown className={`w-4 h-4 transition-colors ${
+                          isSelected ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600'
+                        }`} />
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div 
+                    key={act.id} 
+                    onClick={() => handleActivityClick(act.id)}
+                    onDoubleClick={() => handleActivityDoubleClick(act.id)}
+                    className="bg-white border-2 border-indigo-600 rounded-2xl p-5 shadow-sm transition-all select-none space-y-4 cursor-pointer"
+                    id={`act-expanded-${act.id}`}
+                  >
+                    {/* Header: Title and Collapse Notice */}
+                    <div className="flex items-start justify-between gap-3 border-b border-gray-100 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className={`p-2 rounded-xl border shrink-0 ${getCategoryColor(act.category)}`}>
+                          {getCategoryIcon(act.category)}
+                        </span>
+                        <div>
+                          <h3 className="font-display font-black text-slate-900 text-base">
+                            {act.title}
+                          </h3>
+                          <span className="text-[10px] text-indigo-600 font-semibold block mt-0.5">
+                            Atividade Expandida (clique de novo ou clique 2x para recolher)
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronUp className="w-5 h-5 text-indigo-500 shrink-0 mt-1" />
+                    </div>
+
+                    {/* Category tag & duration */}
                     <div className="flex items-center justify-between">
                       <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md border ${getCategoryColor(act.category)}`}>
                         {getCategoryIcon(act.category)}
@@ -372,22 +469,20 @@ export default function ActivitiesPanel({
                       </span>
                     </div>
 
-                    {/* Title and description */}
+                    {/* Description */}
                     <div>
-                      <h3 className="font-display font-black text-slate-800 text-sm group-hover:text-indigo-600 transition-colors">
-                        {act.title}
-                      </h3>
-                      <p className="text-gray-500 text-xs mt-1.5 line-clamp-3 leading-relaxed">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Descrição</span>
+                      <p className="text-gray-600 text-xs leading-relaxed">
                         {act.description}
                       </p>
                     </div>
 
                     {/* Objectives list */}
-                    <div className="pt-2.5 border-t border-gray-50 space-y-1">
+                    <div className="pt-2 border-t border-gray-50 space-y-1">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Objetivos Terapêuticos</span>
                       <div className="flex flex-wrap gap-1">
                         {act.objectives.map((obj, idx) => (
-                          <span key={idx} className="bg-slate-50 text-slate-600 text-[10px] px-2 py-0.5 rounded-full border border-gray-100">
+                          <span key={idx} className="bg-slate-50 text-slate-600 text-[10px] px-2.5 py-1 rounded-full border border-gray-100 font-medium">
                             {obj}
                           </span>
                         ))}
@@ -419,7 +514,10 @@ export default function ActivitiesPanel({
                             return (
                               <button
                                 key={idx}
-                                onClick={() => onSelectTab('materials')}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onSelectTab('materials');
+                                }}
                                 className="inline-flex items-center gap-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold text-[10px] px-2 py-0.5 rounded-full border border-indigo-200 cursor-pointer shadow-2xs hover:scale-102 transition-all"
                                 title="Clique para ir ao Material de Apoio Pronto a Imprimir"
                               >
@@ -436,33 +534,33 @@ export default function ActivitiesPanel({
                         })}
                       </div>
                     </div>
-                  </div>
 
-                  {/* Actions footer on Card */}
-                  <div className="mt-4 pt-3 border-t border-gray-50 flex justify-end gap-1.5">
-                    <Tooltip position="top" content="Editar Atividade: Atualizar informações deste modelo de atividade">
-                      <button
-                        onClick={() => handleOpenEditModal(act)}
-                        className="text-gray-400 hover:text-indigo-600 p-1.5 hover:bg-indigo-50 rounded-lg cursor-pointer transition-colors"
-                        id={`edit-act-btn-${act.id}`}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                    </Tooltip>
-                    {act.id.startsWith('custom_') && (
-                      <Tooltip position="top" content="Eliminar Atividade: Apagar de forma irreversível este modelo personalizado">
+                    {/* Actions footer on Card */}
+                    <div className="pt-3 border-t border-gray-100 flex justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <Tooltip position="top" content="Editar Atividade: Atualizar informações deste modelo de atividade">
                         <button
-                          onClick={() => onDeleteActivity(act.id)}
-                          className="text-gray-400 hover:text-rose-600 p-1.5 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors"
-                          id={`delete-act-btn-${act.id}`}
+                          onClick={() => handleOpenEditModal(act)}
+                          className="text-gray-400 hover:text-indigo-600 p-1.5 hover:bg-indigo-50 rounded-lg cursor-pointer transition-colors"
+                          id={`edit-act-btn-${act.id}`}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Edit className="w-4 h-4" />
                         </button>
                       </Tooltip>
-                    )}
+                      {act.id.startsWith('custom_') && (
+                        <Tooltip position="top" content="Eliminar Atividade: Apagar de forma irreversível este modelo personalizado">
+                          <button
+                            onClick={() => onDeleteActivity(act.id)}
+                            className="text-gray-400 hover:text-rose-600 p-1.5 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors"
+                            id={`delete-act-btn-${act.id}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </Tooltip>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
