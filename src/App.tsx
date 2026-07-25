@@ -238,12 +238,17 @@ export default function App() {
   const [residents, setResidents] = useState<Resident[]>(() => {
     try {
       const saved = safeLocalStorage.getItem('animar_residents');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed: Resident[] = JSON.parse(saved);
+        return parsed.filter(r => !['res_1', 'res_2', 'res_3', 'res_4', 'res_5'].includes(r.id));
+      }
     } catch (e) {
       console.error("Erro ao analisar residentes guardados em localStorage:", e);
     }
     const offlineData = (window as any).INITIAL_OFFLINE_DATA;
-    if (offlineData && offlineData.residents) return offlineData.residents;
+    if (offlineData && offlineData.residents) {
+      return (offlineData.residents as Resident[]).filter(r => !['res_1', 'res_2', 'res_3', 'res_4', 'res_5'].includes(r.id));
+    }
     return INITIAL_RESIDENTS;
   });
 
@@ -362,12 +367,17 @@ export default function App() {
   const [progressLogs, setProgressLogs] = useState<ResidentProgressLog[]>(() => {
     try {
       const saved = safeLocalStorage.getItem('animar_logs');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed: ResidentProgressLog[] = JSON.parse(saved);
+        return parsed.filter(l => !['res_1', 'res_2', 'res_3', 'res_4', 'res_5'].includes(l.residentId));
+      }
     } catch (e) {
       console.error("Erro ao analisar registos de progresso guardados em localStorage:", e);
     }
     const offlineData = (window as any).INITIAL_OFFLINE_DATA;
-    if (offlineData && offlineData.progressLogs) return offlineData.progressLogs;
+    if (offlineData && offlineData.progressLogs) {
+      return (offlineData.progressLogs as ResidentProgressLog[]).filter(l => !['res_1', 'res_2', 'res_3', 'res_4', 'res_5'].includes(l.residentId));
+    }
     return getInitialProgressLogs();
   });
 
@@ -503,10 +513,12 @@ export default function App() {
         const response = await fetch('/api/data');
         if (response.ok) {
           const dbData = await response.json();
-          if (dbData.residents && dbData.residents.length > 0) {
-            setResidents(dbData.residents);
+          if (dbData.residents) {
+            const cleanResidents = (dbData.residents as Resident[]).filter(r => !['res_1', 'res_2', 'res_3', 'res_4', 'res_5'].includes(r.id));
+            const cleanLogs = ((dbData.progressLogs || []) as ResidentProgressLog[]).filter(l => !['res_1', 'res_2', 'res_3', 'res_4', 'res_5'].includes(l.residentId));
+            setResidents(cleanResidents);
             setScheduledActivities(dbData.scheduledActivities || []);
-            setProgressLogs(dbData.progressLogs || []);
+            setProgressLogs(cleanLogs);
             setReminders(ensureUniqueReminders(dbData.reminders || []));
             console.log("Dados sincronizados da base de dados SQLite do servidor.");
           } else {

@@ -17,18 +17,18 @@ export default function SupportMaterialsPanel() {
       {/* Header (Hidden on Print) */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 print:hidden">
         <div>
-          <h2 className="font-display font-black text-slate-800 text-xl sm:text-2xl tracking-tight flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-indigo-600" />
+          <h2 className="font-display font-black text-slate-800 dark:text-slate-100 text-xl sm:text-2xl tracking-tight flex items-center gap-2">
+            <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             Material de Apoio Pronto a Imprimir
           </h2>
-          <p className="text-gray-500 text-xs sm:text-sm mt-0.5">
+          <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-0.5">
             Documentos, fichas de exercícios, cartões de jogos e letras de música formatados especificamente para impressão em tamanho A4.
           </p>
         </div>
         
         <button
           onClick={handlePrint}
-          className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer shadow-md shadow-indigo-100 transition-all self-start md:self-auto"
+          className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer shadow-md shadow-indigo-100 dark:shadow-none transition-all self-start md:self-auto"
           id="btn-print-material"
         >
           <Printer className="w-4 h-4" />
@@ -41,15 +41,15 @@ export default function SupportMaterialsPanel() {
         
         {/* Navigation Sidebar (Hidden on Print) */}
         <div className="lg:col-span-1 space-y-3 print:hidden">
-          <div className="bg-white border border-gray-100 p-3 rounded-2xl shadow-xs space-y-1">
-            <span className="text-[10px] uppercase font-bold text-gray-400 px-2 tracking-wider block mb-2">Selecione o Documento</span>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-3 rounded-2xl shadow-xs space-y-1">
+            <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 px-2 tracking-wider block mb-2">Selecione o Documento</span>
             
             <button
               onClick={() => setActiveMaterial('proverbios')}
               className={`flex items-center gap-2.5 text-xs font-semibold px-3 py-2.5 rounded-xl transition-all cursor-pointer w-full text-left ${
                 activeMaterial === 'proverbios'
-                  ? 'bg-amber-50 text-amber-800 border-l-4 border-amber-500'
-                  : 'text-gray-500 hover:text-slate-800 hover:bg-slate-50'
+                  ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-l-4 border-amber-500'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60'
               }`}
             >
               <Grid className="w-4 h-4 text-amber-500" />

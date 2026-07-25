@@ -363,17 +363,17 @@ export default function DatabaseManager({
     <div className="space-y-6" id="database-manager-container">
       
       {/* Intro Banner */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-800 border border-slate-200">
-              <Database className="w-4.5 h-4.5 text-slate-700" />
+            <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
+              <Database className="w-4.5 h-4.5 text-slate-700 dark:text-slate-300" />
             </div>
-            <h2 className="font-display font-bold text-gray-800 text-base sm:text-lg">
+            <h2 className="font-display font-bold text-slate-800 dark:text-slate-100 text-base sm:text-lg">
               Painel de Gestão SQLite & Portabilidade
             </h2>
           </div>
-          <p className="text-xs text-gray-500 leading-relaxed">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
             Configure, sincronize, faça cópias de segurança da sua base de dados SQLite física em ficheiro e descarregue a aplicação inteira compactada em formato HTML para trabalhar 100% offline.
           </p>
         </div>
@@ -381,23 +381,23 @@ export default function DatabaseManager({
         {/* Current Environment Badge */}
         <div className={`p-3 rounded-2xl border text-center font-sans space-y-1 self-stretch md:self-auto flex flex-col items-center justify-center shrink-0 ${
           isStandalone 
-            ? 'bg-amber-50/50 border-amber-100 text-amber-900' 
-            : 'bg-emerald-50/50 border-emerald-100 text-emerald-900'
+            ? 'bg-amber-50/50 dark:bg-amber-950/40 border-amber-100 dark:border-amber-900/60 text-amber-900 dark:text-amber-300' 
+            : 'bg-emerald-50/50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-900/60 text-emerald-900 dark:text-emerald-300'
         }`}>
           <div className="flex items-center gap-1.5 justify-center">
             {isStandalone ? (
               <>
-                <WifiOff className="w-4.5 h-4.5 text-amber-600 animate-pulse" />
+                <WifiOff className="w-4.5 h-4.5 text-amber-600 dark:text-amber-400 animate-pulse" />
                 <span className="text-xs font-bold uppercase tracking-wider">Modo Offline Autónomo</span>
               </>
             ) : (
               <>
-                <Wifi className="w-4.5 h-4.5 text-emerald-600" />
+                <Wifi className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400" />
                 <span className="text-xs font-bold uppercase tracking-wider">Servidor SQLite Ativo</span>
               </>
             )}
           </div>
-          <p className="text-[10px] text-gray-400">
+          <p className="text-[10px] text-slate-400 dark:text-slate-500">
             {isStandalone 
               ? 'Guardado localmente no browser' 
               : 'Ligado ao ficheiro animalar.db'}
@@ -409,20 +409,20 @@ export default function DatabaseManager({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Core SQLite Actions Card */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs space-y-5 lg:col-span-2">
-          <h3 className="font-display font-bold text-gray-800 text-xs sm:text-sm border-b border-gray-50 pb-3 flex items-center gap-2">
-            <Database className="w-4 h-4 text-indigo-600" />
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-5 lg:col-span-2">
+          <h3 className="font-display font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center gap-2">
+            <Database className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             Base de Dados Física (Ficheiro SQLite)
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             {/* Backup / Export SQLite */}
-            <div className="bg-slate-50/50 border border-slate-100 p-4 rounded-xl flex flex-col justify-between space-y-3">
+            <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 p-4 rounded-xl flex flex-col justify-between space-y-3">
               <div className="space-y-1">
-                <span className="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Passo 1</span>
-                <h4 className="font-display font-bold text-xs text-slate-800">Exportar Ficheiro de Dados</h4>
-                <p className="text-[10px] text-gray-400 leading-relaxed">
+                <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Passo 1</span>
+                <h4 className="font-display font-bold text-xs text-slate-800 dark:text-slate-100">Exportar Ficheiro de Dados</h4>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
                   {isStandalone 
                     ? 'Transfere um backup JSON contendo toda a estrutura de dados atualizada, pronto a ser carregado em qualquer instância.'
                     : 'Transfere diretamente o ficheiro de base de dados física "animalar.db" SQLite ativo no servidor para salvaguarda externa.'}
