@@ -143,80 +143,79 @@ export function generateSuggestedPlan({
         musica: suggestionRules.maxMusicDaysPerWeek ?? 3,
         sensorial: suggestionRules.maxSensoryDaysPerWeek ?? 2,
         expressao_artistica: suggestionRules.maxArtisticDaysPerWeek ?? 2,
-        outro: suggestionRules.otherDaysConfig ? (suggestionRules.maxOtherDaysPerWeek ?? 2) : (suggestionRules.maxOtherDaysPerWeek ?? 2),
+        outro: suggestionRules.maxOtherDaysPerWeek ?? 2,
       };
 
-      // Determine which categories are allowed under constraints
-      const allowedCategories: ActivityCategory[] = [];
-      
-      const checkAllowed = (cat: ActivityCategory, limit: number) => {
+      const allCategories: ActivityCategory[] = ['cognitiva', 'fisica', 'musica', 'sensorial', 'expressao_artistica', 'outro'];
+
+      // Categories under weekly limit that have templates in catalog
+      const categoriesUnderLimit = allCategories.filter(cat => {
         const currentSet = weeklyStats[mondayStr][cat];
-        if (currentSet.has(dateStr)) {
-          return true; // Already scheduled on this day, no additional cost
-        }
-        return currentSet.size < limit;
-      };
-
-      (Object.keys(limits) as ActivityCategory[]).forEach(cat => {
-        const cfg = catConfigs[cat];
-        const dayVal = cfg?.[dayName];
-        const otherSlot = slot === 'manha' ? 'tarde' : 'manha';
-        // Only exclude if explicitly set ONLY for the opposite slot
-        const isConfiguredOnlyForOtherSlot = dayVal === otherSlot;
-        if (!isConfiguredOnlyForOtherSlot && checkAllowed(cat, limits[cat])) {
-          allowedCategories.push(cat);
-        }
+        const isUnderLimit = currentSet.has(dateStr) || currentSet.size < limits[cat];
+        const hasTemplates = activities.some(act => act.category === cat && act.id !== 'act_leitura_jornal');
+        return isUnderLimit && hasTemplates;
       });
 
-      if (allowedCategories.length === 0) {
-        // Absolute fallback: if constraints are too tight, use anything with a non-zero limit
-        (Object.keys(limits) as ActivityCategory[]).forEach(cat => {
-          if (limits[cat] > 0) allowedCategories.push(cat);
+      // Categories specifically configured for THIS day and THIS slot (or 'ambos')
+      const explicitlyConfiguredCats = categoriesUnderLimit.filter(cat => {
+        const cfg = catConfigs[cat];
+        const dayVal = cfg?.[dayName];
+        return dayVal === slot || dayVal === 'ambos';
+      });
+
+      // Categories that have NO specific day restrictions configured at all
+      const openCategories = categoriesUnderLimit.filter(cat => {
+        const cfg = catConfigs[cat];
+        return !cfg || Object.keys(cfg).length === 0;
+      });
+
+      let candidateCategories: ActivityCategory[] = [];
+
+      if (pref && pref !== 'aleatorio' && categoriesUnderLimit.includes(pref as ActivityCategory)) {
+        candidateCategories = [pref as ActivityCategory];
+      } else if (explicitlyConfiguredCats.length > 0) {
+        // All categories configured for this day & slot are candidates
+        candidateCategories = [...explicitlyConfiguredCats];
+        // Also include open categories if any
+        openCategories.forEach(c => {
+          if (!candidateCategories.includes(c)) candidateCategories.push(c);
         });
-        if (allowedCategories.length === 0) allowedCategories.push('cognitiva');
-      }
-
-      // Check if any category is specifically configured for THIS day and THIS slot (or 'ambos')
-      const explicitlyConfiguredCat = (Object.keys(catConfigs) as ActivityCategory[]).find(cat => {
-        const cfg = catConfigs[cat];
-        const dayVal = cfg?.[dayName];
-        const matchesSlot = dayVal === slot || dayVal === 'ambos';
-        return matchesSlot && allowedCategories.includes(cat);
-      });
-
-      let chosenCat: ActivityCategory = 'cognitiva';
-      if (explicitlyConfiguredCat) {
-        chosenCat = explicitlyConfiguredCat;
-      } else if (pref !== 'aleatorio' && allowedCategories.includes(pref as ActivityCategory)) {
-        chosenCat = pref as ActivityCategory;
+      } else if (openCategories.length > 0) {
+        candidateCategories = openCategories;
+      } else if (categoriesUnderLimit.length > 0) {
+        candidateCategories = categoriesUnderLimit;
       } else {
-        const sortedByUsage = [...allowedCategories].sort((a, b) => {
-          return weeklyStats[mondayStr][a].size - weeklyStats[mondayStr][b].size;
-        });
-        chosenCat = sortedByUsage[0] || 'outro';
+        candidateCategories = allCategories.filter(cat => activities.some(act => act.category === cat && act.id !== 'act_leitura_jornal'));
       }
 
-      // Register stats
-      weeklyStats[mondayStr][chosenCat].add(dateStr);
+      if (candidateCategories.length === 0) return;
 
-      // Get template
-      const templates = activities.filter(act => act.category === chosenCat && act.id !== 'act_leitura_jornal');
-      if (templates.length > 0) {
-        let unused = templates.filter(t => !usedActivityIds[chosenCat].includes(t.id));
-        if (unused.length === 0) {
-          usedActivityIds[chosenCat] = []; // reset rotation
-          unused = templates;
+      // Gather ALL activity templates from ALL candidate categories
+      const candidateTemplates = activities.filter(
+        act => candidateCategories.includes(act.category) && act.id !== 'act_leitura_jornal'
+      );
+
+      if (candidateTemplates.length > 0) {
+        let unusedTemplates = candidateTemplates.filter(t => !usedActivityIds[t.category]?.includes(t.id));
+        if (unusedTemplates.length === 0) {
+          candidateCategories.forEach(cat => {
+            usedActivityIds[cat] = [];
+          });
+          unusedTemplates = candidateTemplates;
         }
 
-        const pickedTemplate = unused[Math.floor(Math.random() * unused.length)] || templates[0];
-        usedActivityIds[chosenCat].push(pickedTemplate.id);
+        // Random pick from all available candidate templates
+        const pickedTemplate = unusedTemplates[Math.floor(Math.random() * unusedTemplates.length)];
+
+        weeklyStats[mondayStr][pickedTemplate.category].add(dateStr);
+        usedActivityIds[pickedTemplate.category].push(pickedTemplate.id);
 
         const time = slot === 'manha' ? suggestionRules.morningTime : suggestionRules.afternoonTime;
 
         generated.push({
           title: pickedTemplate.title,
           description: `${pickedTemplate.description}\n\n[Materiais de Apoio]: ${pickedTemplate.materials.join(', ')}\n[Objetivos Terapêuticos]: ${pickedTemplate.objectives.join(', ')}`,
-          category: chosenCat,
+          category: pickedTemplate.category,
           date: dateStr,
           slot,
           time,

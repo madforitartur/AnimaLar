@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Reminder, Resident, ResidentProgressLog, ScheduledActivity } from '../types';
 import { Bell, CheckSquare, Square, Trash2, AlertTriangle, Plus, ShieldAlert, CheckCircle, Clock, Cake } from 'lucide-react';
+import { useConfirm } from '../hooks/useConfirm';
 
 interface RemindersPanelProps {
   reminders: Reminder[];
@@ -21,6 +22,7 @@ export default function RemindersPanel({
   onAddReminder,
   onDeleteReminder,
 }: RemindersPanelProps) {
+  const confirm = useConfirm();
   const [newText, setNewText] = useState('');
   const [newType, setNewType] = useState<'atividade' | 'saude' | 'geral'>('geral');
   const [newDate, setNewDate] = useState(() => new Date().toISOString().split('T')[0]);
@@ -319,7 +321,18 @@ export default function RemindersPanel({
                     </div>
                   </div>
                   <button
-                    onClick={() => onDeleteReminder(reminder.id)}
+                    onClick={async () => {
+                      const confirmed = await confirm({
+                        title: 'Eliminar Lembrete',
+                        message: `Tem a certeza que deseja eliminar o lembrete "${reminder.text}"?`,
+                        confirmText: 'Sim, Eliminar',
+                        cancelText: 'Cancelar',
+                        variant: 'danger'
+                      });
+                      if (confirmed) {
+                        onDeleteReminder(reminder.id);
+                      }
+                    }}
                     className="text-slate-300 dark:text-slate-600 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/40 shrink-0 cursor-pointer"
                     id={`btn-del-rem-${reminder.id}-${idx}`}
                     title="Eliminar lembrete"

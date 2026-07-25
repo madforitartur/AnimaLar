@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Resident, ResidentProgressLog, ActivityCategory } from '../types';
 import { UserPlus, Search, Filter, ShieldAlert, Award, FileText, CheckCircle, TrendingUp, Calendar, Trash2, Edit2, Smile, ArrowUpRight, Plus, BrainCircuit, Activity as PhysIcon, Disc } from 'lucide-react';
 import Tooltip from './Tooltip';
+import { useConfirm } from '../hooks/useConfirm';
 
 interface ResidentsListProps {
   residents: Resident[];
@@ -20,6 +21,7 @@ export default function ResidentsList({
   onDeleteResident,
   onUpdateResident,
 }: ResidentsListProps) {
+  const confirm = useConfirm();
   const [selectedResidentId, setSelectedResidentId] = useState<string>(residents[0]?.id || '');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCog, setFilterCog] = useState<string>('todos');
@@ -48,7 +50,6 @@ export default function ResidentsList({
 
   // Edit Resident Form Modal State
   const [showEditResidentModal, setShowEditResidentModal] = useState(false);
-  const [residentToDelete, setResidentToDelete] = useState<Resident | null>(null);
   const [editResId, setEditResId] = useState('');
   const [editResName, setEditResName] = useState('');
   const [editResBirthDate, setEditResBirthDate] = useState('');
@@ -454,11 +455,24 @@ export default function ResidentsList({
                     {/* Delete resident button */}
                     <Tooltip position="top" content="Remover Utente: Apagar de forma irreversível o registo e avaliações deste utente">
                       <button
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.stopPropagation();
-                          setResidentToDelete(resident);
+                          const confirmed = await confirm({
+                            title: 'Eliminar Utente',
+                            message: `Tem a certeza que deseja eliminar permanentemente o registo do utente "${resident.name}"?\n\nEsta ação é irreversível e todas as notas de evolução, relatórios e dados de progresso associados serão eliminados.`,
+                            confirmText: 'Sim, Eliminar Utente',
+                            cancelText: 'Cancelar',
+                            variant: 'danger'
+                          });
+
+                          if (confirmed) {
+                            onDeleteResident(resident.id);
+                            if (selectedResidentId === resident.id) {
+                              setSelectedResidentId(residents.filter(r => r.id !== resident.id)[0]?.id || '');
+                            }
+                          }
                         }}
-                        className="text-gray-300 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50"
+                        className="text-gray-300 hover:text-red-600 transition-colors p-1 rounded hover:bg-red-50 cursor-pointer"
                         title="Eliminar utente"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1262,51 +1276,6 @@ export default function ResidentsList({
               </button>
             </div>
           </form>
-          </div>
-        </div>
-      )}
-
-      {/* Custom Delete Confirmation Modal */}
-      {residentToDelete && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in" id="delete-resident-confirm-modal">
-          <div className="bg-white rounded-2xl border border-gray-100 max-w-sm w-full p-6 shadow-2xl space-y-4">
-            <div className="text-center space-y-2">
-              <div className="mx-auto w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 mb-2">
-                <Trash2 className="w-6 h-6" />
-              </div>
-              <h3 className="font-display font-bold text-slate-800 text-base">
-                Confirmar Eliminação
-              </h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Tem a certeza que deseja eliminar o registo de <span className="font-bold text-gray-800">{residentToDelete.name}</span>?
-              </p>
-              <p className="text-[10px] text-red-500 bg-red-50/50 p-2.5 rounded-lg border border-red-100/50 leading-relaxed">
-                ⚠️ <strong>Atenção:</strong> Esta ação é irreversível. Todas as notas de evolução, relatórios e dados de progresso associados a este utente serão eliminados permanentemente.
-              </p>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2 border-t border-gray-100 text-xs">
-              <button
-                type="button"
-                onClick={() => setResidentToDelete(null)}
-                className="flex-1 py-2.5 hover:bg-gray-100 text-gray-600 rounded-lg transition-colors font-medium cursor-pointer text-center"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  onDeleteResident(residentToDelete.id);
-                  if (selectedResidentId === residentToDelete.id) {
-                    setSelectedResidentId(residents.filter(r => r.id !== residentToDelete.id)[0]?.id || '');
-                  }
-                  setResidentToDelete(null);
-                }}
-                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition-all cursor-pointer text-center"
-              >
-                Sim, Eliminar
-              </button>
-            </div>
           </div>
         </div>
       )}

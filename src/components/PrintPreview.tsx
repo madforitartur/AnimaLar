@@ -350,13 +350,14 @@ export default function PrintPreview({ scheduledActivities }: PrintPreviewProps)
         logging: false
       });
 
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/jpeg', 0.85);
       
       // We export to landscape format for perfect fit of calendar table structures
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
         format: 'a4',
+        compress: true,
       });
 
       const pdfWidth = 297; // A4 landscape width in mm
@@ -368,7 +369,7 @@ export default function PrintPreview({ scheduledActivities }: PrintPreviewProps)
       const finalWidth = pdfWidth;
       const finalHeight = pdfHeight;
 
-      pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
+      pdf.addImage(imgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight, undefined, 'FAST');
 
       // Generate pristine filename depending on current active view mode
       const sanitizedMonth = monthNames[month].toLowerCase().replace(/\s+/g, '_');

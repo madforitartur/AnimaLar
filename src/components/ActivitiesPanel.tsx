@@ -6,6 +6,7 @@ import {
   Printer, Palette, Eye, ChevronDown, ChevronUp
 } from 'lucide-react';
 import Tooltip from './Tooltip';
+import { useConfirm } from '../hooks/useConfirm';
 
 interface ActivitiesPanelProps {
   activities: Activity[];
@@ -28,6 +29,7 @@ export default function ActivitiesPanel({
   onUpdateActivity,
   onSelectTab
 }: ActivitiesPanelProps) {
+  const confirm = useConfirm();
   const [activeSubTab, setActiveSubTab] = useState<'catalog' | 'rules'>('catalog');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<ActivityCategory | 'todos'>('todos');
@@ -727,7 +729,18 @@ export default function ActivitiesPanel({
                       {act.id.startsWith('custom_') && (
                         <Tooltip position="top" content="Eliminar Atividade: Apagar de forma irreversível este modelo personalizado">
                           <button
-                            onClick={() => onDeleteActivity(act.id)}
+                            onClick={async () => {
+                              const confirmed = await confirm({
+                                title: 'Eliminar Atividade',
+                                message: `Tem a certeza que deseja eliminar a atividade "${act.title}" do catálogo?`,
+                                confirmText: 'Sim, Eliminar',
+                                cancelText: 'Cancelar',
+                                variant: 'danger'
+                              });
+                              if (confirmed) {
+                                onDeleteActivity(act.id);
+                              }
+                            }}
                             className="text-gray-400 hover:text-rose-600 p-1.5 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors"
                             id={`delete-act-btn-${act.id}`}
                           >
@@ -968,7 +981,7 @@ export default function ActivitiesPanel({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                 <span className="text-slate-700 dark:text-slate-300 font-medium">🌅 Período da Manhã:</span>
                 <select
-                  value={suggestionRules?.morningCategoryPreference ?? 'cognitiva'}
+                  value={suggestionRules?.morningCategoryPreference ?? 'aleatorio'}
                   onChange={(e) => handleRuleChange('morningCategoryPreference', e.target.value)}
                   className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-indigo-500 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 cursor-pointer font-medium"
                 >
@@ -986,7 +999,7 @@ export default function ActivitiesPanel({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                 <span className="text-slate-700 dark:text-slate-300 font-medium">🌇 Período da Tarde:</span>
                 <select
-                  value={suggestionRules?.afternoonCategoryPreference ?? 'musica'}
+                  value={suggestionRules?.afternoonCategoryPreference ?? 'aleatorio'}
                   onChange={(e) => handleRuleChange('afternoonCategoryPreference', e.target.value)}
                   className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:border-indigo-500 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 cursor-pointer font-medium"
                 >

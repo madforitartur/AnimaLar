@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Resident, ScheduledActivity, ResidentProgressLog, Reminder } from '../types';
+import { useConfirm } from '../hooks/useConfirm';
 import {
   Database,
   Download,
@@ -42,6 +43,7 @@ export default function DatabaseManager({
   onImportData,
   isStandalone
 }: DatabaseManagerProps) {
+  const confirm = useConfirm();
   const [syncing, setSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'success' | 'error' | null>(null);
   const [syncMessage, setSyncMessage] = useState('');
@@ -214,6 +216,19 @@ export default function DatabaseManager({
   const handleUploadSQLiteFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const confirmed = await confirm({
+      title: 'Restaurar Base de Dados',
+      message: `Tem a certeza que deseja importar a cópia de segurança "${file.name}"? Esta ação irá substituir os dados atuais da aplicação.`,
+      confirmText: 'Sim, Restaurar',
+      cancelText: 'Cancelar',
+      variant: 'warning'
+    });
+
+    if (!confirmed) {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
 
     setUploading(true);
     setUploadError(null);

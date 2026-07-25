@@ -289,8 +289,8 @@ export default function App() {
       artisticDaysConfig: {},
       maxOtherDaysPerWeek: 2,
       otherDaysConfig: {},
-      morningCategoryPreference: 'cognitiva',
-      afternoonCategoryPreference: 'musica',
+      morningCategoryPreference: 'aleatorio',
+      afternoonCategoryPreference: 'aleatorio',
       morningTime: '10:30',
       afternoonTime: '15:30'
     };

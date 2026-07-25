@@ -7,6 +7,7 @@ import logoUrl from '../assets/images/lar_santo_antonio_logo_official_1784530465
 import GeminiPlanner from './GeminiPlanner';
 import Tooltip from './Tooltip';
 import { generateSuggestedPlan } from '../utils/suggestionGenerator';
+import { useConfirm } from '../hooks/useConfirm';
 
 // Convert OKLCH colors to rgb/rgba format so html2canvas doesn't crash on Tailwind v4 styles
 const parseAndConvertOklch = (cssText: string): string => {
@@ -175,6 +176,7 @@ export default function CalendarView({
   onOpenParticipationLog,
   onReorderScheduledActivities,
 }: CalendarViewProps) {
+  const confirm = useConfirm();
   // Current month being viewed - default to the current month/year
   const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth()); // 0-indexed
@@ -477,18 +479,19 @@ export default function CalendarView({
         ignoreElements: (el) => el.classList.contains('print-hidden-element') || el.classList.contains('print:hidden')
       });
 
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/jpeg', 0.85);
       
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
         format: 'a4',
+        compress: true,
       });
 
       const pdfWidth = 297;
       const pdfHeight = 210;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
 
       const sanitizedMonth = monthNames[currentMonth].toLowerCase().replace(/\s+/g, '_');
       const filename = calendarViewMode === 'mensal'
@@ -595,19 +598,32 @@ export default function CalendarView({
     }
   };
 
-  const handleClearPeriodActivities = () => {
+  const handleClearPeriodActivities = async () => {
     const periodActs = getScheduledActivitiesForPeriod();
     const idsToDelete = periodActs
       .filter(act => act.activityId !== 'act_leitura_jornal' && !act.id.startsWith('sch_leitura_jornal_'))
       .map(act => act.id);
-    if (idsToDelete.length > 0) {
-      if (onDeleteScheduledActivities) {
-        onDeleteScheduledActivities(idsToDelete);
-      } else {
-        idsToDelete.forEach(id => onDeleteScheduledActivity(id));
-      }
+
+    if (idsToDelete.length === 0) return;
+
+    const count = idsToDelete.length;
+    const periodLabel = calendarViewMode === 'mensal' ? 'deste mês' : 'desta semana';
+
+    const confirmed = await confirm({
+      title: 'Limpar Agendamentos',
+      message: `Tem a certeza que deseja apagar todas as ${count} atividades agendadas ${periodLabel}? Esta ação limpará o histórico desse período e não pode ser desfeita.`,
+      confirmText: 'Sim, Limpar Agendamentos',
+      cancelText: 'Cancelar',
+      variant: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    if (onDeleteScheduledActivities) {
+      onDeleteScheduledActivities(idsToDelete);
+    } else {
+      idsToDelete.forEach(id => onDeleteScheduledActivity(id));
     }
-    setConfirmClear(false);
   };
 
   // Scheduling Modal State
@@ -1868,35 +1884,15 @@ export default function CalendarView({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
-            {getScheduledActivitiesForPeriod().length > 0 && (
-              <div className="relative shrink-0">
-                {confirmClear ? (
-                  <div className="flex items-center gap-1 bg-rose-50 border border-rose-200 p-1 rounded-lg">
-                    <span className="text-[9px] font-semibold text-rose-700 px-1">Apagar {getScheduledActivitiesForPeriod().length}?</span>
-                    <button
-                      onClick={handleClearPeriodActivities}
-                      className="text-[9px] font-bold bg-rose-600 hover:bg-rose-700 text-white px-2 py-1 rounded-md transition-all cursor-pointer"
-                    >
-                      Sim
-                    </button>
-                    <button
-                      onClick={() => setConfirmClear(false)}
-                      className="text-[9px] font-semibold bg-white hover:bg-slate-50 border border-gray-200 text-gray-600 px-2 py-1 rounded-md transition-all cursor-pointer"
-                    >
-                      Não
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setConfirmClear(true)}
-                    className="flex items-center justify-center gap-1 text-[10px] font-bold text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 rounded-lg px-2.5 py-1.5 transition-all cursor-pointer w-full sm:w-auto"
-                    title="Apagar todas as atividades do período selecionado"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Limpar {calendarViewMode === 'mensal' ? 'Mês' : 'Semana'}</span>
-                  </button>
-                )}
-              </div>
+            {getScheduledActivitiesForPeriod().filter(act => act.activityId !== 'act_leitura_jornal' && !act.id.startsWith('sch_leitura_jornal_')).length > 0 && (
+              <button
+                onClick={handleClearPeriodActivities}
+                className="flex items-center justify-center gap-1 text-[10px] font-bold text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 rounded-lg px-2.5 py-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                title="Apagar todas as atividades do período selecionado"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Limpar {calendarViewMode === 'mensal' ? 'Mês' : 'Semana'}</span>
+              </button>
             )}
             <Tooltip position="left" content="Sugerir plano: Gerar automaticamente sugestões de atividades no calendário a aguardar aprovação">
               <button
@@ -2108,7 +2104,18 @@ export default function CalendarView({
                               </Tooltip>
                               <Tooltip position="top" content="Desmarcar Atividade: Remover esta atividade do plano diário atual">
                                 <button
-                                  onClick={() => onDeleteScheduledActivity(act.id)}
+                                  onClick={async () => {
+                                    const confirmed = await confirm({
+                                      title: 'Remover Agendamento',
+                                      message: `Tem a certeza que deseja remover a atividade "${act.title}" do agendamento?`,
+                                      confirmText: 'Remover',
+                                      cancelText: 'Cancelar',
+                                      variant: 'danger'
+                                    });
+                                    if (confirmed) {
+                                      onDeleteScheduledActivity(act.id);
+                                    }
+                                  }}
                                   className="w-7 h-7 rounded-lg border bg-white border-gray-200 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer flex items-center justify-center"
                                   id={`delete-btn-${act.id}`}
                                 >
