@@ -391,7 +391,7 @@ export default function CalendarView({
       element.style.position = 'absolute';
       element.style.left = '-9999px';
       element.style.top = '0';
-      element.style.width = '1280px';
+      element.style.width = '1320px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
 
@@ -401,6 +401,10 @@ export default function CalendarView({
         el.style.overflow = 'visible';
         el.style.overflowX = 'visible';
       });
+
+      const naturalHeight = element.offsetHeight || 900;
+      const targetWidth = Math.max(1320, Math.round(naturalHeight * (297 / 210)));
+      element.style.width = `${targetWidth}px`;
 
       const jsPDF = (await import('jspdf')).default;
       const html2canvas = (await import('html2canvas')).default;
@@ -492,24 +496,21 @@ export default function CalendarView({
       const pdfHeight = 210;
 
       const canvasAspect = canvas.width / canvas.height;
-      const pdfAspect = pdfWidth / pdfHeight;
 
-      let finalWidth = pdfWidth;
-      let finalHeight = pdfHeight;
-      let xOffset = 0;
+      const finalWidth = pdfWidth; // 297mm (full width)
+      const finalHeight = pdfWidth / canvasAspect;
+
       let yOffset = 0;
+      let renderHeight = finalHeight;
 
-      if (canvasAspect > pdfAspect) {
-        finalWidth = pdfWidth;
-        finalHeight = pdfWidth / canvasAspect;
+      if (finalHeight <= pdfHeight) {
         yOffset = (pdfHeight - finalHeight) / 2;
       } else {
-        finalHeight = pdfHeight;
-        finalWidth = pdfHeight * canvasAspect;
-        xOffset = (pdfWidth - finalWidth) / 2;
+        renderHeight = pdfHeight;
+        yOffset = 0;
       }
 
-      pdf.addImage(imgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight, undefined, 'FAST');
+      pdf.addImage(imgData, 'JPEG', 0, yOffset, finalWidth, renderHeight, undefined, 'FAST');
 
       const sanitizedMonth = monthNames[currentMonth].toLowerCase().replace(/\s+/g, '_');
       const filename = calendarViewMode === 'mensal'

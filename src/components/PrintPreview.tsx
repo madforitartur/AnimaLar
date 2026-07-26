@@ -259,11 +259,15 @@ export default function PrintPreview({ scheduledActivities }: PrintPreviewProps)
         el.style.overflowX = 'visible';
       });
 
-      // Set a robust fixed width on the sheet during capture so that all calendars
-      // render in their full glorious landscape sizes, unaffected by current screen size.
-      element.style.width = '1280px';
+      // Set width dynamically to match A4 Landscape aspect ratio (297 / 210)
+      // allowing table columns to stretch to fill the full width of the landscape layout
+      element.style.width = '1320px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
+
+      const naturalHeight = element.offsetHeight || 900;
+      const targetWidth = Math.max(1320, Math.round(naturalHeight * (297 / 210)));
+      element.style.width = `${targetWidth}px`;
 
       // Dynamically import libraries for speed & seamless execution
       const jsPDF = (await import('jspdf')).default;
@@ -363,26 +367,24 @@ export default function PrintPreview({ scheduledActivities }: PrintPreviewProps)
       const pdfWidth = 297; // A4 landscape width in mm
       const pdfHeight = 210; // A4 landscape height in mm
       
-      // Calculate aspect ratio fit to ensure no distortion when exporting to PDF
       const canvasAspect = canvas.width / canvas.height;
-      const pdfAspect = pdfWidth / pdfHeight;
 
-      let finalWidth = pdfWidth;
-      let finalHeight = pdfHeight;
-      let xOffset = 0;
+      // Render across 100% of the page width (297mm) to expand weekday columns across the full A4 Landscape
+      const finalWidth = pdfWidth; // 297mm (full width)
+      const finalHeight = pdfWidth / canvasAspect;
+
+      // Center vertically if height fits within A4 page bounds
       let yOffset = 0;
+      let renderHeight = finalHeight;
 
-      if (canvasAspect > pdfAspect) {
-        finalWidth = pdfWidth;
-        finalHeight = pdfWidth / canvasAspect;
+      if (finalHeight <= pdfHeight) {
         yOffset = (pdfHeight - finalHeight) / 2;
       } else {
-        finalHeight = pdfHeight;
-        finalWidth = pdfHeight * canvasAspect;
-        xOffset = (pdfWidth - finalWidth) / 2;
+        renderHeight = pdfHeight;
+        yOffset = 0;
       }
 
-      pdf.addImage(imgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight, undefined, 'FAST');
+      pdf.addImage(imgData, 'JPEG', 0, yOffset, finalWidth, renderHeight, undefined, 'FAST');
 
       // Generate pristine filename depending on current active view mode
       const sanitizedMonth = monthNames[month].toLowerCase().replace(/\s+/g, '_');
