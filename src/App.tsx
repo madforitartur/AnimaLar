@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 // @ts-ignore
 import logoUrl from './assets/images/lar_santo_antonio_logo_official_1784530465177.jpg';
 import { Resident, ScheduledActivity, ResidentProgressLog, Reminder, ActivityCategory, SuggestionRules } from './types';
@@ -1042,78 +1043,89 @@ export default function App() {
           
           {/* Tab Panel Renderings */}
           <div className="w-full">
-          {currentTab === 'planner' && (
-            <CalendarView
-              scheduledActivities={scheduledActivities}
-              residents={residents}
-              activities={activities}
-              suggestionRules={suggestionRules}
-              onAddScheduledActivity={handleAddScheduledActivity}
-              onAddScheduledActivities={handleAddScheduledActivities}
-              onToggleCompleteActivity={handleToggleCompleteActivity}
-              onDeleteScheduledActivity={handleDeleteScheduledActivity}
-              onDeleteScheduledActivities={handleDeleteScheduledActivities}
-              onUpdateScheduledActivity={handleUpdateScheduledActivity}
-              onOpenParticipationLog={handleOpenParticipationLog}
-              onReorderScheduledActivities={handleReorderScheduledActivities}
-            />
-          )}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentTab}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="w-full"
+              >
+                {currentTab === 'planner' && (
+                  <CalendarView
+                    scheduledActivities={scheduledActivities}
+                    residents={residents}
+                    activities={activities}
+                    suggestionRules={suggestionRules}
+                    onAddScheduledActivity={handleAddScheduledActivity}
+                    onAddScheduledActivities={handleAddScheduledActivities}
+                    onToggleCompleteActivity={handleToggleCompleteActivity}
+                    onDeleteScheduledActivity={handleDeleteScheduledActivity}
+                    onDeleteScheduledActivities={handleDeleteScheduledActivities}
+                    onUpdateScheduledActivity={handleUpdateScheduledActivity}
+                    onOpenParticipationLog={handleOpenParticipationLog}
+                    onReorderScheduledActivities={handleReorderScheduledActivities}
+                  />
+                )}
 
-          {currentTab === 'residents' && (
-            <ResidentsList
-              residents={residents}
-              progressLogs={progressLogs}
-              onAddResident={handleAddResident}
-              onAddProgressLog={handleAddProgressLog}
-              onDeleteResident={handleDeleteResident}
-              onUpdateResident={handleUpdateResident}
-            />
-          )}
+                {currentTab === 'residents' && (
+                  <ResidentsList
+                    residents={residents}
+                    progressLogs={progressLogs}
+                    onAddResident={handleAddResident}
+                    onAddProgressLog={handleAddProgressLog}
+                    onDeleteResident={handleDeleteResident}
+                    onUpdateResident={handleUpdateResident}
+                  />
+                )}
 
-          {currentTab === 'activities' && (
-            <ActivitiesPanel
-              activities={activities}
-              scheduledActivities={scheduledActivities}
-              suggestionRules={suggestionRules}
-              onSetSuggestionRules={setSuggestionRules}
-              onAddActivity={handleAddActivity}
-              onDeleteActivity={handleDeleteActivity}
-              onUpdateActivity={handleUpdateActivity}
-              onSelectTab={setCurrentTab}
-            />
-          )}
+                {currentTab === 'activities' && (
+                  <ActivitiesPanel
+                    activities={activities}
+                    scheduledActivities={scheduledActivities}
+                    suggestionRules={suggestionRules}
+                    onSetSuggestionRules={setSuggestionRules}
+                    onAddActivity={handleAddActivity}
+                    onDeleteActivity={handleDeleteActivity}
+                    onUpdateActivity={handleUpdateActivity}
+                    onSelectTab={setCurrentTab}
+                  />
+                )}
 
-          {currentTab === 'materials' && (
-            <SupportMaterialsPanel />
-          )}
+                {currentTab === 'materials' && (
+                  <SupportMaterialsPanel />
+                )}
 
-          {currentTab === 'reminders' && (
-            <RemindersPanel
-              reminders={reminders}
-              residents={residents}
-              progressLogs={progressLogs}
-              scheduledActivities={scheduledActivities}
-              onToggleReminder={handleToggleReminder}
-              onAddReminder={handleAddReminder}
-              onDeleteReminder={handleDeleteReminder}
-            />
-          )}
+                {currentTab === 'reminders' && (
+                  <RemindersPanel
+                    reminders={reminders}
+                    residents={residents}
+                    progressLogs={progressLogs}
+                    scheduledActivities={scheduledActivities}
+                    onToggleReminder={handleToggleReminder}
+                    onAddReminder={handleAddReminder}
+                    onDeleteReminder={handleDeleteReminder}
+                  />
+                )}
 
-           {currentTab === 'print' && (
-            <PrintPreview scheduledActivities={scheduledActivities} />
-          )}
+                {currentTab === 'print' && (
+                  <PrintPreview scheduledActivities={scheduledActivities} />
+                )}
 
-          {currentTab === 'database' && (
-            <DatabaseManager
-              residents={residents}
-              scheduledActivities={scheduledActivities}
-              progressLogs={progressLogs}
-              reminders={reminders}
-              onImportData={handleImportData}
-              isStandalone={isStandalone}
-            />
-          )}
-        </div>
+                {currentTab === 'database' && (
+                  <DatabaseManager
+                    residents={residents}
+                    scheduledActivities={scheduledActivities}
+                    progressLogs={progressLogs}
+                    reminders={reminders}
+                    onImportData={handleImportData}
+                    isStandalone={isStandalone}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
       </div>
 
       </main>
