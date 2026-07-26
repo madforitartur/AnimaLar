@@ -2,6 +2,8 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
+import { google } from "googleapis";
+import { Readable } from "stream";
 import dotenv from "dotenv";
 import fs from "fs/promises";
 import { execSync } from "child_process";
@@ -34,6 +36,7 @@ class JSONDatabase {
     scheduledActivities: any[];
     progressLogs: any[];
     reminders: any[];
+    suggestionRules: any | null;
   };
 
   constructor(dbPath: string) {
@@ -42,7 +45,8 @@ class JSONDatabase {
       residents: [],
       scheduledActivities: [],
       progressLogs: [],
-      reminders: []
+      reminders: [],
+      suggestionRules: null
     };
   }
 
@@ -57,6 +61,7 @@ class JSONDatabase {
           this.data.scheduledActivities = parsed.scheduledActivities || [];
           this.data.progressLogs = parsed.progressLogs || [];
           this.data.reminders = parsed.reminders || [];
+          this.data.suggestionRules = parsed.suggestionRules || null;
           console.log("Base de dados JSON carregada com sucesso a partir de:", this.dbPath);
           return;
         }
@@ -393,9 +398,21 @@ async function startServer() {
   // SQLite Database API Routes
   // -------------------------------------------------------------------------
 
-  // 1. Get all data from SQLite
+  // 1. Get all data from SQLite (Auto-load from Google Drive on page open)
+  let hasAttemptedInitialDriveSync = false;
+
   app.get("/api/data", async (req, res) => {
     try {
+      if (!hasAttemptedInitialDriveSync && process.env.GOOGLE_OAUTH_ACCESS_TOKEN) {
+        hasAttemptedInitialDriveSync = true;
+        try {
+          console.log("[Auto-Load] A carregar ficheiros animalar_database.json e animalar.db da pasta do Google Drive...");
+          await restoreFromGoogleDriveInternal();
+        } catch (driveErr: any) {
+          console.warn("[Auto-Load] Aviso ao carregar do Google Drive no arranque:", driveErr?.message || driveErr);
+        }
+      }
+
       const residents = await db.all("SELECT * FROM residents");
       const parsedResidents = residents.map(r => ({
         ...r,
@@ -425,7 +442,8 @@ async function startServer() {
         residents: parsedResidents,
         scheduledActivities: parsedScheduled,
         progressLogs: parsedLogs,
-        reminders: parsedReminders
+        reminders: parsedReminders,
+        suggestionRules: db.data.suggestionRules || null
       });
     } catch (err: any) {
       console.error("Erro ao obter dados do SQLite:", err);
@@ -436,7 +454,11 @@ async function startServer() {
   // 2. Sync all data from React to SQLite (transactional clear & load)
   app.post("/api/sync", async (req, res) => {
     try {
-      const { residents, scheduledActivities, progressLogs, reminders } = req.body;
+      const { residents, scheduledActivities, progressLogs, reminders, suggestionRules } = req.body;
+
+      if (suggestionRules) {
+        db.data.suggestionRules = suggestionRules;
+      }
 
       await db.run("BEGIN TRANSACTION");
 
@@ -479,6 +501,10 @@ async function startServer() {
       await db.run("COMMIT");
       // Update AnimaLar.html at the project root with the new data
       await generateOfflineHtmlAndSaveToDisk();
+      
+      // Auto-sync to Google Drive in background if token available
+      syncToGoogleDrive().catch(e => console.warn("Aviso ao sincronizar no Google Drive:", e.message));
+
       res.json({ success: true, message: "Dados sincronizados no SQLite com sucesso!" });
     } catch (err: any) {
       try {
@@ -547,6 +573,276 @@ async function startServer() {
     } catch (err: any) {
       console.error("Erro ao gerar ficheiro HTML offline:", err);
       res.status(500).send(`Erro ao gerar versão offline: ${err.message}`);
+    }
+  });
+
+  // -------------------------------------------------------------------------
+  // Google Drive Integration Helper Functions & Routes
+  // Target folder: https://drive.google.com/drive/folders/1q2Ky5732OVNJhtDpTUFikKEjkGmonp6n
+  // -------------------------------------------------------------------------
+  const GDRIVE_FOLDER_ID = "1q2Ky5732OVNJhtDpTUFikKEjkGmonp6n";
+
+  function getDriveClient() {
+    const token = process.env.GOOGLE_OAUTH_ACCESS_TOKEN;
+    if (!token) {
+      throw new Error("Sessão do Google Drive não autorizada. Certifique-se que o acesso OAuth foi concedido.");
+    }
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({ access_token: token });
+    return google.drive({ version: "v3", auth: oauth2Client });
+  }
+
+  async function uploadToGoogleDrive(fileName: string, mimeType: string, content: Buffer | string) {
+    const drive = getDriveClient();
+    const listRes = await drive.files.list({
+      q: `'${GDRIVE_FOLDER_ID}' in parents and name = '${fileName}' and trashed = false`,
+      fields: "files(id, name, webViewLink)",
+    });
+
+    const files = listRes.data.files || [];
+    const buffer = typeof content === "string" ? Buffer.from(content, "utf-8") : content;
+
+    const media = {
+      mimeType,
+      body: Readable.from(buffer),
+    };
+
+    if (files.length > 0) {
+      const fileId = files[0].id!;
+      const res = await drive.files.update({
+        fileId,
+        media,
+        fields: "id, name, webViewLink, modifiedTime",
+      });
+      return res.data;
+    } else {
+      const res = await drive.files.create({
+        requestBody: {
+          name: fileName,
+          parents: [GDRIVE_FOLDER_ID],
+        },
+        media,
+        fields: "id, name, webViewLink, modifiedTime",
+      });
+      return res.data;
+    }
+  }
+
+  async function syncToGoogleDrive() {
+    if (!process.env.GOOGLE_OAUTH_ACCESS_TOKEN) {
+      return { success: false, reason: "Token OAuth ausente" };
+    }
+    const backupPayload = {
+      residents: db.data.residents,
+      scheduledActivities: db.data.scheduledActivities,
+      progressLogs: db.data.progressLogs,
+      reminders: db.data.reminders,
+      suggestionRules: db.data.suggestionRules || null,
+      lastSyncedAt: new Date().toISOString(),
+      folderId: GDRIVE_FOLDER_ID,
+      institution: "Lar de Santo António"
+    };
+
+    const jsonRes = await uploadToGoogleDrive(
+      "animalar_database.json",
+      "application/json",
+      JSON.stringify(backupPayload, null, 2)
+    );
+
+    try {
+      const dbBuffer = await fs.readFile(dbPath);
+      await uploadToGoogleDrive("animalar.db", "application/x-sqlite3", dbBuffer);
+    } catch (e) {
+      console.warn("Aviso ao guardar ficheiro animalar.db no Google Drive:", e);
+    }
+
+    return {
+      success: true,
+      lastSyncedAt: new Date().toISOString(),
+      folderUrl: `https://drive.google.com/drive/folders/${GDRIVE_FOLDER_ID}`,
+      fileUrl: jsonRes.webViewLink
+    };
+  }
+
+  // Google Drive Status Route
+  app.get("/api/gdrive/status", async (req, res) => {
+    const hasToken = !!process.env.GOOGLE_OAUTH_ACCESS_TOKEN;
+    res.json({
+      configured: hasToken,
+      folderId: GDRIVE_FOLDER_ID,
+      folderUrl: `https://drive.google.com/drive/folders/${GDRIVE_FOLDER_ID}`
+    });
+  });
+
+  // Google Drive Manual Sync/Upload Route
+  app.post("/api/gdrive/upload", async (req, res) => {
+    try {
+      const result = await syncToGoogleDrive();
+      res.json({
+        success: true,
+        message: "Base de dados guardada com sucesso na pasta do Google Drive!",
+        ...result
+      });
+    } catch (err: any) {
+      console.error("Erro ao guardar na pasta do Google Drive:", err);
+      res.status(500).json({ error: err.message || "Erro ao guardar no Google Drive." });
+    }
+  });
+
+  async function restoreFromGoogleDriveInternal(): Promise<boolean> {
+    if (!process.env.GOOGLE_OAUTH_ACCESS_TOKEN) {
+      return false;
+    }
+    const drive = getDriveClient();
+    let dbRestored = false;
+
+    // 1. Try downloading physical SQLite database animalar.db / AnimaLar.db
+    try {
+      const listDbRes = await drive.files.list({
+        q: `'${GDRIVE_FOLDER_ID}' in parents and (name = 'animalar.db' or name = 'AnimaLar.db') and trashed = false`,
+        fields: "files(id, name, modifiedTime)",
+      });
+
+      const dbFiles = listDbRes.data.files || [];
+      if (dbFiles.length > 0) {
+        const fileId = dbFiles[0].id!;
+        console.log(`[Google Drive] Ficheiro SQLite (${dbFiles[0].name}) encontrado na pasta. A descarregar...`);
+        const getRes = await drive.files.get(
+          { fileId, alt: "media" },
+          { responseType: "arraybuffer" }
+        );
+        const buffer = Buffer.from(getRes.data as ArrayBuffer);
+        if (buffer && buffer.length > 0) {
+          await db.close();
+          await fs.writeFile(dbPath, buffer);
+          const newDb = new JSONDatabase(dbPath);
+          await newDb.load();
+          db = newDb;
+          dbRestored = true;
+          console.log("[Google Drive] Base de dados SQLite (animalar.db) descarregada e restaurada com sucesso!");
+        }
+      }
+    } catch (err: any) {
+      console.warn("[Google Drive] Aviso ao tentar descarregar animalar.db:", err?.message || err);
+    }
+
+    // 2. Try downloading animalar_database.json
+    try {
+      const listJsonRes = await drive.files.list({
+        q: `'${GDRIVE_FOLDER_ID}' in parents and name = 'animalar_database.json' and trashed = false`,
+        fields: "files(id, name, modifiedTime)",
+      });
+
+      const jsonFiles = listJsonRes.data.files || [];
+      if (jsonFiles.length > 0) {
+        const fileId = jsonFiles[0].id!;
+        console.log("[Google Drive] Ficheiro animalar_database.json encontrado na pasta. A descarregar...");
+        const getRes = await drive.files.get(
+          { fileId, alt: "media" },
+          { responseType: "text" }
+        );
+
+        const parsed = JSON.parse(getRes.data as string);
+        if (parsed) {
+          if (!dbRestored && (parsed.residents || parsed.scheduledActivities)) {
+            await db.run("BEGIN TRANSACTION");
+            if (parsed.residents && Array.isArray(parsed.residents)) {
+              await db.run("DELETE FROM residents");
+              const stmt = await db.prepare("INSERT INTO residents (id, name, birthDate, cognitiveLevel, physicalLevel, interests, observations, joinedDate, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+              for (const r of parsed.residents) {
+                await stmt.run(r.id, r.name, r.birthDate, r.cognitiveLevel, r.physicalLevel, JSON.stringify(r.interests), r.observations, r.joinedDate, r.avatar);
+              }
+              await stmt.finalize();
+            }
+
+            if (parsed.scheduledActivities && Array.isArray(parsed.scheduledActivities)) {
+              await db.run("DELETE FROM scheduled_activities");
+              const stmt = await db.prepare("INSERT INTO scheduled_activities (id, activityId, title, description, category, date, slot, time, completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+              for (const s of parsed.scheduledActivities) {
+                await stmt.run(s.id, s.activityId || null, s.title, s.description, s.category, s.date, s.slot, s.time, s.completed ? 1 : 0);
+              }
+              await stmt.finalize();
+            }
+
+            if (parsed.progressLogs && Array.isArray(parsed.progressLogs)) {
+              await db.run("DELETE FROM progress_logs");
+              const stmt = await db.prepare("INSERT INTO progress_logs (id, residentId, scheduledActivityId, date, activityTitle, category, participation, cognitiveScore, physicalScore, socialScore, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+              for (const l of parsed.progressLogs) {
+                await stmt.run(l.id, l.residentId, l.scheduledActivityId || null, l.date, l.activityTitle, l.category || 'outro', l.participation, l.cognitiveScore, l.physicalScore, l.socialScore, l.notes);
+              }
+              await stmt.finalize();
+            }
+
+            if (parsed.reminders && Array.isArray(parsed.reminders)) {
+              await db.run("DELETE FROM reminders");
+              const stmt = await db.prepare("INSERT INTO reminders (id, text, type, date, completed) VALUES (?, ?, ?, ?, ?)");
+              for (const r of parsed.reminders) {
+                await stmt.run(r.id, r.text, r.type, r.date, r.completed ? 1 : 0);
+              }
+              await stmt.finalize();
+            }
+
+            await db.run("COMMIT");
+            console.log("[Google Drive] Dados da base de dados populados a partir de animalar_database.json!");
+          }
+
+          if (parsed.suggestionRules) {
+            db.data.suggestionRules = parsed.suggestionRules;
+          }
+        }
+      }
+    } catch (err: any) {
+      console.warn("[Google Drive] Aviso ao carregar animalar_database.json:", err?.message || err);
+    }
+
+    await generateOfflineHtmlAndSaveToDisk();
+    return true;
+  }
+
+  // Google Drive Restore Route
+  app.post("/api/gdrive/restore", async (req, res) => {
+    try {
+      await restoreFromGoogleDriveInternal();
+
+      const residents = await db.all("SELECT * FROM residents");
+      const parsedResidents = residents.map(r => ({
+        ...r,
+        interests: safeParseInterests(r.interests)
+      }));
+
+      const scheduledActivities = await db.all("SELECT * FROM scheduled_activities");
+      const parsedScheduled = scheduledActivities.map(s => ({
+        ...s,
+        completed: !!s.completed
+      }));
+
+      const progressLogs = await db.all("SELECT * FROM progress_logs");
+      const parsedLogs = progressLogs.map(l => ({
+        ...l,
+        participated: true
+      }));
+
+      const reminders = await db.all("SELECT * FROM reminders");
+      const parsedReminders = reminders.map(rem => ({
+        ...rem,
+        completed: !!rem.completed
+      }));
+
+      res.json({
+        success: true,
+        message: "Base de dados e ficheiro SQLite restaurados com sucesso a partir do Google Drive!",
+        data: {
+          residents: parsedResidents,
+          scheduledActivities: parsedScheduled,
+          progressLogs: parsedLogs,
+          reminders: parsedReminders,
+          suggestionRules: db.data.suggestionRules || null
+        }
+      });
+    } catch (err: any) {
+      try { await db.run("ROLLBACK"); } catch {}
+      console.error("Erro ao restaurar do Google Drive:", err);
+      res.status(500).json({ error: err.message || "Erro ao restaurar do Google Drive." });
     }
   });
 

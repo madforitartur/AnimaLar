@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Resident, ScheduledActivity, ResidentProgressLog, Reminder } from '../types';
+import { Resident, ScheduledActivity, ResidentProgressLog, Reminder, SuggestionRules } from '../types';
 import { useConfirm } from '../hooks/useConfirm';
 import {
   Database,
@@ -18,7 +18,12 @@ import {
   Flame,
   HelpCircle,
   Smartphone,
-  Plus
+  Plus,
+  Folder,
+  ExternalLink,
+  Cloud,
+  CloudUpload,
+  CloudDownload
 } from 'lucide-react';
 
 interface DatabaseManagerProps {
@@ -26,11 +31,13 @@ interface DatabaseManagerProps {
   scheduledActivities: ScheduledActivity[];
   progressLogs: ResidentProgressLog[];
   reminders: Reminder[];
+  suggestionRules?: SuggestionRules;
   onImportData: (data: {
     residents: Resident[];
     scheduledActivities: ScheduledActivity[];
     progressLogs: ResidentProgressLog[];
     reminders: Reminder[];
+    suggestionRules?: SuggestionRules;
   }) => void;
   isStandalone: boolean;
 }
@@ -40,6 +47,7 @@ export default function DatabaseManager({
   scheduledActivities,
   progressLogs,
   reminders,
+  suggestionRules,
   onImportData,
   isStandalone
 }: DatabaseManagerProps) {
@@ -51,6 +59,69 @@ export default function DatabaseManager({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Google Drive states & handlers
+  const [gdriveConfigured, setGdriveConfigured] = useState(false);
+  const [gdriveSyncing, setGdriveSyncing] = useState(false);
+  const [gdriveRestoring, setGdriveRestoring] = useState(false);
+  const [gdriveLastSynced, setGdriveLastSynced] = useState<string | null>(null);
+  const [gdriveMessage, setGdriveMessage] = useState<string | null>(null);
+
+  const GDRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1q2Ky5732OVNJhtDpTUFikKEjkGmonp6n";
+
+  useEffect(() => {
+    if (!isStandalone) {
+      fetch('/api/gdrive/status')
+        .then(res => res.json())
+        .then(data => {
+          setGdriveConfigured(data.configured);
+        })
+        .catch(() => {});
+    }
+  }, [isStandalone]);
+
+  const handleGDriveUpload = async () => {
+    setGdriveSyncing(true);
+    setGdriveMessage(null);
+    try {
+      const res = await fetch('/api/gdrive/upload', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erro ao guardar no Google Drive');
+      setGdriveLastSynced(new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }));
+      setGdriveMessage('Base de dados guardada com sucesso na pasta do Google Drive!');
+    } catch (err: any) {
+      setGdriveMessage('Erro: ' + err.message);
+    } finally {
+      setGdriveSyncing(false);
+    }
+  };
+
+  const handleGDriveRestore = async () => {
+    const confirmed = await confirm({
+      title: 'Restaurar do Google Drive',
+      message: 'Deseja importar a base de dados guardada na pasta do Google Drive? Esta ação irá atualizar os dados atuais da aplicação.',
+      confirmText: 'Sim, Restaurar',
+      cancelText: 'Cancelar',
+      variant: 'warning'
+    });
+    if (!confirmed) return;
+
+    setGdriveRestoring(true);
+    setGdriveMessage(null);
+    try {
+      const res = await fetch('/api/gdrive/restore', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erro ao restaurar do Google Drive');
+      if (data.data) {
+        onImportData(data.data);
+      }
+      setGdriveMessage('Base de dados restaurada com sucesso a partir do Google Drive!');
+    } catch (err: any) {
+      setGdriveMessage('Erro: ' + err.message);
+    } finally {
+      setGdriveRestoring(false);
+    }
+  };
 
   // PWA states and logic
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -139,7 +210,8 @@ export default function DatabaseManager({
           residents,
           scheduledActivities,
           progressLogs,
-          reminders
+          reminders,
+          suggestionRules
         }),
       });
 
@@ -169,6 +241,7 @@ export default function DatabaseManager({
         scheduledActivities,
         progressLogs,
         reminders,
+        suggestionRules,
         exportedAt: new Date().toISOString(),
         format: "AnimaLar SQLite Backup compatible JSON"
       };
@@ -289,7 +362,8 @@ export default function DatabaseManager({
             residents: parsed.residents,
             scheduledActivities: parsed.scheduledActivities,
             progressLogs: parsed.progressLogs || [],
-            reminders: parsed.reminders || []
+            reminders: parsed.reminders || [],
+            suggestionRules: parsed.suggestionRules || undefined
           });
 
           // Step 2: If we are not in standalone mode, also upload to the backend server
@@ -389,7 +463,7 @@ export default function DatabaseManager({
             </h2>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            Configure, sincronize, faça cópias de segurança da sua base de dados SQLite física em ficheiro e descarregue a aplicação inteira compactada em formato HTML para trabalhar 100% offline.
+            Configure, sincronize, faça cópias de segurança da sua base de dados na pasta institucional do Google Drive, descarregue o ficheiro SQLite físico e exporte a aplicação para trabalhar 100% offline.
           </p>
         </div>
 
@@ -419,6 +493,83 @@ export default function DatabaseManager({
           </p>
         </div>
       </div>
+
+      {/* Google Drive Primary Sync Card */}
+      {!isStandalone && (
+        <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white border border-indigo-800 rounded-2xl p-6 shadow-md space-y-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-indigo-800/80 pb-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-blue-500/20 rounded-xl border border-blue-400/30 text-blue-300">
+                  <Cloud className="w-5 h-5" />
+                </div>
+                <h3 className="font-display font-bold text-base text-white">
+                  Base de Dados no Google Drive (Pasta Institucional)
+                </h3>
+                <span className="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  Sincronização Ativa
+                </span>
+              </div>
+              <p className="text-xs text-indigo-200/80 leading-relaxed pl-9">
+                A base de dados é automaticamente preservada na sua pasta do Google Drive em <strong>animalar_database.json</strong> e <strong>animalar.db</strong>.
+              </p>
+            </div>
+
+            <a
+              href={GDRIVE_FOLDER_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 text-xs font-bold bg-white/10 hover:bg-white/20 text-blue-200 border border-white/20 px-4 py-2.5 rounded-xl transition-all shrink-0 self-start md:self-auto"
+            >
+              <Folder className="w-4 h-4 text-blue-300" />
+              Abrir Pasta no Google Drive
+              <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            <button
+              onClick={handleGDriveUpload}
+              disabled={gdriveSyncing || gdriveRestoring}
+              className="flex items-center justify-center gap-2 text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white py-3 px-5 rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-50"
+            >
+              <CloudUpload className={`w-4 h-4 ${gdriveSyncing ? 'animate-bounce' : ''}`} />
+              {gdriveSyncing ? 'A guardar no Google Drive...' : 'Guardar Agora no Google Drive'}
+            </button>
+
+            <button
+              onClick={handleGDriveRestore}
+              disabled={gdriveSyncing || gdriveRestoring}
+              className="flex items-center justify-center gap-2 text-xs font-bold bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-5 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+            >
+              <CloudDownload className={`w-4 h-4 text-indigo-300 ${gdriveRestoring ? 'animate-bounce' : ''}`} />
+              {gdriveRestoring ? 'A restaurar do Google Drive...' : 'Restaurar do Google Drive'}
+            </button>
+          </div>
+
+          {gdriveLastSynced && (
+            <p className="text-[11px] text-indigo-300/80 font-mono">
+              Última cópia no Google Drive: {gdriveLastSynced}
+            </p>
+          )}
+
+          {gdriveMessage && (
+            <div className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 ${
+              gdriveMessage.startsWith('Erro') 
+                ? 'bg-red-500/20 text-red-200 border border-red-500/30' 
+                : 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/30'
+            }`}>
+              {gdriveMessage.startsWith('Erro') ? (
+                <AlertTriangle className="w-4 h-4 shrink-0 text-red-300" />
+              ) : (
+                <CheckCircle className="w-4 h-4 shrink-0 text-emerald-300" />
+              )}
+              <span>{gdriveMessage}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Primary Panels Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

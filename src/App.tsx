@@ -40,7 +40,11 @@ import {
   Database,
   BookOpen,
   Sun,
-  Moon
+  Moon,
+  Cloud,
+  CloudOff,
+  ExternalLink,
+  RefreshCw
 } from 'lucide-react';
 
 const safeLocalStorage = {
@@ -505,12 +509,17 @@ export default function App() {
     return () => clearInterval(intervalId);
   }, [scheduledActivities, notificationPermission, notifiedIds]);
 
+  // Google Drive Status State
+  const [gdriveStatus, setGdriveStatus] = useState<'synced' | 'syncing' | 'error'>('synced');
+  const [gdriveLastSyncedAt, setGdriveLastSyncedAt] = useState<string | null>(null);
+
   // Load initial data from SQLite server if available
   useEffect(() => {
     if (isStandalone) return;
 
     const loadServerData = async () => {
       try {
+        setGdriveStatus('syncing');
         const response = await fetch('/api/data');
         if (response.ok) {
           const dbData = await response.json();
@@ -521,23 +530,38 @@ export default function App() {
             setScheduledActivities(dbData.scheduledActivities || []);
             setProgressLogs(cleanLogs);
             setReminders(ensureUniqueReminders(dbData.reminders || []));
+            if (dbData.suggestionRules) {
+              setSuggestionRules(dbData.suggestionRules);
+            }
             console.log("Dados sincronizados da base de dados SQLite do servidor.");
+            setGdriveStatus('synced');
+            setGdriveLastSyncedAt(new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }));
           } else {
             console.log("A base de dados SQLite está vazia. Enviando dados locais para povoar...");
-            await fetch('/api/sync', {
+            const syncRes = await fetch('/api/sync', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 residents,
                 scheduledActivities,
                 progressLogs,
-                reminders
+                reminders,
+                suggestionRules
               })
             });
+            if (syncRes.ok) {
+              setGdriveStatus('synced');
+              setGdriveLastSyncedAt(new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }));
+            } else {
+              setGdriveStatus('error');
+            }
           }
+        } else {
+          setGdriveStatus('error');
         }
       } catch (err) {
         console.warn("Servidor SQLite não acessível. Usando armazenamento local offline.", err);
+        setGdriveStatus('error');
       }
     };
 
@@ -550,24 +574,33 @@ export default function App() {
 
     const syncWithServer = async () => {
       try {
-        await fetch('/api/sync', {
+        setGdriveStatus('syncing');
+        const response = await fetch('/api/sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             residents,
             scheduledActivities,
             progressLogs,
-            reminders
+            reminders,
+            suggestionRules
           })
         });
+        if (response.ok) {
+          setGdriveStatus('synced');
+          setGdriveLastSyncedAt(new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }));
+        } else {
+          setGdriveStatus('error');
+        }
       } catch (err) {
         console.warn("Erro ao sincronizar dados com SQLite do servidor:", err);
+        setGdriveStatus('error');
       }
     };
 
     const timer = setTimeout(syncWithServer, 500);
     return () => clearTimeout(timer);
-  }, [residents, scheduledActivities, progressLogs, reminders]);
+  }, [residents, scheduledActivities, progressLogs, reminders, suggestionRules]);
 
   // Batch Logging Modal State
   const [activeLogActivity, setActiveLogActivity] = useState<ScheduledActivity | null>(null);
@@ -620,11 +653,13 @@ export default function App() {
     scheduledActivities: ScheduledActivity[];
     progressLogs: ResidentProgressLog[];
     reminders: Reminder[];
+    suggestionRules?: SuggestionRules;
   }) => {
     if (data.residents) setResidents(data.residents);
     if (data.scheduledActivities) setScheduledActivities(data.scheduledActivities);
     if (data.progressLogs) setProgressLogs(data.progressLogs);
     if (data.reminders) setReminders(ensureUniqueReminders(data.reminders));
+    if (data.suggestionRules) setSuggestionRules(data.suggestionRules);
   };
 
   // Handler: Add New Resident
@@ -889,8 +924,56 @@ export default function App() {
               </div>
             </div>
 
-            {/* Time & Quick Indicator + Theme Switcher */}
+            {/* Time & Quick Indicator + Google Drive Status + Theme Switcher */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              
+              {/* Google Drive Status Indicator */}
+              {!isStandalone && (
+                <Tooltip 
+                  position="bottom" 
+                  content={
+                    gdriveStatus === 'synced'
+                      ? `Google Drive: Sincronizado com Sucesso (${gdriveLastSyncedAt ? 'às ' + gdriveLastSyncedAt : 'Pasta Institucional'})`
+                      : gdriveStatus === 'syncing'
+                      ? 'Google Drive: A guardar dados na pasta...'
+                      : 'Google Drive: Erro na ligação ao servidor'
+                  }
+                >
+                  <a
+                    href="https://drive.google.com/drive/folders/1q2Ky5732OVNJhtDpTUFikKEjkGmonp6n"
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold border px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-lg sm:rounded-xl shrink-0 transition-all cursor-pointer ${
+                      gdriveStatus === 'synced'
+                        ? isDarkMode
+                          ? 'bg-emerald-950/60 border-emerald-800/80 text-emerald-300 hover:bg-emerald-900/60'
+                          : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
+                        : gdriveStatus === 'syncing'
+                        ? isDarkMode
+                          ? 'bg-blue-950/60 border-blue-800/80 text-blue-300 hover:bg-blue-900/60'
+                          : 'bg-blue-50 border-blue-200 text-blue-800 hover:bg-blue-100'
+                        : isDarkMode
+                          ? 'bg-amber-950/60 border-amber-800/80 text-amber-300 hover:bg-amber-900/60'
+                          : 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100'
+                    }`}
+                    id="header-gdrive-status-badge"
+                  >
+                    <div className="relative flex items-center justify-center">
+                      <Cloud className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
+                        gdriveStatus === 'synced' ? 'text-emerald-500' : gdriveStatus === 'syncing' ? 'text-blue-500 animate-pulse' : 'text-amber-500'
+                      }`} />
+                      {gdriveStatus === 'synced' && (
+                        <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>
+                      )}
+                    </div>
+                    <span className="hidden min-[520px]:inline font-mono text-[10px] sm:text-xs font-bold">
+                      {gdriveStatus === 'synced' ? 'GDrive Ativo' : gdriveStatus === 'syncing' ? 'GDrive a Guardar...' : 'GDrive Erro'}
+                    </span>
+                    <ExternalLink className="w-3 h-3 opacity-60 hidden sm:inline" />
+                  </a>
+                </Tooltip>
+              )}
+
               <div className={`hidden min-[480px]:flex items-center gap-1 text-[10px] sm:text-xs font-medium border px-2 py-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0 ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-50 border-gray-100 text-gray-500'}`}>
                 <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                 <span className="font-mono shrink-0">{getTodayFormatted()}</span>
@@ -1119,6 +1202,7 @@ export default function App() {
                     scheduledActivities={scheduledActivities}
                     progressLogs={progressLogs}
                     reminders={reminders}
+                    suggestionRules={suggestionRules}
                     onImportData={handleImportData}
                     isStandalone={isStandalone}
                   />
