@@ -4,8 +4,8 @@
   "description": "Gestor de Estimulação & Rotinas de Animação",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4f46e5",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "icons": [
     {
       "src": "/lar_santo_antonio_logo_192.png",

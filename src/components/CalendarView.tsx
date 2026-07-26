@@ -491,7 +491,25 @@ export default function CalendarView({
       const pdfWidth = 297;
       const pdfHeight = 210;
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+      const canvasAspect = canvas.width / canvas.height;
+      const pdfAspect = pdfWidth / pdfHeight;
+
+      let finalWidth = pdfWidth;
+      let finalHeight = pdfHeight;
+      let xOffset = 0;
+      let yOffset = 0;
+
+      if (canvasAspect > pdfAspect) {
+        finalWidth = pdfWidth;
+        finalHeight = pdfWidth / canvasAspect;
+        yOffset = (pdfHeight - finalHeight) / 2;
+      } else {
+        finalHeight = pdfHeight;
+        finalWidth = pdfHeight * canvasAspect;
+        xOffset = (pdfWidth - finalWidth) / 2;
+      }
+
+      pdf.addImage(imgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight, undefined, 'FAST');
 
       const sanitizedMonth = monthNames[currentMonth].toLowerCase().replace(/\s+/g, '_');
       const filename = calendarViewMode === 'mensal'

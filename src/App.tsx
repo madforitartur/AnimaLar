@@ -861,37 +861,37 @@ export default function App() {
       <div className="h-1.5 bg-gradient-to-r from-emerald-500 via-indigo-600 to-purple-500 w-full shrink-0 print:hidden"></div>
 
       {/* Primary Application Header (Hidden on Print) */}
-      <header className={`border-b py-4 px-4 md:px-10 sticky top-0 z-40 shadow-xs print:hidden transition-colors duration-200 ${isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-gray-100'}`}>
-        <div className="w-full flex flex-col gap-4">
+      <header className={`border-b py-3 px-3 sm:px-4 md:px-10 sticky top-0 z-40 shadow-xs print:hidden transition-colors duration-200 ${isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-gray-100'}`}>
+        <div className="w-full max-w-full flex flex-col gap-3">
           
           {/* Top Row: Logo & App Branding + Date + Theme Toggle */}
-          <div className="flex flex-row items-center justify-between gap-4 w-full">
+          <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 w-full min-w-0">
             {/* Logo & App Branding (Lar de Santo António) */}
-            <div className="flex items-center gap-3 sm:gap-4 select-none">
+            <div className="flex items-center gap-2.5 sm:gap-4 select-none min-w-0 flex-1">
               <img 
                 src={logoUrl} 
                 alt="Logo Lar de Santo António" 
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-gray-100 dark:border-slate-700 shadow-xs shrink-0"
+                className="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover border border-gray-100 dark:border-slate-700 shadow-xs shrink-0"
                 referrerPolicy="no-referrer"
               />
-              <div className="flex flex-col">
+              <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h1 className={`font-display font-extrabold text-xs sm:text-lg leading-tight tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-800'}`}>
+                  <h1 className={`font-display font-extrabold text-xs sm:text-lg leading-tight tracking-tight truncate ${isDarkMode ? 'text-slate-100' : 'text-slate-800'}`}>
                     Lar de Santo António
                   </h1>
                 </div>
-                <p className={`text-[8px] sm:text-xs font-medium leading-none mt-1 ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>
-                  Rua Pedro Alvares Cabral, 165 Creixomil — 4835-091
+                <p className={`text-[8px] sm:text-xs font-medium leading-none mt-0.5 sm:mt-1 truncate ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>
+                  Rua Pedro Alvares Cabral, 165 Creixomil
                 </p>
-                <p className={`text-[8px] sm:text-[10px] font-semibold font-mono mt-0.5 ${isDarkMode ? 'text-slate-500' : 'text-gray-400'}`}>
+                <p className={`hidden sm:block text-[8px] sm:text-[10px] font-semibold font-mono mt-0.5 ${isDarkMode ? 'text-slate-500' : 'text-gray-400'}`}>
                   Tel: 253 521 801
                 </p>
               </div>
             </div>
 
             {/* Time & Quick Indicator + Theme Switcher */}
-            <div className="flex items-center gap-2">
-              <div className={`flex items-center gap-1 text-[10px] sm:text-xs font-medium border px-2 py-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0 ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-50 border-gray-100 text-gray-500'}`}>
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <div className={`hidden min-[480px]:flex items-center gap-1 text-[10px] sm:text-xs font-medium border px-2 py-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0 ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-50 border-gray-100 text-gray-500'}`}>
                 <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                 <span className="font-mono shrink-0">{getTodayFormatted()}</span>
               </div>
@@ -909,12 +909,12 @@ export default function App() {
               >
                 {isDarkMode ? (
                   <>
-                    <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <Sun className="w-4 h-4 text-amber-400 shrink-0" />
                     <span className="hidden sm:inline">Modo Claro</span>
                   </>
                 ) : (
                   <>
-                    <Moon className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                    <Moon className="w-4 h-4 text-indigo-600 shrink-0" />
                     <span className="hidden sm:inline">Modo Noturno</span>
                   </>
                 )}

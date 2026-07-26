@@ -363,11 +363,24 @@ export default function PrintPreview({ scheduledActivities }: PrintPreviewProps)
       const pdfWidth = 297; // A4 landscape width in mm
       const pdfHeight = 210; // A4 landscape height in mm
       
-      // Configure to fill the entire A4 Landscape sheet perfectly from edge to edge (0 margins)
-      const xOffset = 0;
-      const yOffset = 0;
-      const finalWidth = pdfWidth;
-      const finalHeight = pdfHeight;
+      // Calculate aspect ratio fit to ensure no distortion when exporting to PDF
+      const canvasAspect = canvas.width / canvas.height;
+      const pdfAspect = pdfWidth / pdfHeight;
+
+      let finalWidth = pdfWidth;
+      let finalHeight = pdfHeight;
+      let xOffset = 0;
+      let yOffset = 0;
+
+      if (canvasAspect > pdfAspect) {
+        finalWidth = pdfWidth;
+        finalHeight = pdfWidth / canvasAspect;
+        yOffset = (pdfHeight - finalHeight) / 2;
+      } else {
+        finalHeight = pdfHeight;
+        finalWidth = pdfHeight * canvasAspect;
+        xOffset = (pdfWidth - finalWidth) / 2;
+      }
 
       pdf.addImage(imgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight, undefined, 'FAST');
 
