@@ -513,8 +513,47 @@ export default function App() {
   const [gdriveStatus, setGdriveStatus] = useState<'synced' | 'syncing' | 'error'>('synced');
   const [gdriveLastSyncedAt, setGdriveLastSyncedAt] = useState<string | null>(null);
 
-  // Load initial data from SQLite server if available
+  // Load initial data and clean up expired API key references from localStorage
   useEffect(() => {
+    // Function to cleanup expired/legacy API keys from localStorage
+    const cleanExpiredApiKeys = () => {
+      try {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key) continue;
+          const lowerKey = key.toLowerCase();
+          
+          // Identify keys storing API secrets or token credentials
+          const isApiKeyName = lowerKey.includes('api_key') ||
+            lowerKey.includes('apikey') ||
+            lowerKey.includes('gemini_key') ||
+            lowerKey.includes('firebase_key') ||
+            lowerKey.includes('secret_key');
+
+          const val = localStorage.getItem(key);
+          const containsGoogleApiKey = val && (val.includes('AIzaSy') || val.includes('AIza'));
+
+          if (isApiKeyName || containsGoogleApiKey) {
+            keysToRemove.push(key);
+          }
+        }
+
+        keysToRemove.forEach(k => {
+          try {
+            localStorage.removeItem(k);
+            console.log(`[Limpeza] Chave de API antiga/expirada removida do localStorage: "${k}"`);
+          } catch (err) {
+            console.warn(`Erro ao remover a chave "${k}" do localStorage:`, err);
+          }
+        });
+      } catch (e) {
+        console.warn('Erro na rotina de limpeza do localStorage:', e);
+      }
+    };
+
+    cleanExpiredApiKeys();
+
     if (isStandalone) return;
 
     const loadServerData = async () => {
