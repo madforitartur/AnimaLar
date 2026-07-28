@@ -44,7 +44,6 @@ import {
   Cloud,
   CloudOff,
   ExternalLink,
-  Download,
   RefreshCw
 } from 'lucide-react';
 
@@ -514,47 +513,8 @@ export default function App() {
   const [gdriveStatus, setGdriveStatus] = useState<'synced' | 'syncing' | 'error'>('synced');
   const [gdriveLastSyncedAt, setGdriveLastSyncedAt] = useState<string | null>(null);
 
-  // Load initial data and clean up expired API key references from localStorage
+  // Load initial data from SQLite server if available
   useEffect(() => {
-    // Function to cleanup expired/legacy API keys from localStorage
-    const cleanExpiredApiKeys = () => {
-      try {
-        const keysToRemove: string[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (!key) continue;
-          const lowerKey = key.toLowerCase();
-          
-          // Identify keys storing API secrets or token credentials
-          const isApiKeyName = lowerKey.includes('api_key') ||
-            lowerKey.includes('apikey') ||
-            lowerKey.includes('gemini_key') ||
-            lowerKey.includes('firebase_key') ||
-            lowerKey.includes('secret_key');
-
-          const val = localStorage.getItem(key);
-          const containsGoogleApiKey = val && (val.includes('AIzaSy') || val.includes('AIza'));
-
-          if (isApiKeyName || containsGoogleApiKey) {
-            keysToRemove.push(key);
-          }
-        }
-
-        keysToRemove.forEach(k => {
-          try {
-            localStorage.removeItem(k);
-            console.log(`[Limpeza] Chave de API antiga/expirada removida do localStorage: "${k}"`);
-          } catch (err) {
-            console.warn(`Erro ao remover a chave "${k}" do localStorage:`, err);
-          }
-        });
-      } catch (e) {
-        console.warn('Erro na rotina de limpeza do localStorage:', e);
-      }
-    };
-
-    cleanExpiredApiKeys();
-
     if (isStandalone) return;
 
     const loadServerData = async () => {
@@ -1012,27 +972,6 @@ export default function App() {
                     <ExternalLink className="w-3 h-3 opacity-60 hidden sm:inline" />
                   </a>
                 </Tooltip>
-              )}
-
-              {!isStandalone && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if ((window as any).triggerPWAInstall) {
-                      (window as any).triggerPWAInstall();
-                    }
-                  }}
-                  className={`flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border transition-all cursor-pointer shrink-0 ${
-                    isDarkMode
-                      ? 'bg-indigo-950/80 border-indigo-700/80 text-indigo-300 hover:bg-indigo-900 shadow-xs'
-                      : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 shadow-xs'
-                  }`}
-                  title="Instalar AnimaLar no ecrã principal (Samsung/Android/iOS)"
-                  id="header-install-pwa-btn"
-                >
-                  <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
-                  <span className="hidden min-[600px]:inline">Instalar App PWA</span>
-                </button>
               )}
 
               <div className={`hidden min-[480px]:flex items-center gap-1 text-[10px] sm:text-xs font-medium border px-2 py-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0 ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-50 border-gray-100 text-gray-500'}`}>

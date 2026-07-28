@@ -28,26 +28,32 @@ export function InstallPrompt() {
     const detectIOS = /iphone|ipad|ipod/.test(userAgent);
     setIsIOS(detectIOS);
 
-    const triggerPromptInstant = (promptEvent: any) => {
+    // 3. Check if user dismissed prompt recently (within last 24 hours)
+    const lastDismissed = localStorage.getItem('pwa-install-prompt-dismissed');
+    const now = Date.now();
+    const isDismissedRecently = lastDismissed && (now - parseInt(lastDismissed, 10)) < 24 * 60 * 60 * 1000;
+
+    let installTimer: any = null;
+
+    const triggerPromptWithDelay = (promptEvent: any) => {
       setDeferredPrompt(promptEvent);
-      // Show immediately for fast response
-      setShowPrompt(true);
+      if (!isDismissedRecently && isMobileOrTablet()) {
+        if (installTimer) clearTimeout(installTimer);
+        installTimer = setTimeout(() => {
+          setShowPrompt(true);
+        }, 1500); // reduced delay for quicker engagement
+      }
     };
 
     // Check if early capture grabbed the prompt event
     if ((window as any).deferredInstallPrompt) {
-      triggerPromptInstant((window as any).deferredInstallPrompt);
-    } else if (!detectIOS) {
-      // Show prompt container right away so user can see install action
-      setShowPrompt(true);
+      triggerPromptWithDelay((window as any).deferredInstallPrompt);
     }
 
-    // Listen for custom dispatch if it fires
+    // Listen for custom dispatch if it fires later
     const handlePwaInstallable = () => {
       if ((window as any).deferredInstallPrompt) {
-        triggerPromptInstant((window as any).deferredInstallPrompt);
-      } else {
-        setShowPrompt(true);
+        triggerPromptWithDelay((window as any).deferredInstallPrompt);
       }
     };
     window.addEventListener('pwa-installable', handlePwaInstallable);
@@ -56,28 +62,22 @@ export function InstallPrompt() {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       (window as any).deferredInstallPrompt = e;
-      triggerPromptInstant(e);
+      triggerPromptWithDelay(e);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Global trigger for instant manual installation from anywhere in app
-    (window as any).triggerPWAInstall = () => {
-      if ((window as any).deferredInstallPrompt) {
-        (window as any).deferredInstallPrompt.prompt();
-      } else {
-        setShowTutorial(true);
-      }
-    };
-
-    // 5. Instant display for iOS/Safari
-    if (detectIOS) {
-      setShowPrompt(true);
+    // 5. Fallback for iOS/Safari where beforeinstallprompt doesn't fire
+    if (detectIOS && !isDismissedRecently && isMobileOrTablet() && !((window as any).deferredInstallPrompt)) {
+      installTimer = setTimeout(() => {
+        setShowPrompt(true);
+      }, 4000);
     }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('pwa-installable', handlePwaInstallable);
+      if (installTimer) clearTimeout(installTimer);
     };
   }, []);
 
@@ -132,7 +132,7 @@ export function InstallPrompt() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 150, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 180 }}
-            className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-4 shrink-0 print:hidden"
+            className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white border border-indigo-100 rounded-2xl shadow-xl z-50 p-4 shrink-0 print:hidden"
             id="pwa-install-banner"
           >
             <div className="flex items-start gap-3.5">
@@ -144,7 +144,7 @@ export function InstallPrompt() {
                   className="w-12 h-12 rounded-2xl object-cover border border-slate-100 shadow-sm"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute -bottom-1 -right-1 bg-slate-800 text-white p-0.5 rounded-full shadow-xs">
+                <div className="absolute -bottom-1 -right-1 bg-indigo-600 text-white p-0.5 rounded-full shadow-xs">
                   <Download className="w-2.5 h-2.5" />
                 </div>
               </div>
