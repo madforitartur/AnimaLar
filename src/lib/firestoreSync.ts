@@ -1,4 +1,3 @@
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export interface AppStateData {
@@ -9,61 +8,14 @@ export interface AppStateData {
   suggestionRules?: any;
 }
 
-/**
- * Saves current application data to Firestore under 'appData/mainState'
- */
-export async function syncAppDataToFirestore(data: AppStateData): Promise<boolean> {
-  if (!db) {
-    return false;
-  }
-  try {
-    const docRef = doc(db, 'appData', 'mainState');
-    await setDoc(docRef, {
-      ...data,
-      updatedAt: new Date().toISOString(),
-    }, { merge: true });
-    console.log('[Firestore] Dados sincronizados com sucesso.');
-    return true;
-  } catch (err) {
-    console.error('[Firestore] Erro ao sincronizar dados:', err);
-    return false;
-  }
+export async function syncAppDataToFirestore(_data: AppStateData): Promise<boolean> {
+  return false;
 }
 
-/**
- * Loads application data from Firestore 'appData/mainState'
- */
 export async function loadAppDataFromFirestore(): Promise<AppStateData | null> {
-  if (!db) {
-    return null;
-  }
-  try {
-    const docRef = doc(db, 'appData', 'mainState');
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      console.log('[Firestore] Dados carregados do Firestore com sucesso.');
-      return docSnap.data() as AppStateData;
-    }
-    return null;
-  } catch (err) {
-    console.error('[Firestore] Erro ao carregar dados:', err);
-    return null;
-  }
+  return null;
 }
 
-/**
- * Subscribes to real-time updates from Firestore 'appData/mainState'
- */
-export function subscribeToFirestoreData(onData: (data: AppStateData) => void) {
-  if (!db) {
-    return () => {};
-  }
-  const docRef = doc(db, 'appData', 'mainState');
-  return onSnapshot(docRef, (snapshot) => {
-    if (snapshot.exists()) {
-      onData(snapshot.data() as AppStateData);
-    }
-  }, (error) => {
-    console.warn('[Firestore] Erro na subscrição em tempo real:', error);
-  });
+export function subscribeToFirestoreData(_onData: (data: AppStateData) => void) {
+  return () => {};
 }

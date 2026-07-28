@@ -1,6 +1,5 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
-import './firebase'; // Initialize Firebase App, Auth, and Firestore
 import App from './App';
 import { ConfirmProvider } from './hooks/useConfirm';
 import './index.css';
