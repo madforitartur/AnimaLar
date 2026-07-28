@@ -28,32 +28,26 @@ export function InstallPrompt() {
     const detectIOS = /iphone|ipad|ipod/.test(userAgent);
     setIsIOS(detectIOS);
 
-    // 3. Check if user dismissed prompt recently (within last 24 hours)
-    const lastDismissed = localStorage.getItem('pwa-install-prompt-dismissed');
-    const now = Date.now();
-    const isDismissedRecently = lastDismissed && (now - parseInt(lastDismissed, 10)) < 24 * 60 * 60 * 1000;
-
-    let installTimer: any = null;
-
-    const triggerPromptWithDelay = (promptEvent: any) => {
+    const triggerPromptInstant = (promptEvent: any) => {
       setDeferredPrompt(promptEvent);
-      if (!isDismissedRecently && isMobileOrTablet()) {
-        if (installTimer) clearTimeout(installTimer);
-        installTimer = setTimeout(() => {
-          setShowPrompt(true);
-        }, 1500); // reduced delay for quicker engagement
-      }
+      // Show immediately for fast response
+      setShowPrompt(true);
     };
 
     // Check if early capture grabbed the prompt event
     if ((window as any).deferredInstallPrompt) {
-      triggerPromptWithDelay((window as any).deferredInstallPrompt);
+      triggerPromptInstant((window as any).deferredInstallPrompt);
+    } else if (!detectIOS) {
+      // Show prompt container right away so user can see install action
+      setShowPrompt(true);
     }
 
-    // Listen for custom dispatch if it fires later
+    // Listen for custom dispatch if it fires
     const handlePwaInstallable = () => {
       if ((window as any).deferredInstallPrompt) {
-        triggerPromptWithDelay((window as any).deferredInstallPrompt);
+        triggerPromptInstant((window as any).deferredInstallPrompt);
+      } else {
+        setShowPrompt(true);
       }
     };
     window.addEventListener('pwa-installable', handlePwaInstallable);
@@ -62,22 +56,28 @@ export function InstallPrompt() {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       (window as any).deferredInstallPrompt = e;
-      triggerPromptWithDelay(e);
+      triggerPromptInstant(e);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // 5. Fallback for iOS/Safari where beforeinstallprompt doesn't fire
-    if (detectIOS && !isDismissedRecently && isMobileOrTablet() && !((window as any).deferredInstallPrompt)) {
-      installTimer = setTimeout(() => {
-        setShowPrompt(true);
-      }, 4000);
+    // Global trigger for instant manual installation from anywhere in app
+    (window as any).triggerPWAInstall = () => {
+      if ((window as any).deferredInstallPrompt) {
+        (window as any).deferredInstallPrompt.prompt();
+      } else {
+        setShowTutorial(true);
+      }
+    };
+
+    // 5. Instant display for iOS/Safari
+    if (detectIOS) {
+      setShowPrompt(true);
     }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('pwa-installable', handlePwaInstallable);
-      if (installTimer) clearTimeout(installTimer);
     };
   }, []);
 

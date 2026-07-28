@@ -13,8 +13,10 @@ export interface AppStateData {
  * Saves current application data to Firestore under 'appData/mainState'
  */
 export async function syncAppDataToFirestore(data: AppStateData): Promise<boolean> {
+  if (!db) {
+    return false;
+  }
   try {
-    if (!db) return false;
     const docRef = doc(db, 'appData', 'mainState');
     await setDoc(docRef, {
       ...data,
@@ -32,8 +34,10 @@ export async function syncAppDataToFirestore(data: AppStateData): Promise<boolea
  * Loads application data from Firestore 'appData/mainState'
  */
 export async function loadAppDataFromFirestore(): Promise<AppStateData | null> {
+  if (!db) {
+    return null;
+  }
   try {
-    if (!db) return null;
     const docRef = doc(db, 'appData', 'mainState');
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
@@ -51,7 +55,9 @@ export async function loadAppDataFromFirestore(): Promise<AppStateData | null> {
  * Subscribes to real-time updates from Firestore 'appData/mainState'
  */
 export function subscribeToFirestoreData(onData: (data: AppStateData) => void) {
-  if (!db) return () => {};
+  if (!db) {
+    return () => {};
+  }
   const docRef = doc(db, 'appData', 'mainState');
   return onSnapshot(docRef, (snapshot) => {
     if (snapshot.exists()) {
