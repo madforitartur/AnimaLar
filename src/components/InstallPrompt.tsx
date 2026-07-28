@@ -132,7 +132,7 @@ export function InstallPrompt() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 150, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 180 }}
-            className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white border border-indigo-100 rounded-2xl shadow-xl z-50 p-4 shrink-0 print:hidden"
+            className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-4 shrink-0 print:hidden"
             id="pwa-install-banner"
           >
             <div className="flex items-start gap-3.5">
@@ -144,7 +144,7 @@ export function InstallPrompt() {
                   className="w-12 h-12 rounded-2xl object-cover border border-slate-100 shadow-sm"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute -bottom-1 -right-1 bg-indigo-600 text-white p-0.5 rounded-full shadow-xs">
+                <div className="absolute -bottom-1 -right-1 bg-slate-800 text-white p-0.5 rounded-full shadow-xs">
                   <Download className="w-2.5 h-2.5" />
                 </div>
               </div>
