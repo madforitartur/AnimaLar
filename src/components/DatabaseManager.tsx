@@ -88,7 +88,9 @@ export default function DatabaseManager({
     try {
       const res = await fetch('/api/gdrive/upload', { method: 'POST' });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Erro ao guardar no Google Drive');
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || data.reason || 'Erro ao guardar no Google Drive');
+      }
       setGdriveLastSynced(new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }));
       setGdriveMessage('Base de dados guardada com sucesso na pasta do Google Drive!');
     } catch (err: any) {

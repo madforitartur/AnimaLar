@@ -613,6 +613,8 @@ async function startServer() {
     const listRes = await drive.files.list({
       q: `'${GDRIVE_FOLDER_ID}' in parents and name = '${fileName}' and trashed = false`,
       fields: "files(id, name, webViewLink)",
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
     });
 
     const files = listRes.data.files || [];
@@ -629,7 +631,9 @@ async function startServer() {
         fileId,
         media,
         fields: "id, name, webViewLink, modifiedTime",
+        supportsAllDrives: true,
       });
+      console.log(`[Google Drive] Ficheiro ${fileName} (ID: ${fileId}) atualizado com sucesso.`);
       return res.data;
     } else {
       const res = await drive.files.create({
@@ -639,14 +643,16 @@ async function startServer() {
         },
         media,
         fields: "id, name, webViewLink, modifiedTime",
+        supportsAllDrives: true,
       });
+      console.log(`[Google Drive] Ficheiro ${fileName} (ID: ${res.data.id}) criado com sucesso na pasta ${GDRIVE_FOLDER_ID}.`);
       return res.data;
     }
   }
 
   async function syncToGoogleDrive() {
     if (!process.env.GOOGLE_OAUTH_ACCESS_TOKEN) {
-      return { success: false, reason: "Token OAuth ausente" };
+      throw new Error("Sessão do Google Drive não autorizada (Token OAuth ausente). Conceda permissão de acesso ao Google Drive.");
     }
     const backupPayload = {
       residents: db.data.residents,
@@ -661,24 +667,26 @@ async function startServer() {
       institution: "Lar de Santo António"
     };
 
+    console.log("[Google Drive] A iniciar carregamento da base de dados para o Google Drive...");
     const jsonRes = await uploadToGoogleDrive(
       "animalar_database.json",
       "application/json",
       JSON.stringify(backupPayload, null, 2)
     );
 
+    let dbRes = null;
     try {
       const dbBuffer = await fs.readFile(dbPath);
-      await uploadToGoogleDrive("animalar.db", "application/x-sqlite3", dbBuffer);
-    } catch (e) {
-      console.warn("Aviso ao guardar ficheiro animalar.db no Google Drive:", e);
+      dbRes = await uploadToGoogleDrive("animalar.db", "application/x-sqlite3", dbBuffer);
+    } catch (e: any) {
+      console.warn("[Google Drive] Aviso ao guardar ficheiro animalar.db no Google Drive:", e?.message || e);
     }
 
     return {
       success: true,
       lastSyncedAt: new Date().toISOString(),
       folderUrl: `https://drive.google.com/drive/folders/${GDRIVE_FOLDER_ID}`,
-      fileUrl: jsonRes.webViewLink
+      fileUrl: jsonRes.webViewLink || dbRes?.webViewLink
     };
   }
 
@@ -703,7 +711,7 @@ async function startServer() {
       });
     } catch (err: any) {
       console.error("Erro ao guardar na pasta do Google Drive:", err);
-      res.status(500).json({ error: err.message || "Erro ao guardar no Google Drive." });
+      res.status(500).json({ success: false, error: err.message || "Erro ao guardar no Google Drive." });
     }
   });
 
@@ -719,6 +727,8 @@ async function startServer() {
       const listDbRes = await drive.files.list({
         q: `'${GDRIVE_FOLDER_ID}' in parents and (name = 'animalar.db' or name = 'AnimaLar.db') and trashed = false`,
         fields: "files(id, name, modifiedTime)",
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
       });
 
       const dbFiles = listDbRes.data.files || [];
@@ -749,6 +759,8 @@ async function startServer() {
       const listJsonRes = await drive.files.list({
         q: `'${GDRIVE_FOLDER_ID}' in parents and name = 'animalar_database.json' and trashed = false`,
         fields: "files(id, name, modifiedTime)",
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
       });
 
       const jsonFiles = listJsonRes.data.files || [];
