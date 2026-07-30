@@ -37,6 +37,8 @@ class JSONDatabase {
     progressLogs: any[];
     reminders: any[];
     suggestionRules: any | null;
+    activities: any[];
+    settings: any;
   };
 
   constructor(dbPath: string) {
@@ -46,7 +48,9 @@ class JSONDatabase {
       scheduledActivities: [],
       progressLogs: [],
       reminders: [],
-      suggestionRules: null
+      suggestionRules: null,
+      activities: [],
+      settings: {}
     };
   }
 
@@ -62,6 +66,8 @@ class JSONDatabase {
           this.data.progressLogs = parsed.progressLogs || [];
           this.data.reminders = parsed.reminders || [];
           this.data.suggestionRules = parsed.suggestionRules || null;
+          this.data.activities = parsed.activities || [];
+          this.data.settings = parsed.settings || {};
           console.log("Base de dados JSON carregada com sucesso a partir de:", this.dbPath);
           return;
         }
@@ -443,7 +449,9 @@ async function startServer() {
         scheduledActivities: parsedScheduled,
         progressLogs: parsedLogs,
         reminders: parsedReminders,
-        suggestionRules: db.data.suggestionRules || null
+        suggestionRules: db.data.suggestionRules || null,
+        activities: db.data.activities || [],
+        settings: db.data.settings || {}
       });
     } catch (err: any) {
       console.error("Erro ao obter dados do SQLite:", err);
@@ -454,10 +462,16 @@ async function startServer() {
   // 2. Sync all data from React to SQLite (transactional clear & load)
   app.post("/api/sync", async (req, res) => {
     try {
-      const { residents, scheduledActivities, progressLogs, reminders, suggestionRules } = req.body;
+      const { residents, scheduledActivities, progressLogs, reminders, suggestionRules, activities, settings } = req.body;
 
       if (suggestionRules) {
         db.data.suggestionRules = suggestionRules;
+      }
+      if (activities && Array.isArray(activities)) {
+        db.data.activities = activities;
+      }
+      if (settings && typeof settings === 'object') {
+        db.data.settings = settings;
       }
 
       await db.run("BEGIN TRANSACTION");
@@ -499,13 +513,15 @@ async function startServer() {
       }
 
       await db.run("COMMIT");
+      await db.save();
+
       // Update AnimaLar.html at the project root with the new data
       await generateOfflineHtmlAndSaveToDisk();
       
       // Auto-sync to Google Drive in background if token available
       syncToGoogleDrive().catch(e => console.warn("Aviso ao sincronizar no Google Drive:", e.message));
 
-      res.json({ success: true, message: "Dados sincronizados no SQLite com sucesso!" });
+      res.json({ success: true, message: "Dados sincronizados no SQLite e Google Drive com sucesso!" });
     } catch (err: any) {
       try {
         await db.run("ROLLBACK");
@@ -638,6 +654,8 @@ async function startServer() {
       progressLogs: db.data.progressLogs,
       reminders: db.data.reminders,
       suggestionRules: db.data.suggestionRules || null,
+      activities: db.data.activities || [],
+      settings: db.data.settings || {},
       lastSyncedAt: new Date().toISOString(),
       folderId: GDRIVE_FOLDER_ID,
       institution: "Lar de Santo António"
@@ -789,12 +807,19 @@ async function startServer() {
           if (parsed.suggestionRules) {
             db.data.suggestionRules = parsed.suggestionRules;
           }
+          if (parsed.activities) {
+            db.data.activities = parsed.activities;
+          }
+          if (parsed.settings) {
+            db.data.settings = parsed.settings;
+          }
         }
       }
     } catch (err: any) {
       console.warn("[Google Drive] Aviso ao carregar animalar_database.json:", err?.message || err);
     }
 
+    await db.save();
     await generateOfflineHtmlAndSaveToDisk();
     return true;
   }
@@ -836,7 +861,9 @@ async function startServer() {
           scheduledActivities: parsedScheduled,
           progressLogs: parsedLogs,
           reminders: parsedReminders,
-          suggestionRules: db.data.suggestionRules || null
+          suggestionRules: db.data.suggestionRules || null,
+          activities: db.data.activities || [],
+          settings: db.data.settings || {}
         }
       });
     } catch (err: any) {

@@ -533,6 +533,17 @@ export default function App() {
             if (dbData.suggestionRules) {
               setSuggestionRules(dbData.suggestionRules);
             }
+            if (dbData.activities && Array.isArray(dbData.activities) && dbData.activities.length > 0) {
+              setActivities(dbData.activities);
+            }
+            if (dbData.settings) {
+              if (typeof dbData.settings.isDarkMode === 'boolean') {
+                setIsDarkMode(dbData.settings.isDarkMode);
+              }
+              if (Array.isArray(dbData.settings.deletedLeituraJornalDates)) {
+                setDeletedLeituraJornalDates(dbData.settings.deletedLeituraJornalDates);
+              }
+            }
             console.log("Dados sincronizados da base de dados SQLite do servidor.");
             setGdriveStatus('synced');
             setGdriveLastSyncedAt(new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }));
@@ -546,7 +557,12 @@ export default function App() {
                 scheduledActivities,
                 progressLogs,
                 reminders,
-                suggestionRules
+                suggestionRules,
+                activities,
+                settings: {
+                  isDarkMode,
+                  deletedLeituraJornalDates
+                }
               })
             });
             if (syncRes.ok) {
@@ -568,7 +584,7 @@ export default function App() {
     loadServerData();
   }, []);
 
-  // Synchronize with SQLite server on background state change
+  // Synchronize with SQLite server and Google Drive on background state change
   useEffect(() => {
     if (isStandalone) return;
 
@@ -583,7 +599,12 @@ export default function App() {
             scheduledActivities,
             progressLogs,
             reminders,
-            suggestionRules
+            suggestionRules,
+            activities,
+            settings: {
+              isDarkMode,
+              deletedLeituraJornalDates
+            }
           })
         });
         if (response.ok) {
@@ -600,7 +621,7 @@ export default function App() {
 
     const timer = setTimeout(syncWithServer, 500);
     return () => clearTimeout(timer);
-  }, [residents, scheduledActivities, progressLogs, reminders, suggestionRules]);
+  }, [residents, scheduledActivities, progressLogs, reminders, suggestionRules, activities, isDarkMode, deletedLeituraJornalDates]);
 
   // Batch Logging Modal State
   const [activeLogActivity, setActiveLogActivity] = useState<ScheduledActivity | null>(null);
@@ -654,12 +675,19 @@ export default function App() {
     progressLogs: ResidentProgressLog[];
     reminders: Reminder[];
     suggestionRules?: SuggestionRules;
+    activities?: Activity[];
+    settings?: any;
   }) => {
     if (data.residents) setResidents(data.residents);
     if (data.scheduledActivities) setScheduledActivities(data.scheduledActivities);
     if (data.progressLogs) setProgressLogs(data.progressLogs);
     if (data.reminders) setReminders(ensureUniqueReminders(data.reminders));
     if (data.suggestionRules) setSuggestionRules(data.suggestionRules);
+    if (data.activities && Array.isArray(data.activities)) setActivities(data.activities);
+    if (data.settings) {
+      if (typeof data.settings.isDarkMode === 'boolean') setIsDarkMode(data.settings.isDarkMode);
+      if (Array.isArray(data.settings.deletedLeituraJornalDates)) setDeletedLeituraJornalDates(data.settings.deletedLeituraJornalDates);
+    }
   };
 
   // Handler: Add New Resident

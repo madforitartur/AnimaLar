@@ -38,6 +38,8 @@ interface DatabaseManagerProps {
     progressLogs: ResidentProgressLog[];
     reminders: Reminder[];
     suggestionRules?: SuggestionRules;
+    activities?: any[];
+    settings?: any;
   }) => void;
   isStandalone: boolean;
 }
