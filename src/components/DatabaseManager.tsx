@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Resident, ScheduledActivity, ResidentProgressLog, Reminder, SuggestionRules } from '../types';
 import { useConfirm } from '../hooks/useConfirm';
+import { syncToFirestore, restoreFromFirestore } from '../lib/firebase';
 import {
   Database,
   Download,
@@ -62,68 +63,58 @@ export default function DatabaseManager({
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Google Drive states & handlers
-  const [gdriveConfigured, setGdriveConfigured] = useState(false);
-  const [gdriveSyncing, setGdriveSyncing] = useState(false);
-  const [gdriveRestoring, setGdriveRestoring] = useState(false);
-  const [gdriveLastSynced, setGdriveLastSynced] = useState<string | null>(null);
-  const [gdriveMessage, setGdriveMessage] = useState<string | null>(null);
+  // Firebase Firestore states & handlers
+  const [fbSyncing, setFbSyncing] = useState(false);
+  const [fbRestoring, setFbRestoring] = useState(false);
+  const [fbLastSynced, setFbLastSynced] = useState<string | null>(null);
+  const [fbMessage, setFbMessage] = useState<string | null>(null);
 
-  const GDRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1q2Ky5732OVNJhtDpTUFikKEjkGmonp6n";
-
-  useEffect(() => {
-    if (!isStandalone) {
-      fetch('/api/gdrive/status')
-        .then(res => res.json())
-        .then(data => {
-          setGdriveConfigured(data.configured);
-        })
-        .catch(() => {});
-    }
-  }, [isStandalone]);
-
-  const handleGDriveUpload = async () => {
-    setGdriveSyncing(true);
-    setGdriveMessage(null);
+  const handleFirebaseSync = async () => {
+    setFbSyncing(true);
+    setFbMessage(null);
     try {
-      const res = await fetch('/api/gdrive/upload', { method: 'POST' });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || data.reason || 'Erro ao guardar no Google Drive');
+      const res = await syncToFirestore({
+        residents,
+        scheduledActivities,
+        progressLogs,
+        reminders,
+        suggestionRules
+      });
+      if (res?.success) {
+        setFbLastSynced(new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }));
+        setFbMessage('Base de dados guardada com sucesso no Firebase Cloud Firestore!');
       }
-      setGdriveLastSynced(new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }));
-      setGdriveMessage('Base de dados guardada com sucesso na pasta do Google Drive!');
     } catch (err: any) {
-      setGdriveMessage('Erro: ' + err.message);
+      setFbMessage('Erro no Firebase: ' + err.message);
     } finally {
-      setGdriveSyncing(false);
+      setFbSyncing(false);
     }
   };
 
-  const handleGDriveRestore = async () => {
+  const handleFirebaseRestore = async () => {
     const confirmed = await confirm({
-      title: 'Restaurar do Google Drive',
-      message: 'Deseja importar a base de dados guardada na pasta do Google Drive? Esta ação irá atualizar os dados atuais da aplicação.',
+      title: 'Restaurar do Firebase Firestore',
+      message: 'Deseja importar os dados salvaguardados no Firebase Cloud Firestore?',
       confirmText: 'Sim, Restaurar',
       cancelText: 'Cancelar',
       variant: 'warning'
     });
     if (!confirmed) return;
 
-    setGdriveRestoring(true);
-    setGdriveMessage(null);
+    setFbRestoring(true);
+    setFbMessage(null);
     try {
-      const res = await fetch('/api/gdrive/restore', { method: 'POST' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Erro ao restaurar do Google Drive');
-      if (data.data) {
-        onImportData(data.data);
+      const data = await restoreFromFirestore();
+      if (data) {
+        onImportData(data as any);
+        setFbMessage('Base de dados restaurada com sucesso a partir do Firebase Cloud Firestore!');
+      } else {
+        setFbMessage('Nenhum registo encontrado no Firebase Cloud Firestore.');
       }
-      setGdriveMessage('Base de dados restaurada com sucesso a partir do Google Drive!');
     } catch (err: any) {
-      setGdriveMessage('Erro: ' + err.message);
+      setFbMessage('Erro ao restaurar do Firebase: ' + err.message);
     } finally {
-      setGdriveRestoring(false);
+      setFbRestoring(false);
     }
   };
 
@@ -467,7 +458,7 @@ export default function DatabaseManager({
             </h2>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            Configure, sincronize, faça cópias de segurança da sua base de dados na pasta institucional do Google Drive, descarregue o ficheiro SQLite físico e exporte a aplicação para trabalhar 100% offline.
+            Sincronize, faça cópias de segurança da sua base de dados no Firebase Cloud, descarregue o ficheiro SQLite físico ou exporte a aplicação para trabalhar 100% offline.
           </p>
         </div>
 
@@ -498,82 +489,69 @@ export default function DatabaseManager({
         </div>
       </div>
 
-      {/* Google Drive Primary Sync Card */}
-      {!isStandalone && (
-        <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white border border-indigo-800 rounded-2xl p-6 shadow-md space-y-5">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-indigo-800/80 pb-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-blue-500/20 rounded-xl border border-blue-400/30 text-blue-300">
-                  <Cloud className="w-5 h-5" />
-                </div>
-                <h3 className="font-display font-bold text-base text-white">
-                  Base de Dados no Google Drive (Pasta Institucional)
-                </h3>
-                <span className="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                  Sincronização Ativa
-                </span>
+      {/* Firebase Cloud Firestore Sync Card */}
+      <div className="bg-gradient-to-r from-amber-900 via-orange-900 to-slate-900 text-white border border-orange-800 rounded-2xl p-6 shadow-md space-y-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-orange-800/80 pb-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-amber-500/20 rounded-xl border border-amber-400/30 text-amber-300">
+                <Flame className="w-5 h-5 text-amber-400" />
               </div>
-              <p className="text-xs text-indigo-200/80 leading-relaxed pl-9">
-                A base de dados é automaticamente preservada na sua pasta do Google Drive em <strong>animalar_database.json</strong> e <strong>animalar.db</strong>.
-              </p>
+              <h3 className="font-display font-bold text-base text-white">
+                Firebase Cloud Firestore (Nuvem em Tempo Real)
+              </h3>
+              <span className="bg-amber-500/20 border border-amber-400/40 text-amber-300 text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+                Ativo
+              </span>
             </div>
-
-            <a
-              href={GDRIVE_FOLDER_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 text-xs font-bold bg-white/10 hover:bg-white/20 text-blue-200 border border-white/20 px-4 py-2.5 rounded-xl transition-all shrink-0 self-start md:self-auto"
-            >
-              <Folder className="w-4 h-4 text-blue-300" />
-              Abrir Pasta no Google Drive
-              <ExternalLink className="w-3.5 h-3.5 opacity-70" />
-            </a>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-            <button
-              onClick={handleGDriveUpload}
-              disabled={gdriveSyncing || gdriveRestoring}
-              className="flex items-center justify-center gap-2 text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white py-3 px-5 rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-50"
-            >
-              <CloudUpload className={`w-4 h-4 ${gdriveSyncing ? 'animate-bounce' : ''}`} />
-              {gdriveSyncing ? 'A guardar no Google Drive...' : 'Guardar Agora no Google Drive'}
-            </button>
-
-            <button
-              onClick={handleGDriveRestore}
-              disabled={gdriveSyncing || gdriveRestoring}
-              className="flex items-center justify-center gap-2 text-xs font-bold bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-5 rounded-xl transition-all cursor-pointer disabled:opacity-50"
-            >
-              <CloudDownload className={`w-4 h-4 text-indigo-300 ${gdriveRestoring ? 'animate-bounce' : ''}`} />
-              {gdriveRestoring ? 'A restaurar do Google Drive...' : 'Restaurar do Google Drive'}
-            </button>
-          </div>
-
-          {gdriveLastSynced && (
-            <p className="text-[11px] text-indigo-300/80 font-mono">
-              Última cópia no Google Drive: {gdriveLastSynced}
+            <p className="text-xs text-orange-200/80 leading-relaxed pl-9">
+              Sincronização redundante e salvaguarda persistente na infraestrutura Cloud Firestore do Firebase (Projeto <strong>rich-aloe-nv7sv</strong>).
             </p>
-          )}
-
-          {gdriveMessage && (
-            <div className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 ${
-              gdriveMessage.startsWith('Erro') 
-                ? 'bg-red-500/20 text-red-200 border border-red-500/30' 
-                : 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/30'
-            }`}>
-              {gdriveMessage.startsWith('Erro') ? (
-                <AlertTriangle className="w-4 h-4 shrink-0 text-red-300" />
-              ) : (
-                <CheckCircle className="w-4 h-4 shrink-0 text-emerald-300" />
-              )}
-              <span>{gdriveMessage}</span>
-            </div>
-          )}
+          </div>
         </div>
-      )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          <button
+            onClick={handleFirebaseSync}
+            disabled={fbSyncing || fbRestoring}
+            className="flex items-center justify-center gap-2 text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white py-3 px-5 rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-50"
+          >
+            <CloudUpload className={`w-4 h-4 ${fbSyncing ? 'animate-bounce' : ''}`} />
+            {fbSyncing ? 'A guardar no Firebase...' : 'Guardar Agora no Firebase'}
+          </button>
+
+          <button
+            onClick={handleFirebaseRestore}
+            disabled={fbSyncing || fbRestoring}
+            className="flex items-center justify-center gap-2 text-xs font-bold bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-5 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+          >
+            <CloudDownload className={`w-4 h-4 text-amber-300 ${fbRestoring ? 'animate-bounce' : ''}`} />
+            {fbRestoring ? 'A restaurar do Firebase...' : 'Restaurar do Firebase'}
+          </button>
+        </div>
+
+        {fbLastSynced && (
+          <p className="text-[11px] text-orange-300/80 font-mono">
+            Última cópia no Firebase: {fbLastSynced}
+          </p>
+        )}
+
+        {fbMessage && (
+          <div className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 ${
+            fbMessage.startsWith('Erro') 
+              ? 'bg-red-500/20 text-red-200 border border-red-500/30' 
+              : 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/30'
+          }`}>
+            {fbMessage.startsWith('Erro') ? (
+              <AlertTriangle className="w-4 h-4 shrink-0 text-red-300" />
+            ) : (
+              <CheckCircle className="w-4 h-4 shrink-0 text-emerald-300" />
+            )}
+            <span>{fbMessage}</span>
+          </div>
+        )}
+      </div>
 
       {/* Primary Panels Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

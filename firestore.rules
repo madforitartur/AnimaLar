@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny rule
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /residents/{residentId} {
+      allow read, write: if true;
+    }
+
+    match /scheduledActivities/{activityId} {
+      allow read, write: if true;
+    }
+
+    match /progressLogs/{logId} {
+      allow read, write: if true;
+    }
+
+    match /reminders/{reminderId} {
+      allow read, write: if true;
+    }
+
+    match /appData/{docId} {
+      allow read, write: if true;
+    }
+  }
+}

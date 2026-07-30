@@ -17,6 +17,7 @@ import PrintPreview from './components/PrintPreview';
 import DatabaseManager from './components/DatabaseManager';
 import ActivitiesPanel from './components/ActivitiesPanel';
 import SupportMaterialsPanel from './components/SupportMaterialsPanel';
+import { syncToFirestore, subscribeToFirestore } from './lib/firebase';
 import { Activity } from './types';
 import Tooltip from './components/Tooltip';
 import { InstallPrompt } from './components/InstallPrompt';
@@ -41,9 +42,6 @@ import {
   BookOpen,
   Sun,
   Moon,
-  Cloud,
-  CloudOff,
-  ExternalLink,
   RefreshCw
 } from 'lucide-react';
 
@@ -509,17 +507,45 @@ export default function App() {
     return () => clearInterval(intervalId);
   }, [scheduledActivities, notificationPermission, notifiedIds]);
 
-  // Google Drive Status State
-  const [gdriveStatus, setGdriveStatus] = useState<'synced' | 'syncing' | 'error'>('synced');
-  const [gdriveLastSyncedAt, setGdriveLastSyncedAt] = useState<string | null>(null);
-
-  // Load initial data from SQLite server if available
+  // Load initial data from SQLite server & subscribe to Firebase Firestore real-time updates
   useEffect(() => {
     if (isStandalone) return;
 
+    // Real-time listener for Firebase Firestore persistence
+    const unsubscribeFirestore = subscribeToFirestore((data) => {
+      if (data) {
+        if (Array.isArray(data.residents) && data.residents.length > 0) {
+          setResidents(data.residents);
+        }
+        if (Array.isArray(data.scheduledActivities)) {
+          setScheduledActivities(data.scheduledActivities);
+        }
+        if (Array.isArray(data.progressLogs)) {
+          setProgressLogs(data.progressLogs);
+        }
+        if (Array.isArray(data.reminders)) {
+          setReminders(ensureUniqueReminders(data.reminders));
+        }
+        if (data.suggestionRules) {
+          setSuggestionRules(data.suggestionRules);
+        }
+        if (Array.isArray(data.activities) && data.activities.length > 0) {
+          setActivities(data.activities);
+        }
+        if (data.settings) {
+          if (typeof data.settings.isDarkMode === 'boolean') {
+            setIsDarkMode(data.settings.isDarkMode);
+          }
+          if (Array.isArray(data.settings.deletedLeituraJornalDates)) {
+            setDeletedLeituraJornalDates(data.settings.deletedLeituraJornalDates);
+          }
+        }
+        console.log("[Firebase Firestore] Estados da aplicação sincronizados em tempo real.");
+      }
+    });
+
     const loadServerData = async () => {
       try {
-        setGdriveStatus('syncing');
         const response = await fetch('/api/data');
         if (response.ok) {
           const dbData = await response.json();
@@ -545,81 +571,56 @@ export default function App() {
               }
             }
             console.log("Dados sincronizados da base de dados SQLite do servidor.");
-            setGdriveStatus('synced');
-            setGdriveLastSyncedAt(new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }));
-          } else {
-            console.log("A base de dados SQLite está vazia. Enviando dados locais para povoar...");
-            const syncRes = await fetch('/api/sync', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                residents,
-                scheduledActivities,
-                progressLogs,
-                reminders,
-                suggestionRules,
-                activities,
-                settings: {
-                  isDarkMode,
-                  deletedLeituraJornalDates
-                }
-              })
-            });
-            if (syncRes.ok) {
-              setGdriveStatus('synced');
-              setGdriveLastSyncedAt(new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }));
-            } else {
-              setGdriveStatus('error');
-            }
           }
-        } else {
-          setGdriveStatus('error');
         }
       } catch (err) {
         console.warn("Servidor SQLite não acessível. Usando armazenamento local offline.", err);
-        setGdriveStatus('error');
       }
     };
 
     loadServerData();
+
+    return () => {
+      if (unsubscribeFirestore) unsubscribeFirestore();
+    };
   }, []);
 
-  // Synchronize with SQLite server and Google Drive on background state change
+  // Synchronize with SQLite server and Firebase Firestore on background state change
   useEffect(() => {
     if (isStandalone) return;
 
-    const syncWithServer = async () => {
+    const syncWithServerAndFirestore = async () => {
+      const payload = {
+        residents,
+        scheduledActivities,
+        progressLogs,
+        reminders,
+        suggestionRules,
+        activities,
+        settings: {
+          isDarkMode,
+          deletedLeituraJornalDates
+        }
+      };
+
       try {
-        setGdriveStatus('syncing');
-        const response = await fetch('/api/sync', {
+        await fetch('/api/sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            residents,
-            scheduledActivities,
-            progressLogs,
-            reminders,
-            suggestionRules,
-            activities,
-            settings: {
-              isDarkMode,
-              deletedLeituraJornalDates
-            }
-          })
+          body: JSON.stringify(payload)
         });
-        if (response.ok) {
-          setGdriveStatus('synced');
-          setGdriveLastSyncedAt(new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }));
-        } else {
-          setGdriveStatus('error');
-        }
       } catch (err) {
         console.warn("Erro ao sincronizar dados com SQLite do servidor:", err);
-        setGdriveStatus('error');
+      }
+
+      try {
+        await syncToFirestore(payload);
+      } catch (err) {
+        console.warn("Erro ao sincronizar dados com Firebase Firestore:", err);
       }
     };
 
-    const timer = setTimeout(syncWithServer, 500);
+    const timer = setTimeout(syncWithServerAndFirestore, 500);
     return () => clearTimeout(timer);
   }, [residents, scheduledActivities, progressLogs, reminders, suggestionRules, activities, isDarkMode, deletedLeituraJornalDates]);
 
@@ -952,55 +953,8 @@ export default function App() {
               </div>
             </div>
 
-            {/* Time & Quick Indicator + Google Drive Status + Theme Switcher */}
+            {/* Time & Quick Indicator + Theme Switcher */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              
-              {/* Google Drive Status Indicator */}
-              {!isStandalone && (
-                <Tooltip 
-                  position="bottom" 
-                  content={
-                    gdriveStatus === 'synced'
-                      ? `Google Drive: Sincronizado com Sucesso (${gdriveLastSyncedAt ? 'às ' + gdriveLastSyncedAt : 'Pasta Institucional'})`
-                      : gdriveStatus === 'syncing'
-                      ? 'Google Drive: A guardar dados na pasta...'
-                      : 'Google Drive: Erro na ligação ao servidor'
-                  }
-                >
-                  <a
-                    href="https://drive.google.com/drive/folders/1q2Ky5732OVNJhtDpTUFikKEjkGmonp6n"
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold border px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-lg sm:rounded-xl shrink-0 transition-all cursor-pointer ${
-                      gdriveStatus === 'synced'
-                        ? isDarkMode
-                          ? 'bg-emerald-950/60 border-emerald-800/80 text-emerald-300 hover:bg-emerald-900/60'
-                          : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
-                        : gdriveStatus === 'syncing'
-                        ? isDarkMode
-                          ? 'bg-blue-950/60 border-blue-800/80 text-blue-300 hover:bg-blue-900/60'
-                          : 'bg-blue-50 border-blue-200 text-blue-800 hover:bg-blue-100'
-                        : isDarkMode
-                          ? 'bg-amber-950/60 border-amber-800/80 text-amber-300 hover:bg-amber-900/60'
-                          : 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100'
-                    }`}
-                    id="header-gdrive-status-badge"
-                  >
-                    <div className="relative flex items-center justify-center">
-                      <Cloud className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
-                        gdriveStatus === 'synced' ? 'text-emerald-500' : gdriveStatus === 'syncing' ? 'text-blue-500 animate-pulse' : 'text-amber-500'
-                      }`} />
-                      {gdriveStatus === 'synced' && (
-                        <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>
-                      )}
-                    </div>
-                    <span className="hidden min-[520px]:inline font-mono text-[10px] sm:text-xs font-bold">
-                      {gdriveStatus === 'synced' ? 'GDrive Ativo' : gdriveStatus === 'syncing' ? 'GDrive a Guardar...' : 'GDrive Erro'}
-                    </span>
-                    <ExternalLink className="w-3 h-3 opacity-60 hidden sm:inline" />
-                  </a>
-                </Tooltip>
-              )}
 
               <div className={`hidden min-[480px]:flex items-center gap-1 text-[10px] sm:text-xs font-medium border px-2 py-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0 ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-50 border-gray-100 text-gray-500'}`}>
                 <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />

@@ -1,0 +1,101 @@
+{
+  "entities": {
+    "Resident": {
+      "title": "Resident",
+      "description": "Information about a resident/utente in the care home.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "room": { "type": "string" },
+        "cognitiveLevel": { "type": "string" },
+        "physicalLevel": { "type": "string" },
+        "interests": {
+          "type": "array"
+        },
+        "observations": { "type": "string" },
+        "photo": { "type": "string" }
+      },
+      "required": ["id", "name"]
+    },
+    "ScheduledActivity": {
+      "title": "Scheduled Activity",
+      "description": "An activity scheduled on a specific date and time.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "activityId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "date": { "type": "string" },
+        "slot": { "type": "string" },
+        "time": { "type": "string" },
+        "completed": { "type": "boolean" }
+      },
+      "required": ["id", "title", "date"]
+    },
+    "ProgressLog": {
+      "title": "Progress Log",
+      "description": "Log of resident participation and performance in an activity.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "residentId": { "type": "string" },
+        "scheduledActivityId": { "type": "string" },
+        "date": { "type": "string" },
+        "activityTitle": { "type": "string" },
+        "category": { "type": "string" },
+        "participation": { "type": "string" },
+        "cognitiveScore": { "type": "number" },
+        "physicalScore": { "type": "number" },
+        "socialScore": { "type": "number" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "residentId", "date"]
+    },
+    "Reminder": {
+      "title": "Reminder",
+      "description": "Care home notification or reminder.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "type": { "type": "string" },
+        "date": { "type": "string" },
+        "completed": { "type": "boolean" }
+      },
+      "required": ["id", "text", "date"]
+    },
+    "AppGlobalData": {
+      "title": "App Global Data",
+      "description": "Contains overall application state and settings.",
+      "type": "object",
+      "properties": {
+        "updatedAt": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/residents/{residentId}": {
+      "schema": "Resident",
+      "description": "Collection of residents"
+    },
+    "/scheduledActivities/{activityId}": {
+      "schema": "ScheduledActivity",
+      "description": "Collection of scheduled activities"
+    },
+    "/progressLogs/{logId}": {
+      "schema": "ProgressLog",
+      "description": "Collection of progress logs"
+    },
+    "/reminders/{reminderId}": {
+      "schema": "Reminder",
+      "description": "Collection of reminders"
+    },
+    "/appData/{docId}": {
+      "schema": "AppGlobalData",
+      "description": "Global application state doc"
+    }
+  }
+}
